@@ -8,15 +8,9 @@ class Point:
         """
         Initializes an instance of a particle.
         """
-        self.x = x
-        self.y = y
-        self.z = z
-        self.px = x
-        self.py = y
-        self.pz = z
-        self.vx = 0
-        self.vy = 0
-        self.vz = 0
+        self.x, self.y, self.z = x, y, z
+        self.px, self.py, self.pz = x, y, z
+        self.vx, self.vy, self.vz = 0, 0, 0
         self.constraints = []
         self.pinned = False
 
@@ -32,9 +26,7 @@ class Point:
         """
         if self.pinned:
             return
-        self.vx += x
-        self.vy += y
-        self.vz += z
+        self.vx, self.vy, self.vz = self.vx + x, self.vy + y, self.vz + z
 
     def resolve_constraints(self):
         """
@@ -42,8 +34,8 @@ class Point:
         """
         for constraint in self.constraints:
             constraint.resolve()
-        boundsx = 800
-        boundsy = 800
+        boundsx = 600
+        boundsy = 600
         boundsz = 800
         if self.x >= boundsx:
             self.x = 2 * boundsx - self.x
@@ -63,9 +55,7 @@ class Point:
         Updates the point, takes in mouse input. Applies a gravitational force to it, this parameter can be tuned for varying results.
         """
         if mouse.down:
-            dx = self.x - mouse.x
-            dy = self.y - mouse.y
-            dz = self.z - mouse.z
+            dx, dy, dz = self.x - mouse.x, self.y - mouse.y, self.z - mouse.z
             dist = sqrt(dx ** 2 + dy ** 2)
 
             if mouse.button == 1:
@@ -84,17 +74,11 @@ class Point:
         ny = self.y + ((self.y - self.py)) * 0.99 + ((self.vy / 2.0) * delta)
         nz = self.z + ((self.vz / 2.0) * delta)
 
-        self.px = self.x
-        self.py = self.y
-        self.pz = self.z
+        self.px, self.py, self.pz = self.x, self.y, self.z
 
-        self.x = nx
-        self.y = ny
-        self.z = nz
+        self.x, self.y, self.z = nx, ny, nz
 
-        self.vx = 0
-        self.vy = 0
-        self.vz = 0
+        self.vx, self.vy, self.vz = 0, 0, 0
 
 class Constraint:
 
@@ -102,8 +86,7 @@ class Constraint:
         """
         Constraint between two points that attempts to maintain a fixed distance between points and tears if a threshold is passed.
         """
-        self.p1 = p1
-        self.p2 = p2
+        self.p1, self.p2 = p1, p2
         self.length = sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2 + (p1.z - p2.z) ** 2)
         self.tear_dist = tear_dist
 
@@ -238,12 +221,8 @@ class CircleCloth(Cloth):
         Tug on the grabbed area in a direction.
         """
         for pt in self.grabbed_pts:
-            pt.x += x
-            pt.y += y
-            pt.z += z
-            pt.px = pt.x
-            pt.py = pt.y
-            pt.pz = pt.z
+            pt.px, pt.py, pt.pz = pt.x, pt.y, pt.z
+            pt.x, pt.y, pt.z = x + pt.x, y + pt.y, z + pt.z
 
 """
 An implementation of a mouse class, that can be updated/modified to cut the cloth or disturb it. This can be used to interface with a physical or virtual mouse.
@@ -253,12 +232,8 @@ class Mouse:
     def __init__(self, x=0, y=0, z=0, height_limit=False):
         self.down = False
         self.button = 0
-        self.x = x
-        self.y = y
-        self.z = z
-        self.px = x
-        self.py = y
-        self.pz = z
+        self.x, self.y, self.z = x, y, z
+        self.px, self.py, self.pz = x, y, z
         self.cut = 10
         self.influence = 5
         if height_limit:
@@ -270,10 +245,8 @@ class Mouse:
         """
         Move mouse to a position on the canvas.
         """
-        self.px = self.x
-        self.py = self.y
-        self.x = x
-        self.y = y
+        self.px, self.py = self.x, self.y
+        self.x, self.y = x, y
 
 def write_to_file(cloth, filename):
     """
