@@ -6,6 +6,9 @@ import pickle
 class Point:
 
     def __init__(self, x=0, y=0, z=0):
+        """
+        Initializes an instance of a particle.
+        """
         self.x = x
         self.y = y
         self.z = z
@@ -19,9 +22,15 @@ class Point:
         self.pinned = False
 
     def add_constraint(self, pt):
+        """
+        Adds a constraint between this point and another point.
+        """
         self.constraints.append(Constraint(self, pt))
 
     def add_force(self, x, y, z=0):
+        """
+        Applies a force to itself.
+        """
         if self.pinned:
             return
         self.vx += x
@@ -29,6 +38,9 @@ class Point:
         self.vz += z
 
     def resolve_constraints(self):
+        """
+        Resolves all constraints pertaining to this point, and simulates bouncing off the walls if the point tries to go out of bounds.
+        """
         for constraint in self.constraints:
             constraint.resolve()
         boundsx = 800
@@ -48,6 +60,9 @@ class Point:
             self.z = -2 * boundsz - self.z
 
     def update(self, delta, mouse):
+        """
+        Updates the point, takes in mouse input. Applies a gravitational force to it, this parameter can be tuned for varying results.
+        """
         if mouse.down:
             dx = self.x - mouse.x
             dy = self.y - mouse.y
@@ -58,12 +73,11 @@ class Point:
                 if dist < mouse.influence:
                     self.px = self.x - (mouse.x - mouse.px) * 1.8
                     self.py = self.y - (mouse.y - mouse.py) * 1.8
-            elif dist < mouse.cut and (not mouse.height_limit or abs(dz) < mouse.height_limit):
-                print dz
+            elif dist < mouse.cut and abs(dz) < mouse.height_limit:
                 self.constraints = []
 
         # gravity parameter, increase magnitude to increase gravity
-        gravity = -7000
+        gravity = -1000
         self.add_force(0, 0, gravity)
         delta *= delta
 
@@ -86,12 +100,18 @@ class Point:
 class Constraint:
 
     def __init__(self, p1=None, p2=None, tear_dist=100):
+        """
+        Constraint between two points that attempts to maintain a fixed distance between points and tears if a threshold is passed.
+        """
         self.p1 = p1
         self.p2 = p2
         self.length = sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2 + (p1.z - p2.z) ** 2)
         self.tear_dist = tear_dist
 
     def resolve(self):
+        """
+        Updates the points in the constraint based on how much the constraint has been violated. Elasticity is a paramter that can be tuned that affects the response of a constraint.
+        """
         dx = self.p1.x - self.p2.x
         dy = self.p1.y - self.p2.y
         dz = self.p1.z - self.p2.z
@@ -102,7 +122,7 @@ class Constraint:
             self.p1.constraints.remove(self)
 
         # Elasticity, usually pick something between 0.01 and 1.5
-        elasticity = 1.2
+        elasticity = 1
 
         px = dx * diff * 0.5 * elasticity
         py = dy * diff * 0.5 * elasticity
@@ -121,6 +141,9 @@ class Constraint:
 class Cloth:
 
     def __init__(self, width, height, dx, dy):
+        """
+        Creates a cloth with width x height points spaced dx and dy apart. The top and bottom row of points are pinned in place.
+        """
         self.pts = []
         for i in range(height):
             for j in range(width):
@@ -135,6 +158,9 @@ class Cloth:
                 self.pts.append(pt)
 
     def update(self):
+        """
+        Updates all the points in the cloth based on existing constraints. If a point exists with no constraints, remove it from the cloth.
+        """
         # Setting this to 5 is pretty decent, probably don't need to increase it
         physics_accuracy = 5
         for i in range(physics_accuracy):
@@ -149,6 +175,9 @@ class Cloth:
 class CircleCloth(Cloth):
 
     def __init__(self, width, height, dx, dy, centerx, centery, radius):
+        """
+        A cloth on which a circle can be drawn. It can also be grabbed and tensioned at specific coordinates.
+        """
         self.pts = []
         self.circlepts = []
         self.normalpts = []
@@ -170,6 +199,9 @@ class CircleCloth(Cloth):
                 self.pts.append(pt)
 
     def update(self):
+        """
+        Update function updates the state of the cloth after a time step.
+        """
         physics_accuracy = 5
         for i in range(physics_accuracy):
             for pt in self.pts:
@@ -185,20 +217,27 @@ class CircleCloth(Cloth):
                     self.normalpts.remove(pt)
 
     def pin_position(self, x, y):
+        """
+        Grab a position on the cloth and pin it in place.
+        """
         count = 0
         for pt in self.pts:
             if abs((pt.x - x) ** 2 + (pt.y - y) ** 2) < 1000:
-                count += 1
                 pt.pinned = True
                 self.grabbed_pts.append(pt)
-        print count
 
     def unpin_position(self, x, y):
+        """
+        Let go of a grabbed position.
+        """
         if abs((pt.x - x) ** 2 + (pt.y - y) ** 2) < 1000:
             pt.pinned = False
             self.grabbed_pts.remove(pt)
 
     def tension(self, x, y, z=0):
+        """
+        Tug on the grabbed area in a direction.
+        """
         for pt in self.grabbed_pts:
             pt.x += x
             pt.y += y
@@ -206,8 +245,10 @@ class CircleCloth(Cloth):
             pt.px = pt.x
             pt.py = pt.y
             pt.pz = pt.z
-        print [(pt.x, pt.y, pt.pinned) for pt in self.grabbed_pts]
 
+"""
+An implementation of a mouse class, that can be updated/modified to cut the cloth or disturb it. This can be used to interface with a physical or virtual mouse.
+"""
 class Mouse:
 
     def __init__(self, x=0, y=0, z=0, height_limit=False):
@@ -221,18 +262,32 @@ class Mouse:
         self.pz = z
         self.cut = 10
         self.influence = 5
-        self.height_limit=height_limit
+        if height_limit:
+            self.height_limit = height_limit
+        else:
+            self.height_limit = float('inf')
 
     def move(self, x, y):
+        """
+        Move mouse to a position on the canvas.
+        """
         self.px = self.x
         self.py = self.y
         self.x = x
         self.y = y
 
+def write_to_file(cloth, filename):
+    """
+    Write cloth's state to file.
+    """
+    f = open(filename, "w+")
+    pickle.dump(cloth, f)
+    f.close()
+
 
 if __name__ == "__main__":
 
-    mouse = Mouse(0, 300, 0, 100)
+    mouse = Mouse(0, 300, 0)
     mouse.down = True
     mouse.button = 0
 
@@ -240,14 +295,22 @@ if __name__ == "__main__":
     circley = 300
     radius = 150
 
-    c = CircleCloth(100, 100, 5,5, circlex, circley, radius)
-    c.update()
+    c = CircleCloth(50, 50, 10, 10, circlex, circley, radius)
 
+
+
+    # Let the cloth reach equilibrium"
+    for i in range(1000):
+        c.update()
+        print i
+
+    # Simulate grabbing the gauze
     c.pin_position(circlex, circley)
 
     plt.ion()
 
     for i in range(400):
+        print i
         plt.clf()
         pts = np.array([[p.x, p.y] for p in c.normalpts])
         cpts = np.array([[p.x, p.y] for p in c.circlepts])
@@ -258,6 +321,10 @@ if __name__ == "__main__":
         ax.set_axis_bgcolor('white')
         plt.pause(0.01)
         c.update()
+
+        # Extra updates to allow cloth to respond to environment.
+        for j in range(5):
+            c.update()
 
 
         # simulate moving the mouse in a circle while cutting, overcut since no perception
