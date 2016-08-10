@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from math import sqrt
+import sys
 
 class Point:
 
@@ -274,7 +275,12 @@ class Mouse:
         self.py = self.y
         self.x = x
         self.y = y
-
+    def clicked(self,event):
+        self.down=True
+    def released(self,event):
+        self.down=False
+    def moved(self,event):
+        self.x,self.y= event.xdata,event.ydata
 def write_to_file(cloth, filename):
     """
     Write cloth's state to file.
@@ -285,7 +291,11 @@ def write_to_file(cloth, filename):
 
 
 if __name__ == "__main__":
-
+    if len(sys.argv) >= 1 and sys.argv[1] == "auto":
+        print "auto cutting"
+        auto = True
+    else:
+        auto = False
     mouse = Mouse(0, 300, 0)
     mouse.down = True
     mouse.button = 0
@@ -299,7 +309,7 @@ if __name__ == "__main__":
 
 
     # Let the cloth reach equilibrium"
-    for i in range(1000):
+    for i in range(200):
         c.update()
         print i
 
@@ -307,7 +317,13 @@ if __name__ == "__main__":
     c.pin_position(circlex, circley)
 
     plt.ion()
-
+    if not auto:
+        fig = plt.figure()
+        plot = fig.add_subplot(111)
+        plot.set_title('manual')
+        cid=fig.canvas.mpl_connect('button_press_event', mouse.clicked)
+        rid=fig.canvas.mpl_connect('button_release_event', mouse.released)
+        mid=fig.canvas.mpl_connect('motion_notify_event', mouse.moved)
     for i in range(400):
         print i
         plt.clf()
@@ -320,19 +336,18 @@ if __name__ == "__main__":
         ax.set_axis_bgcolor('white')
         plt.pause(0.01)
         c.update()
-
         # Extra updates to allow cloth to respond to environment.
         for j in range(5):
             c.update()
-
-
         # simulate moving the mouse in a circle while cutting, overcut since no perception
-        if i < 150:
-            theta = 360.0/100.0 * i * np.pi / 180.0
-            x = radius * np.cos(theta)
-            y = radius * np.sin(theta)
+        
+        if auto:
+            if i < 150:
+                theta = 360.0/100.0 * i * np.pi / 180.0
+                x = radius * np.cos(theta)
+                y = radius * np.sin(theta)
 
-            mouse.move(x + circlex, y + circley)
+                mouse.move(x + circlex, y + circley)
 
         # Still testing this stuff
         # if i < 20:
@@ -340,4 +355,8 @@ if __name__ == "__main__":
         # if i >= 50 and i < 60:
 
         #     c.tension(-1, 1, 1)
+
+    fig.canvas.mpl_disconnect(cid)
+    fig.canvas.mpl_disconnect(mid)
+    fig.canvas.mpl_disconnect(rid)
 
