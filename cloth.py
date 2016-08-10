@@ -80,9 +80,7 @@ class Point:
         nz = self.z + ((self.vz / 2.0) * delta)
 
         self.px, self.py, self.pz = self.x, self.y, self.z
-
         self.x, self.y, self.z = nx, ny, nz
-
         self.vx, self.vy, self.vz = 0, 0, 0
 
 """
@@ -102,9 +100,7 @@ class Constraint:
         """
         Updates the points in the constraint based on how much the constraint has been violated. Elasticity is a paramter that can be tuned that affects the response of a constraint.
         """
-        dx = self.p1.x - self.p2.x
-        dy = self.p1.y - self.p2.y
-        dz = self.p1.z - self.p2.z
+        dx, dy, dz = self.p1.x - self.p2.x, self.p1.y - self.p2.y, self.p1.z - self.p2.z
         dist = sqrt(dx ** 2 + dy ** 2 + dz ** 2)
         diff = (self.length - dist) / float(dist)
 
@@ -114,19 +110,13 @@ class Constraint:
         # Elasticity, usually pick something between 0.01 and 1.5
         elasticity = 1
 
-        px = dx * diff * 0.5 * elasticity
-        py = dy * diff * 0.5 * elasticity
-        pz = dz * diff * 0.5 * elasticity
+        px, py, pz = [delta * diff * 0.5 * elasticity for delta in (dx, dy, dz)]
 
         if not self.p1.pinned:
-            self.p1.x += px
-            self.p1.y += py
-            self.p1.z += pz
+            self.p1.x, self.p1.y, self.p1.z = self.p1.x + px, self.p1.y + py, self.p1.z + pz
 
         if not self.p2.pinned:
-            self.p2.x -= px
-            self.p2.y -= py
-            self.p2.z -= pz
+            self.p2.x, self.p2.y, self.p2.z = self.p2.x - px, self.p2.y - py, self.p2.z - pz
 
 """
 A cloth class, which consists of a collection of points and their corresponding constraints.
@@ -213,7 +203,6 @@ class CircleCloth(Cloth):
         """
         Grab a position on the cloth and pin it in place.
         """
-        count = 0
         for pt in self.pts:
             if abs((pt.x - x) ** 2 + (pt.y - y) ** 2) < 1000:
                 pt.pinned = True
