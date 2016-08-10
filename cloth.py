@@ -4,7 +4,9 @@ from math import sqrt
 import sys
 import pickle
 
-
+"""
+A class that simulates a point mass. A cloth is made up of a collection of these interacting with each other.
+"""
 class Point:
 
     def __init__(self, x=0, y=0, z=0):
@@ -83,6 +85,9 @@ class Point:
 
         self.vx, self.vy, self.vz = 0, 0, 0
 
+"""
+A class to represent interactions between Points.
+"""
 class Constraint:
 
     def __init__(self, p1=None, p2=None, tear_dist=100):
@@ -123,6 +128,9 @@ class Constraint:
             self.p2.y -= py
             self.p2.z -= pz
 
+"""
+A cloth class, which consists of a collection of points and their corresponding constraints.
+"""
 class Cloth:
 
     def __init__(self, width, height, dx, dy):
@@ -253,12 +261,24 @@ class Mouse:
         self.py = self.y
         self.x = x
         self.y = y
+
     def clicked(self,event):
-        self.down=True
+        """
+        Handles click events of the mouse.
+        """
+        self.down = True
+
     def released(self,event):
-        self.down=False
+        """
+        Handles mouse release events.
+        """
+        self.down = False
+
     def moved(self,event):
-        self.x,self.y= event.xdata,event.ydata
+        """
+        Handles mouse move events.
+        """
+        self.x, self.y = event.xdata,event.ydata
 
 def write_to_file(cloth, filename):
     """
@@ -270,11 +290,13 @@ def write_to_file(cloth, filename):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) >= 1 and sys.argv[1] == "auto":
-        print "auto cutting"
-        auto = True
-    else:
+    if len(sys.argv) > 1 and sys.argv[1] == "manual":
+        print "manual cutting"
         auto = False
+    else:
+        print "automated cuttings"
+        auto = True
+
     mouse = Mouse(0, 300, 0)
     mouse.down = True
     mouse.button = 0
@@ -318,24 +340,15 @@ if __name__ == "__main__":
         # Extra updates to allow cloth to respond to environment.
         for j in range(5):
             c.update()
+
         # simulate moving the mouse in a circle while cutting, overcut since no perception
-        
         if auto:
             if i < 150:
                 theta = 360.0/100.0 * i * np.pi / 180.0
                 x = radius * np.cos(theta)
                 y = radius * np.sin(theta)
-
                 mouse.move(x + circlex, y + circley)
-
-        # Still testing this stuff
-        # if i < 20:
-        #     c.tension(0, 0, 2)
-        # if i >= 50 and i < 60:
-
-        #     c.tension(-1, 1, 1)
 
     fig.canvas.mpl_disconnect(cid)
     fig.canvas.mpl_disconnect(mid)
     fig.canvas.mpl_disconnect(rid)
-
