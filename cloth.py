@@ -73,7 +73,6 @@ class Point:
                     self.px = self.x - (mouse.x - mouse.px) * 1.8
                     self.py = self.y - (mouse.y - mouse.py) * 1.8
             elif dist < mouse.cut and abs(dz) < mouse.height_limit:
-                print dz
                 self.constraints = []
 
         # gravity parameter, increase magnitude to increase gravity
@@ -287,7 +286,7 @@ def write_to_file(cloth, filename):
 
 if __name__ == "__main__":
 
-    mouse = Mouse(0, 300, 0, 1000)
+    mouse = Mouse(0, 300, 0)
     mouse.down = True
     mouse.button = 0
 
@@ -297,18 +296,20 @@ if __name__ == "__main__":
 
     c = CircleCloth(50, 50, 10, 10, circlex, circley, radius)
 
-    # Simulate grabbing the gauze
-    c.pin_position(circlex, circley)
+
 
     # Let the cloth reach equilibrium"
     for i in range(1000):
         c.update()
         print i
 
+    # Simulate grabbing the gauze
+    c.pin_position(circlex, circley)
+
     plt.ion()
 
     for i in range(400):
-
+        print i
         plt.clf()
         pts = np.array([[p.x, p.y] for p in c.normalpts])
         cpts = np.array([[p.x, p.y] for p in c.circlepts])
