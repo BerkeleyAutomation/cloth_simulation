@@ -126,7 +126,7 @@ A cloth class, which consists of a collection of points and their corresponding 
 """
 class Cloth(object):
 
-    def __init__(self, mouse, width, height, dx, dy):
+    def __init__(self, mouse, width=50, height=50, dx=10, dy=10):
         """
         Creates a cloth with width x height points spaced dx and dy apart. The top and bottom row of points are pinned in place.
         """
@@ -163,7 +163,7 @@ A subclass of cloth, on which a circle pattern is drawn. It also can be grabbed 
 """
 class CircleCloth(Cloth):
 
-    def __init__(self, mouse, width, height, dx, dy, centerx, centery, radius):
+    def __init__(self, mouse, width=50, height=50, dx=50, dy=50, centerx=300, centery=300, radius=150):
         """
         A cloth on which a circle can be drawn. It can also be grabbed and tensioned at specific coordinates.
         """
@@ -301,7 +301,7 @@ if __name__ == "__main__":
         print "Automated cutting"
         auto = True
 
-    mouse = Mouse(0, 300, 0)
+    mouse = Mouse()
     mouse.down = True
     mouse.button = 0
 
@@ -309,7 +309,7 @@ if __name__ == "__main__":
     circley = 300
     radius = 150
 
-    c = CircleCloth(mouse, 50, 50, 10, 10, circlex, circley, radius)
+    c = CircleCloth(mouse)
 
     # Let the cloth reach equilibrium"
     for i in range(200):
