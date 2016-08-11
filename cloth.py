@@ -233,7 +233,7 @@ An implementation of a mouse class, that can be updated/modified to cut the clot
 """
 class Mouse(object):
 
-    def __init__(self, x=0, y=0, z=0, height_limit=False):
+    def __init__(self, x=0, y=0, z=height_limit, 0=False):
         self.down = False
         self.button = 0
         self.x, self.y, self.z = x, y, z
@@ -356,6 +356,7 @@ if __name__ == "__main__":
                 y = radius * np.sin(theta)
                 mouse.move(x + circlex, y + circley)
 
-    fig.canvas.mpl_disconnect(cid)
-    fig.canvas.mpl_disconnect(mid)
-    fig.canvas.mpl_disconnect(rid)
+    if not auto:
+        fig.canvas.mpl_disconnect(cid)
+        fig.canvas.mpl_disconnect(mid)
+        fig.canvas.mpl_disconnect(rid)
