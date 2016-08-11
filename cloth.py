@@ -10,7 +10,7 @@ This file contains classes and functions used to simulate the basic physics of a
 """
 A class that simulates a point mass. A cloth is made up of a collection of these interacting with each other.
 """
-class Point:
+class Point(object):
 
     def __init__(self, x=0, y=0, z=0):
         """
@@ -88,7 +88,7 @@ class Point:
 """
 A class to represent interactions between Points.
 """
-class Constraint:
+class Constraint(object):
 
     def __init__(self, p1=None, p2=None, tear_dist=100):
         """
@@ -123,7 +123,7 @@ class Constraint:
 """
 A cloth class, which consists of a collection of points and their corresponding constraints.
 """
-class Cloth:
+class Cloth(object):
 
     def __init__(self, width, height, dx, dy):
         """
@@ -231,7 +231,7 @@ class CircleCloth(Cloth):
 """
 An implementation of a mouse class, that can be updated/modified to cut the cloth or disturb it. This can be used to interface with a physical or virtual mouse.
 """
-class Mouse:
+class Mouse(object):
 
     def __init__(self, x=0, y=0, z=0, height_limit=False):
         self.down = False
@@ -269,6 +269,8 @@ class Mouse:
         Handles mouse move events.
         """
         self.move(event.xdata, event.ydata)
+
+### UTILITY FUNCTIONs ###
 
 def write_to_file(cloth, filename):
     """
