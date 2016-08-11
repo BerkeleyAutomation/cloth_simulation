@@ -301,7 +301,7 @@ if __name__ == "__main__":
         print "Automated cutting"
         auto = True
 
-    mouse = Mouse(0, 300, 0)
+    mouse = Mouse()
     mouse.down = True
     mouse.button = 0
 
