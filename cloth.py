@@ -305,9 +305,8 @@ if __name__ == "__main__":
     circlex = 300
     circley = 300
     radius = 150
+    
     c = CircleCloth(50, 50, 10, 10, circlex, circley, radius)
-
-
 
     # Let the cloth reach equilibrium"
     for i in range(200):
@@ -319,6 +318,7 @@ if __name__ == "__main__":
     c.pin_position(circlex, circley)
 
     plt.ion()
+
     if not auto:
         fig = plt.figure()
         plot = fig.add_subplot(111)
@@ -326,6 +326,7 @@ if __name__ == "__main__":
         cid=fig.canvas.mpl_connect('button_press_event', mouse.clicked)
         rid=fig.canvas.mpl_connect('button_release_event', mouse.released)
         mid=fig.canvas.mpl_connect('motion_notify_event', mouse.moved)
+    
     for i in range(400):
         
         if i % 10 == 0:
@@ -346,7 +347,6 @@ if __name__ == "__main__":
         for j in range(5):
             c.update()
 
-
         # simulate moving the mouse in a circle while cutting, overcut since no perception
 
         if auto:
@@ -355,7 +355,6 @@ if __name__ == "__main__":
                 x = radius * np.cos(theta)
                 y = radius * np.sin(theta)
                 mouse.move(x + circlex, y + circley)
-
 
     fig.canvas.mpl_disconnect(cid)
     fig.canvas.mpl_disconnect(mid)
