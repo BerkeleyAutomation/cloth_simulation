@@ -4,6 +4,10 @@ from math import sqrt
 import sys, pickle
 
 """
+This file contains classes and functions used to simulate the basic physics of a simplified 3D cloth model.
+"""
+
+"""
 A class that simulates a point mass. A cloth is made up of a collection of these interacting with each other.
 """
 class Point:
@@ -273,19 +277,23 @@ def write_to_file(cloth, filename):
     f = open(filename, "w+")
     pickle.dump(cloth, f)
     f.close()
+
 def load_from_file(filename):
+    """
+    Load a past state from file.
+    """
     f=open(filename,'rb')
     try:
         return pickle.load(f)
     except EOFError:
-        print 'nothing written to file'
+        print 'Nothing written to file.'
 
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "manual":
-        print "manual cutting"
+        print "Manual cutting"
         auto = False
     else:
-        print "automated cutting"
+        print "Automated cutting"
         auto = True
 
     mouse = Mouse(0, 300, 0)
