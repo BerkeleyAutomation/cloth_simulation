@@ -1,8 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from math import sqrt
-import sys
-import pickle
+import sys, pickle
 
 """
 A class that simulates a point mass. A cloth is made up of a collection of these interacting with each other.
@@ -29,9 +28,8 @@ class Point:
         """
         Applies a force to itself.
         """
-        if self.pinned:
-            return
-        self.vx, self.vy, self.vz = self.vx + x, self.vy + y, self.vz + z
+        if not self.pinned:
+            self.vx, self.vy, self.vz = self.vx + x, self.vy + y, self.vz + z
 
     def resolve_constraints(self):
         """
@@ -154,7 +152,9 @@ class Cloth:
         for pt in self.pts:
             if pt.constraints == []:
                 self.pts.remove(pt)
-
+"""
+A subclass of cloth, on which a circle pattern is drawn. It also can be grabbed and tensioned.
+"""
 class CircleCloth(Cloth):
 
     def __init__(self, width, height, dx, dy, centerx, centery, radius):
@@ -245,29 +245,26 @@ class Mouse:
         """
         Move mouse to a position on the canvas.
         """
+        self.px, self.py = self.x, self.y
+        self.x, self.y = x, y
 
-        self.px = self.x
-        self.py = self.y
-        self.x = x
-        self.y = y
-
-    def clicked(self,event):
+    def clicked(self, event):
         """
         Handles click events of the mouse.
         """
         self.down = True
 
-    def released(self,event):
+    def released(self, event):
         """
         Handles mouse release events.
         """
         self.down = False
 
-    def moved(self,event):
+    def moved(self, event):
         """
         Handles mouse move events.
         """
-        self.x, self.y = event.xdata,event.ydata
+        self.move(event.xdata, event.ydata)
 
 def write_to_file(cloth, filename):
     """
@@ -283,7 +280,7 @@ if __name__ == "__main__":
         print "manual cutting"
         auto = False
     else:
-        print "automated cuttings"
+        print "automated cutting"
         auto = True
 
     mouse = Mouse(0, 300, 0)
@@ -301,7 +298,8 @@ if __name__ == "__main__":
     # Let the cloth reach equilibrium"
     for i in range(200):
         c.update()
-        print i
+        if i % 10 == 0:
+            print "Iteration", i
 
     # Simulate grabbing the gauze
     c.pin_position(circlex, circley)
@@ -315,7 +313,10 @@ if __name__ == "__main__":
         rid=fig.canvas.mpl_connect('button_release_event', mouse.released)
         mid=fig.canvas.mpl_connect('motion_notify_event', mouse.moved)
     for i in range(400):
-        print i
+        
+        if i % 10 == 0:
+            print "Iteration", i
+
         plt.clf()
         pts = np.array([[p.x, p.y] for p in c.normalpts])
         cpts = np.array([[p.x, p.y] for p in c.circlepts])
@@ -326,6 +327,7 @@ if __name__ == "__main__":
         ax.set_axis_bgcolor('white')
         plt.pause(0.01)
         c.update()
+        
         # Extra updates to allow cloth to respond to environment.
         for j in range(5):
             c.update()
