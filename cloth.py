@@ -12,10 +12,11 @@ A class that simulates a point mass. A cloth is made up of a collection of these
 """
 class Point(object):
 
-    def __init__(self, x=0, y=0, z=0):
+    def __init__(self, mouse, x=0, y=0, z=0):
         """
         Initializes an instance of a particle.
         """
+        self.mouse = mouse
         self.x, self.y, self.z = x, y, z
         self.px, self.py, self.pz = x, y, z
         self.vx, self.vy, self.vz = 0, 0, 0
@@ -57,19 +58,19 @@ class Point(object):
         elif self.z <= -boundsz:
             self.z = -2 * boundsz - self.z
 
-    def update(self, delta, mouse):
+    def update(self, delta):
         """
         Updates the point, takes in mouse input. Applies a gravitational force to it, this parameter can be tuned for varying results.
         """
-        if mouse.down:
-            dx, dy, dz = self.x - mouse.x, self.y - mouse.y, self.z - mouse.z
+        if self.mouse.down:
+            dx, dy, dz = self.x - self.mouse.x, self.y - self.mouse.y, self.z - self.mouse.z
             dist = sqrt(dx ** 2 + dy ** 2)
 
-            if mouse.button == 1:
-                if dist < mouse.influence:
-                    self.px = self.x - (mouse.x - mouse.px) * 1.8
-                    self.py = self.y - (mouse.y - mouse.py) * 1.8
-            elif dist < mouse.cut and abs(dz) < mouse.height_limit:
+            if self.mouse.button == 1:
+                if dist < self.mouse.influence:
+                    self.px = self.x - (self.mouse.x - self.mouse.px) * 1.8
+                    self.py = self.y - (self.mouse.y - self.mouse.py) * 1.8
+            elif dist < self.mouse.cut and abs(dz) < self.mouse.height_limit:
                 self.constraints = []
 
         # gravity parameter, increase magnitude to increase gravity
@@ -125,14 +126,15 @@ A cloth class, which consists of a collection of points and their corresponding 
 """
 class Cloth(object):
 
-    def __init__(self, width, height, dx, dy):
+    def __init__(self, mouse, width, height, dx, dy):
         """
         Creates a cloth with width x height points spaced dx and dy apart. The top and bottom row of points are pinned in place.
         """
+        self.mouse = mouse
         self.pts = []
         for i in range(height):
             for j in range(width):
-                pt = Point(50 + dx * j, 50 + dy * i)
+                pt = Point(mouse, 50 + dx * j, 50 + dy * i)
                 if i > 0:
                     pt.add_constraint(self.pts[width * (i - 1) + j])
                 if j > 0:
@@ -152,7 +154,7 @@ class Cloth(object):
             for pt in self.pts:
                 pt.resolve_constraints()
         for pt in self.pts:
-            pt.update(0.016, mouse)
+            pt.update(0.016)
         for pt in self.pts:
             if pt.constraints == []:
                 self.pts.remove(pt)
@@ -161,7 +163,7 @@ A subclass of cloth, on which a circle pattern is drawn. It also can be grabbed 
 """
 class CircleCloth(Cloth):
 
-    def __init__(self, width, height, dx, dy, centerx, centery, radius):
+    def __init__(self, mouse, width, height, dx, dy, centerx, centery, radius):
         """
         A cloth on which a circle can be drawn. It can also be grabbed and tensioned at specific coordinates.
         """
@@ -169,9 +171,10 @@ class CircleCloth(Cloth):
         self.circlepts = []
         self.normalpts = []
         self.grabbed_pts = []
+        self.mouse = mouse
         for i in range(height):
             for j in range(width):
-                pt = Point(50 + dx * j, 50 + dy * i)
+                pt = Point(mouse, 50 + dx * j, 50 + dy * i)
                 if i > 0:
                     pt.add_constraint(self.pts[width * (i - 1) + j])
                 if j > 0:
@@ -194,7 +197,7 @@ class CircleCloth(Cloth):
             for pt in self.pts:
                 pt.resolve_constraints()
         for pt in self.pts:
-            pt.update(0.016, mouse)
+            pt.update(0.016)
         for pt in self.pts:
             if pt.constraints == []:
                 self.pts.remove(pt)
@@ -233,7 +236,7 @@ An implementation of a mouse class, that can be updated/modified to cut the clot
 """
 class Mouse(object):
 
-    def __init__(self, x=0, y=0, z=height_limit, 0=False):
+    def __init__(self, x=0, y=0, z=0, height_limit=False):
         self.down = False
         self.button = 0
         self.x, self.y, self.z = x, y, z
@@ -306,7 +309,7 @@ if __name__ == "__main__":
     circley = 300
     radius = 150
 
-    c = CircleCloth(50, 50, 10, 10, circlex, circley, radius)
+    c = CircleCloth(mouse, 50, 50, 10, 10, circlex, circley, radius)
 
     # Let the cloth reach equilibrium"
     for i in range(200):
