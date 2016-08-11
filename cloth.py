@@ -305,7 +305,7 @@ if __name__ == "__main__":
     circlex = 300
     circley = 300
     radius = 150
-    
+
     c = CircleCloth(50, 50, 10, 10, circlex, circley, radius)
 
     # Let the cloth reach equilibrium"
@@ -328,15 +328,15 @@ if __name__ == "__main__":
         mid=fig.canvas.mpl_connect('motion_notify_event', mouse.moved)
     
     for i in range(400):
-        
         if i % 10 == 0:
             print "Iteration", i
-
         plt.clf()
         pts = np.array([[p.x, p.y] for p in c.normalpts])
         cpts = np.array([[p.x, p.y] for p in c.circlepts])
-        plt.scatter(pts[:,0], pts[:,1], c='w')
-        plt.scatter(cpts[:,0], cpts[:,1], c='b')
+        if len(pts) > 0:
+            plt.scatter(pts[:,0], pts[:,1], c='w')
+        if len(cpts) > 0:
+            plt.scatter(cpts[:,0], cpts[:,1], c='b')
         ax = plt.gca()
         plt.axis([0, 600, 0, 600])
         ax.set_axis_bgcolor('white')
