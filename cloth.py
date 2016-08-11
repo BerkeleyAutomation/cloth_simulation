@@ -163,7 +163,7 @@ A subclass of cloth, on which a circle pattern is drawn. It also can be grabbed 
 """
 class CircleCloth(Cloth):
 
-    def __init__(self, mouse, width=50, height=50, dx=50, dy=50, centerx=300, centery=300, radius=150):
+    def __init__(self, mouse, width=50, height=50, dx=10, dy=10, centerx=300, centery=300, radius=150):
         """
         A cloth on which a circle can be drawn. It can also be grabbed and tensioned at specific coordinates.
         """
@@ -301,7 +301,7 @@ if __name__ == "__main__":
         print "Automated cutting"
         auto = True
 
-    mouse = Mouse()
+    mouse = Mouse(0, 300, 0)
     mouse.down = True
     mouse.button = 0
 
