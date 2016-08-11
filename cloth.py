@@ -273,7 +273,12 @@ def write_to_file(cloth, filename):
     f = open(filename, "w+")
     pickle.dump(cloth, f)
     f.close()
-
+def load_from_file(filename):
+    f=open(filename,'rb')
+    try:
+        return pickle.load(f)
+    except EOFError:
+        print 'nothing written to file'
 
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "manual":
@@ -290,7 +295,6 @@ if __name__ == "__main__":
     circlex = 300
     circley = 300
     radius = 150
-
     c = CircleCloth(50, 50, 10, 10, circlex, circley, radius)
 
 
@@ -332,13 +336,16 @@ if __name__ == "__main__":
         for j in range(5):
             c.update()
 
+
         # simulate moving the mouse in a circle while cutting, overcut since no perception
+
         if auto:
             if i < 150:
                 theta = 360.0/100.0 * i * np.pi / 180.0
                 x = radius * np.cos(theta)
                 y = radius * np.sin(theta)
                 mouse.move(x + circlex, y + circley)
+
 
     fig.canvas.mpl_disconnect(cid)
     fig.canvas.mpl_disconnect(mid)
