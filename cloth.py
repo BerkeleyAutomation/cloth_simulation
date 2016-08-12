@@ -7,7 +7,7 @@ A cloth class, which consists of a collection of points and their corresponding 
 """
 class Cloth(object):
 
-    def __init__(self, mouse, width=50, height=50, dx=10, dy=10, gravity=-1000.0, elasticity=1.0):
+    def __init__(self, mouse, width=50, height=50, dx=10, dy=10, gravity=-1000.0, elasticity=1.0, pin_cond=default_pin_condition):
         """
         Creates a cloth with width x height points spaced dx and dy apart. The top and bottom row of points are pinned in place.
         """
@@ -22,7 +22,7 @@ class Cloth(object):
                 if j > 0:
                     pass
                     pt.add_constraint(self.pts[-1])
-                if i == height - 1 or i == 0:
+                if pin_cond(j, i, height, width):
                     pt.pinned = True
                 self.pts.append(pt)
 
@@ -58,3 +58,6 @@ class Cloth(object):
             if tensioner.x == x and tensioner.y == y:
                 self.tensioners.remove(tensioner)
                 tensioner.unpin_position()
+
+def default_pin_condition(x, y, height, width):
+    return y == height - 1 or y == 0
