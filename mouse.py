@@ -3,9 +3,9 @@ An implementation of a mouse class, that can be updated/modified to cut the clot
 """
 class Mouse(object):
 
-    def __init__(self, x=0, y=0, z=0, height_limit=False):
-        self.down = False
-        self.button = 0
+    def __init__(self, x=0, y=0, z=0, height_limit=False, down=False, button=0):
+        self.down = down
+        self.button = button
         self.x, self.y, self.z = x, y, z
         self.px, self.py, self.pz = x, y, z
         self.cut = 10

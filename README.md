@@ -32,8 +32,15 @@ Contains a main method that can be run out of the box to view a demo of the code
 
 #### To run:
 
-To run an trial that cuts a predefined trajectory on a cloth object, run "python demo.py" in the terminal from within the directory containing the scripts.
+To run an trial that cuts a predefined trajectory on a Cloth object, run "python demo.py" in the terminal from within the directory containing the scripts.
 To run a trial that takes in the physical mouse's location on the canvas as the location of the scissors, run "python demo.py manual" in the terminal from within the directory containing the scripts.
+
+### simulation.py
+Contains a simulation object class that can be used for running simulations with different cloth objects. See the main method for example usage.
+
+#### To run:
+
+To run a trial that cuts a predefined trajectory on a CircleCloth object, run "python simulation.py" in the terminal from within the directory containing the scripts.
 
 ### Dependencies
 
