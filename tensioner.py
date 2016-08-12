@@ -6,12 +6,12 @@ A Tensioner grabs a circular region of cloth and fixes it in place. It can then 
 
 class Tensioner(object):
 
-	def __init__(self, x, y, cloth):
-		self.x, self.y = x, y
-		self.cloth = cloth
-		self.grabbed_pts = []
-		cloth.add_tensioner(self)
-		self.pin_position(x, y)
+    def __init__(self, x, y, cloth):
+        self.x, self.y = x, y
+        self.cloth = cloth
+        self.grabbed_pts = []
+        cloth.add_tensioner(self)
+        self.pin_position(x, y)
 
     def pin_position(self, x, y):
         """
@@ -27,7 +27,7 @@ class Tensioner(object):
         Let go of a grabbed position.
         """
         for pt in self.grabbed_pts:
-        	pt.pinned = False
+            pt.pinned = False
         self.grabbed_pts = []
         self.cloth.remove(self)
 
