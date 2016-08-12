@@ -6,13 +6,14 @@ A class to represent interactions between Points.
 """
 class Constraint(object):
 
-    def __init__(self, p1=None, p2=None, tear_dist=100):
+    def __init__(self, p1=None, p2=None, tear_dist=100, elasticity=1.0):
         """
         Constraint between two points that attempts to maintain a fixed distance between points and tears if a threshold is passed.
         """
         self.p1, self.p2 = p1, p2
         self.length = sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2 + (p1.z - p2.z) ** 2)
         self.tear_dist = tear_dist
+        self.elasticity = elasticity
 
     def resolve(self):
         """
@@ -26,9 +27,8 @@ class Constraint(object):
             self.p1.constraints.remove(self)
 
         # Elasticity, usually pick something between 0.01 and 1.5
-        elasticity = 1
 
-        px, py, pz = [delta * diff * 0.5 * elasticity for delta in (dx, dy, dz)]
+        px, py, pz = [delta * diff * 0.5 * self.elasticity for delta in (dx, dy, dz)]
 
         if not self.p1.pinned:
             self.p1.x, self.p1.y, self.p1.z = self.p1.x + px, self.p1.y + py, self.p1.z + pz

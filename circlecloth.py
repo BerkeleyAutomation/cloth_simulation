@@ -7,7 +7,7 @@ A subclass of cloth, on which a circle pattern is drawn. It also can be grabbed 
 """
 class CircleCloth(Cloth):
 
-    def __init__(self, mouse, width=50, height=50, dx=10, dy=10, centerx=300, centery=300, radius=150):
+    def __init__(self, mouse, width=50, height=50, dx=10, dy=10, centerx=300, centery=300, radius=150, gravity=-1000.0, elasticity=1.0):
         """
         A cloth on which a circle can be drawn. It can also be grabbed and tensioned at specific coordinates.
         """
@@ -18,7 +18,7 @@ class CircleCloth(Cloth):
         self.mouse = mouse
         for i in range(height):
             for j in range(width):
-                pt = Point(mouse, 50 + dx * j, 50 + dy * i)
+                pt = Point(mouse, 50 + dx * j, 50 + dy * i, gravity=gravity, elasticity=elasticity)
                 if i > 0:
                     pt.add_constraint(self.pts[width * (i - 1) + j])
                 if j > 0:

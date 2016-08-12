@@ -7,7 +7,7 @@ A class that simulates a point mass. A cloth is made up of a collection of these
 """
 class Point(object):
 
-    def __init__(self, mouse, x=0, y=0, z=0):
+    def __init__(self, mouse, x=0, y=0, z=0, gravity=-1000.0, elasticity=1.0):
         """
         Initializes an instance of a particle.
         """
@@ -17,12 +17,14 @@ class Point(object):
         self.vx, self.vy, self.vz = 0, 0, 0
         self.constraints = []
         self.pinned = False
+        self.gravity = gravity
+        self.elasticity = elasticity
 
     def add_constraint(self, pt):
         """
         Adds a constraint between this point and another point.
         """
-        self.constraints.append(Constraint(self, pt))
+        self.constraints.append(Constraint(self, pt, elasticity=self.elasticity))
 
     def add_force(self, x, y, z=0):
         """
@@ -68,9 +70,7 @@ class Point(object):
             elif dist < self.mouse.cut and abs(dz) < self.mouse.height_limit:
                 self.constraints = []
 
-        # gravity parameter, increase magnitude to increase gravity
-        gravity = -1000
-        self.add_force(0, 0, gravity)
+        self.add_force(0, 0, self.gravity)
         delta *= delta
 
         nx = self.x + ((self.x - self.px)) * 0.99 + ((self.vx / 2.0) * delta)
