@@ -10,10 +10,13 @@ Contains the Point class, which represents a point mass.
 Contains the Constraint class, which represents a relationship between two points that the points try to maintain.
 
 ### cloth.py
-Contains the Cloth class, which represents a collection of points structured into a rectangular grid in 3D along with perpendicular constraints for each point. The cloth is pinned along the top and bottom by default.
+Contains the Cloth class, which represents a collection of points structured into a rectangular grid in 3D along with perpendicular constraints for each point. The cloth is pinned along the top and bottom by default. It can also be grabbed and tensioned by a tensioner object.
 
 ### circlecloth.py
 Contains the CircleCloth class which extends the Cloth class. It is similar, but also has a circular pattern drawn on it with specified dimensions/location, and can be grabbed and tensioned as well. The cloth is pinned along the top and bottom by default as well.
+
+### shapecloth.py
+Contains a ShapeCloth class which extends the Cloth class. Similar to the CircleCloth class, it has a pattern drawn on it. It takes in a function that specifies whether or not a point is on the outline.
 
 ### tensioner.py
 Contains the Tensioner class which can be used to grab a position on the cloth, and tug it in a direction.
