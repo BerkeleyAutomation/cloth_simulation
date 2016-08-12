@@ -60,3 +60,9 @@ class Cloth(object):
             if tensioner.x == x and tensioner.y == y:
                 self.tensioners.remove(tensioner)
                 tensioner.unpin_position()
+
+    def dump(self, fname):
+        """
+        Writes the cloth to file.
+        """
+        write_to_file(self, fname)
