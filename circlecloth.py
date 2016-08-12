@@ -14,7 +14,7 @@ class CircleCloth(Cloth):
         self.pts = []
         self.circlepts = []
         self.normalpts = []
-        self.grabbed_pts = []
+        self.tensioners = []
         self.mouse = mouse
         for i in range(height):
             for j in range(width):
