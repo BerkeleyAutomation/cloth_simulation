@@ -12,20 +12,22 @@ class Simulation(object):
         self.cloth = cloth
         self.mouse = self.cloth.mouse
         self.tensioners = self.cloth.tensioners
+        self.render = render
         print "Initializing cloth"
         for i in range(init):
             self.cloth.update()
             if i % 10 == 0:
                 print str(i) + '/200'
-        if render:
+        if self.render:
             plt.ion()
+            self.update(0)
 
     def update(self, iterations=5):
         [self.cloth.update() for _ in range(iterations)]
-        if render:
+        if self.render:
             plt.clf()
-            pts = np.array([[p.x, p.y] for p in c.normalpts])
-            cpts = np.array([[p.x, p.y] for p in c.circlepts])
+            pts = np.array([[p.x, p.y] for p in self.cloth.normalpts])
+            cpts = np.array([[p.x, p.y] for p in self.cloth.circlepts])
             if len(pts) > 0:
                 plt.scatter(pts[:,0], pts[:,1], c='w')
             if len(cpts) > 0:
@@ -46,7 +48,19 @@ if __name__ == "__main__":
     cloth = CircleCloth(mouse)
     simulation = Simulation(cloth, render=True)
 
+    mouse.down = True
+    mouse.button = 0
+
+    circlex = 300
+    circley = 300
+    radius = 150
+
     for i in range(100):
         simulation.update()
+        
+        theta = 360.0/100.0 * i * np.pi / 180.0
+        x = radius * np.cos(theta)
+        y = radius * np.sin(theta)
+        simulation.mouse.move(x + circlex, y + circley)
 
 

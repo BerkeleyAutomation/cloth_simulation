@@ -62,7 +62,6 @@ class Point(object):
         if self.mouse.down:
             dx, dy, dz = self.x - self.mouse.x, self.y - self.mouse.y, self.z - self.mouse.z
             dist = sqrt(dx ** 2 + dy ** 2)
-
             if self.mouse.button == 1:
                 if dist < self.mouse.influence:
                     self.px = self.x - (self.mouse.x - self.mouse.px) * 1.8
