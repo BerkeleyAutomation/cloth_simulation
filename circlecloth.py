@@ -7,7 +7,7 @@ A subclass of cloth, on which a circle pattern is drawn. It also can be grabbed 
 """
 class CircleCloth(Cloth):
 
-    def __init__(self, mouse, width=50, height=50, dx=10, dy=10, centerx=300, centery=300, radius=150, gravity=-1000.0, elasticity=1.0, pin_cond=default_pin_condition):
+    def __init__(self, mouse, width=50, height=50, dx=10, dy=10, centerx=300, centery=300, radius=150, gravity=-1000.0, elasticity=1.0, pin_cond=cloth.default_pin_condition):
         """
         A cloth on which a circle can be drawn. It can also be grabbed and tensioned at specific coordinates.
         """
