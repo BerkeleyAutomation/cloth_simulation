@@ -15,6 +15,9 @@ Contains the Cloth class, which represents a collection of points structured int
 ### circlecloth.py
 Contains the CircleCloth class which extends the Cloth class. It is similar, but also has a circular pattern drawn on it with specified dimensions/location, and can be grabbed and tensioned as well. The cloth is pinned along the top and bottom by default as well.
 
+### tensioner.py
+Contains the Tensioner class which can be used to grab a position on the cloth, and tug it in a direction.
+
 ### mouse.py
 Contains the Mouse class, which can be used as a medium through which a physical or virtual mouse can interact with a cloth.
 
