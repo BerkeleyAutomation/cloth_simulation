@@ -1,5 +1,5 @@
 # cloth_simulation
-This repository contains scripts used to simulate cloth physics in 3D under various conditions and interactiosn.
+This repository contains scripts used to simulate cloth physics in 3D under various conditions and interactions.
 
 ## Files, Scripts, and Directories:
 
