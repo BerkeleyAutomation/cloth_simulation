@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import sys
 from cloth import *
 from circlecloth import *
 from mouse import *
