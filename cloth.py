@@ -7,13 +7,15 @@ A cloth class, which consists of a collection of points and their corresponding 
 """
 class Cloth(object):
 
-    def __init__(self, mouse, width=50, height=50, dx=10, dy=10, gravity=-1000.0, elasticity=1.0, pin_cond=default_pin_condition):
+    def __init__(self, mouse, width=50, height=50, dx=10, dy=10, gravity=-1000.0, elasticity=1.0, pin_cond=False):
         """
         Creates a cloth with width x height points spaced dx and dy apart. The top and bottom row of points are pinned in place.
         """
         self.mouse = mouse
         self.pts = []
         self.tensioners = []
+        if not pin_cond:
+            pin_cond = lambda x, y, height, width: y == height - 1 or y == 0
         for i in range(height):
             for j in range(width):
                 pt = Point(mouse, 50 + dx * j, 50 + dy * i, gravity=gravity, elasticity=elasticity)
@@ -58,6 +60,3 @@ class Cloth(object):
             if tensioner.x == x and tensioner.y == y:
                 self.tensioners.remove(tensioner)
                 tensioner.unpin_position()
-
-def default_pin_condition(x, y, height, width):
-    return y == height - 1 or y == 0
