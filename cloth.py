@@ -7,7 +7,7 @@ A cloth class, which consists of a collection of points and their corresponding 
 """
 class Cloth(object):
 
-    def __init__(self, mouse, width=50, height=50, dx=10, dy=10, gravity=-1000.0, elasticity=1.0, pin_cond=False):
+    def __init__(self, mouse, width=50, height=50, dx=10, dy=10, gravity=-1000.0, elasticity=1.0, pin_cond="default"):
         """
         Creates a cloth with width x height points spaced dx and dy apart. The top and bottom row of points are pinned in place.
         """
