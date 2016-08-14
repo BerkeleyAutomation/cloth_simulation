@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import pickle
+import pickle, copy
 from cloth import *
 from circlecloth import *
 from shapecloth import *
@@ -102,6 +102,12 @@ class Simulation(object):
         except EOFError:
             print 'Nothing written to file.'
 
+    def copy(self):
+        """
+        Returns a deep copy of self.
+        """
+        return copy.deepcopy(self)
+
 if __name__ == "__main__":
     mouse = Mouse(down=True)
     cloth = CircleCloth(mouse)
@@ -114,7 +120,7 @@ if __name__ == "__main__":
         simulation.move_mouse(trajectory[i][0], trajectory[i][1])
 
     simulation.reset()
-    
+
     for i in range(100):
         simulation.update()
         simulation.move_mouse(trajectory[i][0], trajectory[i][1])    
