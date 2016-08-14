@@ -22,11 +22,12 @@ class Simulation(object):
         self.mouse = self.cloth.mouse
         self.tensioners = self.cloth.tensioners
         self.render = render
+        self.init = init
         print "Initializing cloth"
         for i in range(init):
             self.cloth.update()
             if i % 10 == 0:
-                print str(i) + '/200'
+                print str(i) + '/' + str(init)
         if self.render:
             plt.ion()
             self.update(0)
@@ -67,6 +68,22 @@ class Simulation(object):
         """
         self.mouse.move(x, y)
 
+    def reset(self):
+        """
+        Resets the simulation object.
+        """
+        if self.render:
+            plt.close()
+        print "Resetting simulation."
+        self.cloth.reset()
+        self.mouse = self.cloth.mouse
+        self.tensioners = self.cloth.tensioners
+        print "Initializing cloth"
+        for i in range(self.init):
+            self.cloth.update()
+            if i % 10 == 0:
+                print str(i) + '/' + str(self.init)
+
     def write_to_file(self, fname):
         """
         Writes a simulation object to file.
@@ -95,3 +112,9 @@ if __name__ == "__main__":
     for i in range(100):
         simulation.update()
         simulation.move_mouse(trajectory[i][0], trajectory[i][1])
+
+    simulation.reset()
+    
+    for i in range(100):
+        simulation.update()
+        simulation.move_mouse(trajectory[i][0], trajectory[i][1])    

@@ -14,6 +14,8 @@ class Mouse(object):
             self.height_limit = height_limit
         else:
             self.height_limit = float('inf')
+        self.initial_params = [(x, y, z), self.height_limit, down, button]
+
 
     def move(self, x, y):
         """
@@ -39,3 +41,14 @@ class Mouse(object):
         Handles mouse move events.
         """
         self.move(event.xdata, event.ydata)
+
+    def reset(self):
+        """
+        Resets the mouse object to its initial state.
+        """
+        pos = self.initial_params[0]
+        self.x, self.y, self.z = pos
+        self.px, self.py, self.pz = pos
+        self.height_limit = self.initial_params[1]
+        self.down = self.initial_params[2]
+        self.button = self.initial_params[3]

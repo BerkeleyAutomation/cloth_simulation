@@ -7,10 +7,12 @@ A cloth class, which consists of a collection of points and their corresponding 
 """
 class Cloth(object):
 
-    def __init__(self, mouse, width=50, height=50, dx=10, dy=10, gravity=-1000.0, elasticity=1.0, pin_cond="default"):
+    def __init__(self, mouse=None, width=50, height=50, dx=10, dy=10, gravity=-1000.0, elasticity=1.0, pin_cond="default"):
         """
         Creates a cloth with width x height points spaced dx and dy apart. The top and bottom row of points are pinned in place.
         """
+        if not mouse:
+            mouse = Mouse()
         self.mouse = mouse
         self.pts = []
         self.tensioners = []
@@ -22,11 +24,11 @@ class Cloth(object):
                 if i > 0:
                     pt.add_constraint(self.pts[width * (i - 1) + j])
                 if j > 0:
-                    pass
                     pt.add_constraint(self.pts[-1])
                 if pin_cond(j, i, height, width):
                     pt.pinned = True
                 self.pts.append(pt)
+        self.initial_params = [(width, height), (dx, dy), gravity, elasticity, pin_cond]
 
     def update(self):
         """
@@ -66,3 +68,26 @@ class Cloth(object):
         Writes the cloth to file.
         """
         write_to_file(self, fname)
+
+    def reset(self):
+        """
+        Resets cloth to its initial state.
+        """
+        self.mouse.reset()
+        width, height = self.initial_params[0]
+        dx, dy = self.initial_params[1]
+        gravity = self.initial_params[2]
+        elasticity = self.initial_params[3]
+        pin_cond = self.initial_params[4]
+        self.pts = []
+        self.tensioners = []
+        for i in range(height):
+            for j in range(width):
+                pt = Point(self.mouse, 50 + dx * j, 50 + dy * i, gravity=gravity, elasticity=elasticity)
+                if i > 0:
+                    pt.add_constraint(self.pts[width * (i - 1) + j])
+                if j > 0:
+                    pt.add_constraint(self.pts[-1])
+                if pin_cond(j, i, height, width):
+                    pt.pinned = True
+                self.pts.append(pt)
