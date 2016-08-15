@@ -40,7 +40,7 @@ class Simulation(object):
         if self.render:
             plt.clf()
             pts = np.array([[p.x, p.y] for p in self.cloth.normalpts])
-            cpts = np.array([[p.x, p.y] for p in self.cloth.circlepts])
+            cpts = np.array([[p.x, p.y] for p in self.cloth.shapepts])
             if len(pts) > 0:
                 plt.scatter(pts[:,0], pts[:,1], c='w')
             if len(cpts) > 0:

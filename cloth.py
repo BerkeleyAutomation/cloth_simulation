@@ -16,6 +16,7 @@ class Cloth(object):
         self.mouse = mouse
         self.pts = []
         self.tensioners = []
+        self.shapepts = []
         if pin_cond == "default":
             pin_cond = lambda x, y, height, width: y == height - 1 or y == 0
         for i in range(height):

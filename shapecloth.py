@@ -7,7 +7,7 @@ A subclass of cloth, on which a shape pattern is drawn. It also can be grabbed a
 """
 class ShapeCloth(Cloth):
 
-    def __init__(self, mouse=None, shape_fn, width=50, height=50, dx=10, dy=10,gravity=-1000.0, elasticity=1.0, pin_cond="default"):
+    def __init__(self, shape_fn, mouse=None, width=50, height=50, dx=10, dy=10,gravity=-1000.0, elasticity=1.0, pin_cond="default"):
         """
         A cloth on which a shape can be drawn. It can also be grabbed and tensioned at specific coordinates. It takes in a function shape_fn that takes in 2 arguments, x and y, that specify whether or not a point is located on the outline of a shape.
         """

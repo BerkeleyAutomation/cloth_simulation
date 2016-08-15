@@ -53,7 +53,7 @@ if __name__ == "__main__":
             print "Iteration", i
         plt.clf()
         pts = np.array([[p.x, p.y] for p in c.normalpts])
-        cpts = np.array([[p.x, p.y] for p in c.circlepts])
+        cpts = np.array([[p.x, p.y] for p in c.shapepts])
         if len(pts) > 0:
             plt.scatter(pts[:,0], pts[:,1], c='w')
         if len(cpts) > 0:

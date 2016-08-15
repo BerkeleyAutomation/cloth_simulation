@@ -12,7 +12,7 @@ class CircleCloth(Cloth):
         A cloth on which a circle can be drawn. It can also be grabbed and tensioned at specific coordinates.
         """
         self.pts = []
-        self.circlepts = []
+        self.shapepts = []
         self.normalpts = []
         self.tensioners = []
         if not mouse:
@@ -30,7 +30,7 @@ class CircleCloth(Cloth):
                 if pin_cond(j, i, height, width):
                     pt.pinned = True
                 if abs((pt.x - centerx) **2 + (pt.y - centery) ** 2 - radius **2) < 2000:
-                    self.circlepts.append(pt)
+                    self.shapepts.append(pt)
                 else:
                     self.normalpts.append(pt)
                 self.pts.append(pt)
@@ -50,8 +50,8 @@ class CircleCloth(Cloth):
         for pt in self.pts:
             if pt.constraints == []:
                 self.pts.remove(pt)
-                if pt in self.circlepts:
-                    self.circlepts.remove(pt)
+                if pt in self.shapepts:
+                    self.shapepts.remove(pt)
                 else:
                     self.normalpts.remove(pt)
 
@@ -67,7 +67,7 @@ class CircleCloth(Cloth):
         elasticity = self.initial_params[4]
         pin_cond = self.initial_params[5]
         self.pts = []
-        self.circlepts = []
+        self.shapepts = []
         self.normalpts = []
         self.tensioners = []
         for i in range(height):
@@ -80,7 +80,7 @@ class CircleCloth(Cloth):
                 if pin_cond(j, i, height, width):
                     pt.pinned = True
                 if abs((pt.x - centerx) **2 + (pt.y - centery) ** 2 - radius **2) < 2000:
-                    self.circlepts.append(pt)
+                    self.shapepts.append(pt)
                 else:
                     self.normalpts.append(pt)
                 self.pts.append(pt)
