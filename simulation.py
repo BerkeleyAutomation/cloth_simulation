@@ -121,6 +121,8 @@ if __name__ == "__main__":
 
     simulation.reset()
 
+    simulation.pin_position(300, 300)
+
     for i in range(100):
         simulation.update()
         simulation.move_mouse(trajectory[i][0], trajectory[i][1])    
