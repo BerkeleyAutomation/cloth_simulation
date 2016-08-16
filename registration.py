@@ -26,7 +26,6 @@ def get_shape_fn(corners, pts):
     for pt in pts:
         pxpts.append(transform_and_project_point(basis, scale, pt, corners).tolist())
     pxpts = np.matrix(pxpts)
-    print pxpts
     return lambda x, y: np.min(np.linalg.norm(np.matrix(np.tile(np.array((x, y)), (len(pts), 1))) - pxpts, axis=1)) < 10
 
 if __name__ == "__main__":
