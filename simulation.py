@@ -6,6 +6,8 @@ from circlecloth import *
 from shapecloth import *
 from tensioner import *
 from mouse import *
+from registration import *
+from shape_tracer import *
 
 """
 A Simulation object that can be used to represent an ongoing experiment. It can be rendered by setting render=True on construction. See the main method for an example.
@@ -109,8 +111,15 @@ class Simulation(object):
         return copy.deepcopy(self)
 
 if __name__ == "__main__":
+    shape_fn = lambda x, y: abs((x - 300) **2 + (y - 300) ** 2 - 150 **2) < 2000
+
+    corners = load_robot_points()[:4,:]
+    pts = load_robot_points()[4:,:]
+
+    shape_fn = get_shape_fn(corners, pts)
+
     mouse = Mouse(down=True)
-    cloth = CircleCloth(mouse)
+    cloth = ShapeCloth(shape_fn, mouse)
     simulation = Simulation(cloth, render=True)
 
     trajectory = [(np.cos(deg) * 150 + 300, np.sin(deg) * 150 + 300) for deg in [3.6 * np.pi * i / 180.0 for i in range(100)]]
