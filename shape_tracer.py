@@ -5,7 +5,7 @@ import rospy, pickle, time
 from geometry_msgs.msg import Pose
 import multiprocessing
 import numpy as np
-import sys
+import sys, os
 from sklearn.neighbors import KNeighborsClassifier
 
 """
@@ -80,6 +80,10 @@ if __name__ == '__main__':
     sub = None
     prs = []
     gauze_pts='gauze_pts'
+
+    directory = "calibration_data"
+    if not os.path.exists(directory):
+        os.makedirs(directory)
 
     open('calibration_data/'+gauze_pts+'.p', 'w+').close()
     open("calibration_data/gauze_pts2.p", "w+").close()
