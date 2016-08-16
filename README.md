@@ -47,4 +47,4 @@ To run a trial that cuts a predefined trajectory on a CircleCloth object, run "p
 * Python 2.7
 * Matplotlib
 * Numpy
-
+* Scipy 0.18.0 or newer
