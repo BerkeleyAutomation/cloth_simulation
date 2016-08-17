@@ -113,7 +113,7 @@ class Simulation(object):
 
 if __name__ == "__main__":
     shape_fn = lambda x, y: abs((x - 300) **2 + (y - 300) ** 2 - 150 **2) < 2000
-    scorer = Scorer()
+    scorer = Scorer(1)
 
     # corners = load_robot_points()
     # pts = load_robot_points("gauze_pts2.p")
@@ -123,13 +123,15 @@ if __name__ == "__main__":
     cloth = ShapeCloth(shape_fn, mouse)
     simulation = Simulation(cloth, render=True)
 
+    print "Initial Score", scorer.score(simulation.cloth)
+
     trajectory = [(np.cos(deg) * 150 + 300, np.sin(deg) * 150 + 300) for deg in [3.6 * np.pi * i / 180.0 for i in range(100)]]
 
     for i in range(100):
         simulation.update()
         simulation.move_mouse(trajectory[i][0], trajectory[i][1])
 
-    print scorer.score(simulation.cloth)
+    print "Score", scorer.score(simulation.cloth)
     
     simulation.reset()
 
@@ -139,5 +141,5 @@ if __name__ == "__main__":
         simulation.update()
         simulation.move_mouse(trajectory[i][0], trajectory[i][1])    
 
-    print scorer.score(simulation.cloth)
-    
+    print "Score", scorer.score(simulation.cloth)
+
