@@ -4,6 +4,7 @@ import sys, pickle, os
 from mouse import *
 from shapecloth import *
 from cloth import *
+from registration import *
 from scipy import signal
 from scipy import stats
 
@@ -57,8 +58,14 @@ class TensionPointFinder(object):
 
 if __name__ == '__main__':
     shape_fn = lambda x, y: abs((x - 300) **2 + (y - 300) ** 2 - 150 **2) < 2000
+
+    corners = load_robot_points()
+    pts = load_robot_points("gauze_pts2.p")
+    shape_fn = get_shape_fn(corners, pts, True)
+
+
     mouse = Mouse(down=True)
     cloth = ShapeCloth(shape_fn, mouse)
     tpf = TensionPointFinder(cloth)
-    plt.imshow(tpf.find_valid_pts())
+    plt.imshow(np.flipud(tpf.find_valid_pts()))
     plt.show()
