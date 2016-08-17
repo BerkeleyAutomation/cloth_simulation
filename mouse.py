@@ -3,13 +3,14 @@ An implementation of a mouse class, that can be updated/modified to cut the clot
 """
 class Mouse(object):
 
-    def __init__(self, x=0, y=0, z=0, height_limit=False, down=False, button=0):
+    def __init__(self, x=0, y=0, z=0, height_limit=False, down=False, button=0, bounds=(600, 600, 800)):
         self.down = down
         self.button = button
         self.x, self.y, self.z = x, y, z
         self.px, self.py, self.pz = x, y, z
         self.cut = 10
         self.influence = 5
+        self.bounds=bounds
         if height_limit:
             self.height_limit = height_limit
         else:
@@ -17,12 +18,17 @@ class Mouse(object):
         self.initial_params = [(x, y, z), self.height_limit, down, button]
 
 
-    def move(self, x, y):
+    def move(self, x, y, z=None):
         """
         Move mouse to a position on the canvas.
         """
-        self.px, self.py = self.x, self.y
-        self.x, self.y = x, y
+        if not z:
+            z = self.z
+        if 0 <= x <= self.bounds[0] and 0 <= y <= self.bounds[1] and -self.bounds[2] <= z <= self.bounds[2]:
+            self.px, self.py = self.x, self.y
+            self.x, self.y = x, y
+        else:
+            print "Invalid location: Out of Bounds."
 
     def clicked(self, event):
         """

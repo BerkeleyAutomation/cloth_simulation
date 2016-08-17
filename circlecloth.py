@@ -7,7 +7,7 @@ A subclass of cloth, on which a circle pattern is drawn. It also can be grabbed 
 """
 class CircleCloth(Cloth):
 
-    def __init__(self, mouse=None, width=50, height=50, dx=10, dy=10, centerx=300, centery=300, radius=150, gravity=-1000.0, elasticity=1.0, pin_cond="default"):
+    def __init__(self, mouse=None, width=50, height=50, dx=10, dy=10, centerx=300, centery=300, radius=150, gravity=-1000.0, elasticity=1.0, pin_cond="default", bounds=(600, 600, 800)):
         """
         A cloth on which a circle can be drawn. It can also be grabbed and tensioned at specific coordinates.
         """
@@ -15,14 +15,15 @@ class CircleCloth(Cloth):
         self.shapepts = []
         self.normalpts = []
         self.tensioners = []
+        self.bounds = bounds
         if not mouse:
-            mouse = Mouse()
+            mouse = Mouse(bounds=bounds)
         self.mouse = mouse
         if pin_cond == "default":
             pin_cond = lambda x, y, height, width: y == height - 1 or y == 0
         for i in range(height):
             for j in range(width):
-                pt = Point(mouse, 50 + dx * j, 50 + dy * i, gravity=gravity, elasticity=elasticity)
+                pt = Point(mouse, 50 + dx * j, 50 + dy * i, gravity=gravity, elasticity=elasticity, bounds=bounds)
                 if i > 0:
                     pt.add_constraint(self.pts[width * (i - 1) + j])
                 if j > 0:

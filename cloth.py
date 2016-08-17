@@ -7,21 +7,22 @@ A cloth class, which consists of a collection of points and their corresponding 
 """
 class Cloth(object):
 
-    def __init__(self, mouse=None, width=50, height=50, dx=10, dy=10, gravity=-1000.0, elasticity=1.0, pin_cond="default"):
+    def __init__(self, mouse=None, width=50, height=50, dx=10, dy=10, gravity=-1000.0, elasticity=1.0, pin_cond="default", bounds=(600, 600, 800)):
         """
         Creates a cloth with width x height points spaced dx and dy apart. The top and bottom row of points are pinned in place.
         """
         if not mouse:
-            mouse = Mouse()
+            mouse = Mouse(bounds=bounds)
         self.mouse = mouse
         self.pts = []
         self.tensioners = []
         self.shapepts = []
+        self.bounds = bounds
         if pin_cond == "default":
             pin_cond = lambda x, y, height, width: y == height - 1 or y == 0
         for i in range(height):
             for j in range(width):
-                pt = Point(mouse, 50 + dx * j, 50 + dy * i, gravity=gravity, elasticity=elasticity)
+                pt = Point(mouse, 50 + dx * j, 50 + dy * i, gravity=gravity, elasticity=elasticity, bounds=bounds)
                 if i > 0:
                     pt.add_constraint(self.pts[width * (i - 1) + j])
                 if j > 0:

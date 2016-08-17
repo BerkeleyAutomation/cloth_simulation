@@ -25,6 +25,7 @@ class Simulation(object):
         self.tensioners = self.cloth.tensioners
         self.render = render
         self.init = init
+        self.bounds = cloth.bounds
         print "Initializing cloth"
         for i in range(init):
             self.cloth.update()
@@ -85,6 +86,7 @@ class Simulation(object):
             self.cloth.update()
             if i % 10 == 0:
                 print str(i) + '/' + str(self.init)
+        self.update(0)
 
     def write_to_file(self, fname):
         """
