@@ -4,6 +4,8 @@ import sys, pickle, os
 from mouse import *
 from shapecloth import *
 from cloth import *
+from scipy import signal
+from scipy import stats
 
 
 class TensionPointFinder(object):
@@ -29,7 +31,29 @@ class TensionPointFinder(object):
                     grid[i, j] = 1
                 elif grid[i, j]:
                     lock = True
+        lock = False
+        centery = int(self.cloth.initial_params[0][1] / 2)
+        for i in reversed(range(height)):
+            for j in reversed(range(width)):
+                if not grid[i, j]:
+                    lock = False
+                    s = self.slope(j, i, -50)
+                    for x in range(width):
+                        y = min(max(int(centery + s * x), 0), height - 1)
+                        if lock:
+                            grid[y, x] = 1
+                        elif grid[y, x]:
+                            lock = True
+        grid = signal.convolve2d(grid, np.ones((5, 5)))
+        grid = stats.threshold(grid, threshmax=1e-10, newval=1)
         return -grid + 1
+
+    def slope(self, x, y, centerx=None, centery=None):
+        if not centerx:
+            centerx = 0
+        if not centery:
+                centery = int(self.cloth.initial_params[0][1] / 2)
+        return (y - centery) / (x - centerx + 1e-10)
 
 if __name__ == '__main__':
     shape_fn = lambda x, y: abs((x - 300) **2 + (y - 300) ** 2 - 150 **2) < 2000
