@@ -7,6 +7,7 @@ from shapecloth import *
 from tensioner import *
 from mouse import *
 from registration import *
+from scorer import *
 
 """
 A Simulation object that can be used to represent an ongoing experiment. It can be rendered by setting render=True on construction. See the main method for an example.
@@ -112,6 +113,7 @@ class Simulation(object):
 
 if __name__ == "__main__":
     shape_fn = lambda x, y: abs((x - 300) **2 + (y - 300) ** 2 - 150 **2) < 2000
+    scorer = Scorer()
 
     # corners = load_robot_points()
     # pts = load_robot_points("gauze_pts2.p")
@@ -127,6 +129,8 @@ if __name__ == "__main__":
         simulation.update()
         simulation.move_mouse(trajectory[i][0], trajectory[i][1])
 
+    print scorer.score(simulation.cloth)
+    
     simulation.reset()
 
     simulation.pin_position(300, 300)
@@ -134,3 +138,6 @@ if __name__ == "__main__":
     for i in range(100):
         simulation.update()
         simulation.move_mouse(trajectory[i][0], trajectory[i][1])    
+
+    print scorer.score(simulation.cloth)
+    

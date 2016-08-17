@@ -9,7 +9,7 @@ class Scorer(object):
 
 	def __init__(self, fn=0):
 		if not fn:
-			self.score_fn = lambda c: return len(c.shapepts)
+			self.score_fn = lambda c: len(c.shapepts)
 		elif fn == 1:
 			self.score_fn = bad_edge_score
 		else:
