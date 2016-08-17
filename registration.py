@@ -1,8 +1,18 @@
 import numpy as np
 import sys, pickle
 from math import sqrt
-from shape_tracer import *
 from scipy.interpolate import interp1d
+
+def load_robot_points(fname="gauze_pts.p"):
+    lst = []
+    f3 = open('calibration_data/'+fname,"rb")
+    while True:
+        try:
+            pos2 = pickle.load(f3)
+            lst.append(pos2)
+        except EOFError:
+            f3.close()
+            return np.matrix(lst)
 
 def get_basis(corners):
     v1 = np.array(corners[1]) - np.array(corners[0])

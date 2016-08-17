@@ -7,7 +7,6 @@ from shapecloth import *
 from tensioner import *
 from mouse import *
 from registration import *
-from shape_tracer import *
 
 """
 A Simulation object that can be used to represent an ongoing experiment. It can be rendered by setting render=True on construction. See the main method for an example.
@@ -109,6 +108,7 @@ class Simulation(object):
         Returns a deep copy of self.
         """
         return copy.deepcopy(self)
+
 
 if __name__ == "__main__":
     shape_fn = lambda x, y: abs((x - 300) **2 + (y - 300) ** 2 - 150 **2) < 2000
