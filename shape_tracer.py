@@ -1,4 +1,3 @@
-import cv2
 import Tkinter
 from Tkinter import *
 import rospy, pickle, time
@@ -6,7 +5,6 @@ from geometry_msgs.msg import Pose
 import multiprocessing
 import numpy as np
 import sys, os
-from sklearn.neighbors import KNeighborsClassifier
 
 """
 Launching this script creates a GUI that subscribes to PSM1's position_cartesian_current topic and can write this information to file.
