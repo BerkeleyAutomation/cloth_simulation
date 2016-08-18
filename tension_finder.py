@@ -23,7 +23,7 @@ class TensionPointFinder(object):
             for j in range(width):
                 if shape_fn(j * dy + 50, i * dx + 50):
                     grid[i, j] = 1
-        plt.imshow(np.flipud(grid))
+        plt.imshow(-np.flipud(grid) + 1, cmap='Greys_r')
         plt.show()
         lock = False
         continued = False
@@ -70,5 +70,5 @@ if __name__ == '__main__':
     mouse = Mouse(down=True)
     cloth = ShapeCloth(shape_fn, mouse)
     tpf = TensionPointFinder(cloth)
-    plt.imshow(np.flipud(tpf.find_valid_pts()))
+    plt.imshow(np.flipud(tpf.find_valid_pts()), cmap='Greys_r')
     plt.show()
