@@ -23,6 +23,8 @@ class TensionPointFinder(object):
             for j in range(width):
                 if shape_fn(j * dy + 50, i * dx + 50):
                     grid[i, j] = 1
+        plt.imshow(-np.flipud(grid) + 1, cmap='Greys_r')
+        plt.show()
         lock = False
         continued = False
         for i in range(height):
@@ -57,15 +59,16 @@ class TensionPointFinder(object):
         return (y - centery) / (x - centerx + 1e-10)
 
 if __name__ == '__main__':
-    shape_fn = lambda x, y: abs((x - 300) **2 + (y - 300) ** 2 - 150 **2) < 2000
-
-    corners = load_robot_points()
-    pts = load_robot_points("gauze_pts2.p")
-    shape_fn = get_shape_fn(corners, pts, True)
+    if len(sys.argv) < 2:
+        shape_fn = lambda x, y: abs((x - 300) **2 + (y - 300) ** 2 - 150 **2) < 2000
+    else:
+        corners = load_robot_points()
+        pts = load_robot_points("gauze_pts2.p")
+        shape_fn = get_shape_fn(corners, pts, True)
 
 
     mouse = Mouse(down=True)
     cloth = ShapeCloth(shape_fn, mouse)
     tpf = TensionPointFinder(cloth)
-    plt.imshow(np.flipud(tpf.find_valid_pts()))
+    plt.imshow(np.flipud(tpf.find_valid_pts()), cmap='Greys_r')
     plt.show()
