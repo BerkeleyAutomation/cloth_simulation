@@ -23,6 +23,8 @@ class TensionPointFinder(object):
             for j in range(width):
                 if shape_fn(j * dy + 50, i * dx + 50):
                     grid[i, j] = 1
+        plt.imshow(np.flipud(grid))
+        plt.show()
         lock = False
         continued = False
         for i in range(height):

@@ -119,6 +119,7 @@ if __name__ == "__main__":
     mouse = Mouse(down=True)
     cloth = ShapeCloth(shape_fn, mouse)
     simulation = Simulation(cloth, render=True)
+    simulation.reset()
 
     print "Initial Score", scorer.score(simulation.cloth)
 
