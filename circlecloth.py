@@ -35,7 +35,7 @@ class CircleCloth(Cloth):
                 else:
                     self.normalpts.append(pt)
                 self.pts.append(pt)
-        self.pts = set(self.pts)
+        self.pts, self.normalpts, self.shapepts = set(self.pts), set(self.normalpts), set(self.shapepts)
         self.initial_params = [(width, height), (dx, dy), (centerx, centery, radius), gravity, elasticity, pin_cond]
 
 
@@ -49,13 +49,19 @@ class CircleCloth(Cloth):
                 pt.resolve_constraints()
         for pt in self.pts:
             pt.update(0.016)
+        toremoveshape, toremovenorm = [], []
         for pt in self.pts:
             if pt.constraints == []:
-                self.pts.remove(pt)
                 if pt in self.shapepts:
-                    self.shapepts.remove(pt)
+                    toremoveshape.append(pt)
                 else:
-                    self.normalpts.remove(pt)
+                    toremovenorm.append(pt)
+        for pt in toremovenorm:
+            self.pts.remove(pt)
+            self.normalpts.remove(pt)
+        for pt in toremoveshape:
+            self.pts.remove(pt)
+            self.shapepts.remove(pt)
 
     def reset(self):
         """
@@ -86,5 +92,4 @@ class CircleCloth(Cloth):
                 else:
                     self.normalpts.append(pt)
                 self.pts.append(pt)
-        self.pts = set(self.pts)
-        
+        self.pts, self.normalpts, self.shapepts = set(self.pts), set(self.normalpts), set(self.shapepts)

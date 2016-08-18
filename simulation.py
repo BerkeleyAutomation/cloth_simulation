@@ -29,7 +29,7 @@ class Simulation(object):
         self.stored = False
 
 
-    def update(self, iterations=5):
+    def update(self, iterations=3):
         """
         Updates the state of the cloth. Iterations signifies the amount of time to spend to allow the cloth to equilibrate.
         """

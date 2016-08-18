@@ -44,9 +44,12 @@ class Cloth(object):
                 pt.resolve_constraints()
         for pt in self.pts:
             pt.update(0.016)
+        torm = []
         for pt in self.pts:
             if pt.constraints == []:
-                self.pts.remove(pt)
+                torm.append(pt)
+        for pt in torm:
+            self.pts.remove(pt)
 
     def add_tensioner(self, tensioner):
         self.tensioners.append(tensioner)
