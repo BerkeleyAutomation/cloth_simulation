@@ -29,11 +29,12 @@ class ClothCutter(Domain):
 	YMIN = 0
 	YMAX = 600
 
-	dt = 4
+	dt = 10
 
 	GOAL_STATE = np.array([300., 150.])
 	GOAL_RADIUS = 0.1
 	TURN_LEFT, TURN_RIGHT, CUT_FORWARD = range(3)
+	episodeCap = None
 
 
 	def __init__(self):
@@ -49,17 +50,25 @@ class ClothCutter(Domain):
 		self._cloth = ShapeCloth(shape_fn, self._mouse)
 		self.cloth_experiment = Simulation(self._cloth, render=True, init=50)
 		self.return_to_goal = False
-		self.episodeCap = 180
+		self.episodeCap = 100
+		logging.getLogger().setLevel(logging.INFO)
 		super(ClothCutter, self).__init__()
 
 	def s0(self):
+		self._stepcount = 0
 		self.state = self.INIT_STATE.copy()
 		self.cloth_experiment.reset()
+		return self.state.copy(), self.isTerminal(), self.possibleActions()
 
 	def possibleActions(self, s=None):
 		return [self.TURN_LEFT, self.TURN_RIGHT, self.CUT_FORWARD]
 
 	def step(self, a):
+
+		self._stepcount += 1
+		if self._stepcount % 20 == 0:
+			logging.info("%d steps..." % self._stepcount)
+
 		x, y, angle = self.state
 		nx, ny, nangle = x, y, angle
 		if a == self.TURN_LEFT:
