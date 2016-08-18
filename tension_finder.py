@@ -61,9 +61,9 @@ class TensionPointFinder(object):
 if __name__ == '__main__':
     shape_fn = lambda x, y: abs((x - 300) **2 + (y - 300) ** 2 - 150 **2) < 2000
 
-    corners = load_robot_points()
-    pts = load_robot_points("gauze_pts2.p")
-    shape_fn = get_shape_fn(corners, pts, True)
+    # corners = load_robot_points()
+    # pts = load_robot_points("gauze_pts2.p")
+    # shape_fn = get_shape_fn(corners, pts, True)
 
 
     mouse = Mouse(down=True)
