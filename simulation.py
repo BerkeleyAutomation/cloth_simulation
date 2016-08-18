@@ -26,14 +26,7 @@ class Simulation(object):
         self.render = render
         self.init = init
         self.bounds = cloth.bounds
-        print "Initializing cloth"
-        for i in range(init):
-            self.cloth.update()
-            if i % 10 == 0:
-                print str(i) + '/' + str(init)
-        if self.render:
-            plt.ion()
-            self.update(0)
+
 
     def update(self, iterations=5):
         """
