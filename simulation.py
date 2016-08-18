@@ -69,8 +69,8 @@ class Simulation(object):
         """
         Resets the simulation object.
         """
-        if self.render:
-            plt.close()
+        # if self.render:
+            # plt.close()
         print "Resetting simulation."
         if not self.stored:
             self.cloth.reset()

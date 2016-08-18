@@ -23,7 +23,7 @@ class ShapeCloth(Cloth):
             pin_cond = lambda x, y, height, width: y == height - 1 or y == 0
         for i in range(height):
             for j in range(width):
-                pt = Point(mouse, 50 + dx * j, 50 + dy * i, gravity=gravity, elasticity=elasticity, bounds=bounds)
+                pt = Point(mouse, 100 + dx * j, 100 + dy * i, gravity=gravity, elasticity=elasticity, bounds=bounds)
                 if i > 0:
                     pt.add_constraint(self.pts[width * (i - 1) + j])
                 if j > 0:
