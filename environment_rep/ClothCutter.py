@@ -14,7 +14,7 @@ class ClothCutter(Domain):
 
 
 	actions_num = 3
-	state_space_dims = 3
+	state_space_dims = 5
 	continuous_dims = np.arange(state_space_dims)
 
 	INIT_STATE = np.array([450.0, 300., np.pi/2])
@@ -43,25 +43,33 @@ class ClothCutter(Domain):
 			  self.XMAX],
 			 [self.YMIN,
 			  self.YMAX],
-				[self.ANGLE_MIN,
-				 self.ANGLE_MAX]])
+			 [self.ANGLE_MIN,
+			  self.ANGLE_MAX],
+			 [self.XMIN,
+			  self.XMAX],
+			 [self.YMIN,
+			  self.YMAX],])
+		self.reference_trajectory = [(np.cos(deg) * 150 + 300, np.sin(deg) * 150 + 300) for deg in [3.6 * np.pi * i / 180.0 for i in range(101)]]
 		shape_fn = lambda x, y: abs((x - 300) **2 + (y - 300) ** 2 - 150 **2) < 2000
 		self._mouse = Mouse(down=True)
 		self._cloth = ShapeCloth(shape_fn, self._mouse)
-		self.cloth_experiment = Simulation(self._cloth, render=True, init=50)
+		self.cloth_experiment = Simulation(self._cloth, render=1, init=50)
 		self.return_to_goal = False
 		self.episodeCap = 100
-		logging.getLogger().setLevel(logging.INFO)
+		logging.getLogger().setLevel(logging.DEBUG)
 		super(ClothCutter, self).__init__()
 
 	def s0(self):
 		self._stepcount = 0
-		self.state = self.INIT_STATE.copy()
+		self.state = np.hstack((self.INIT_STATE.copy(), self.reference_trajectory[self._stepcount]))
 		self.cloth_experiment.reset()
 		return self.state.copy(), self.isTerminal(), self.possibleActions()
 
 	def possibleActions(self, s=None):
 		return [self.TURN_LEFT, self.TURN_RIGHT, self.CUT_FORWARD]
+
+	# def augmentwithref(self, state):
+	# 	return np.hstack
 
 	def step(self, a):
 
@@ -69,7 +77,7 @@ class ClothCutter(Domain):
 		if self._stepcount % 20 == 0:
 			logging.info("%d steps..." % self._stepcount)
 
-		x, y, angle = self.state
+		x, y, angle = self.state[:3]
 		nx, ny, nangle = x, y, angle
 		if a == self.TURN_LEFT:
 			nangle = angle - self.TURN_ANGLE if self.ANGLE_MIN <= angle - self.TURN_ANGLE  else angle
@@ -84,23 +92,33 @@ class ClothCutter(Domain):
 		self.cloth_experiment.move_mouse(nx, ny)
 		self.cloth_experiment.update()
 
-		ns = np.array([nx, ny, nangle])
+		ns = np.hstack(([nx, ny, nangle], self.reference_trajectory[self._stepcount]))
 		self.state = ns.copy()
 		terminal = self.isTerminal()
 		r = self._reward_function(self.state)
+		logging.debug("Reward: %f" % r)
+
 		return r, ns, terminal, self.possibleActions()
 
 	def _reward_function(self, state):
-		return - len(self.cloth_experiment.cloth.shapepts)
+		assert len(state) == self.state_space_dims
+		return -np.linalg.norm(state[:2]- state[-2:]) / 100
 
 	def _dynamics(self, a):
 		pass
 
-	def isTerminal(self):
-		terminal = np.linalg.norm(self.state[:2] - self.GOAL_STATE) < self.GOAL_RADIUS
+	def _out_of_bounds(self):
+		x, y = self.state[:2]
+		return x < self.XMIN or x > self.XMAX or x < self.YMIN or x > self.YMAX
 
-		if terminal and self.return_to_goal:
-			self.return_to_goal = False
-			return False
-		else:
-			return terminal
+
+	def isTerminal(self):
+		if self._out_of_bounds() or self._reward_function(self.state) < -1:
+			return True
+		terminal = np.linalg.norm(self.state[:2] - self.GOAL_STATE) < self.GOAL_RADIUS
+		return terminal
+		# if terminal and self.return_to_goal:
+		# 	self.return_to_goal = False
+		# 	return False
+		# else:
+		# 	return terminal
