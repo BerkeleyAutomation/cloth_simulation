@@ -30,6 +30,7 @@ class Cloth(object):
                 if pin_cond(j, i, height, width):
                     pt.pinned = True
                 self.pts.append(pt)
+        self.pts = set(self.pts)
         self.initial_params = [(width, height), (dx, dy), gravity, elasticity, pin_cond]
 
     def update(self):
@@ -93,3 +94,5 @@ class Cloth(object):
                 if pin_cond(j, i, height, width):
                     pt.pinned = True
                 self.pts.append(pt)
+        self.pts = set(self.pts)
+

@@ -35,6 +35,7 @@ class CircleCloth(Cloth):
                 else:
                     self.normalpts.append(pt)
                 self.pts.append(pt)
+        self.pts = set(self.pts)
         self.initial_params = [(width, height), (dx, dy), (centerx, centery, radius), gravity, elasticity, pin_cond]
 
 
@@ -85,3 +86,5 @@ class CircleCloth(Cloth):
                 else:
                     self.normalpts.append(pt)
                 self.pts.append(pt)
+        self.pts = set(self.pts)
+        
