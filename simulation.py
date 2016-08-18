@@ -26,6 +26,7 @@ class Simulation(object):
         self.render = render
         self.init = init
         self.bounds = cloth.bounds
+        self.stored = False
 
 
     def update(self, iterations=5):
@@ -71,15 +72,23 @@ class Simulation(object):
         if self.render:
             plt.close()
         print "Resetting simulation."
-        self.cloth.reset()
-        self.mouse = self.cloth.mouse
-        self.tensioners = self.cloth.tensioners
-        print "Initializing cloth"
-        for i in range(self.init):
-            self.cloth.update()
-            if i % 10 == 0:
-                print str(i) + '/' + str(self.init)
-        self.update(0)
+        if not self.stored:
+            self.cloth.reset()
+            self.mouse = self.cloth.mouse
+            self.tensioners = self.cloth.tensioners
+            print "Initializing cloth"
+            for i in range(self.init):
+                self.cloth.update()
+                if i % 10 == 0:
+                    print str(i) + '/' + str(self.init)
+            self.stored = copy.deepcopy(self.cloth)
+            self.update(0)
+        else:
+            self.cloth = copy.deepcopy(self.stored)
+            self.mouse = self.cloth.mouse
+            self.tensioners = self.cloth.tensioners
+            self.bounds = self.cloth.bounds
+            self.update(0)
 
     def write_to_file(self, fname):
         """
