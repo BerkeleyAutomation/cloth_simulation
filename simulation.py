@@ -35,17 +35,20 @@ class Simulation(object):
         """
         [self.cloth.update() for _ in range(iterations)]
         if self.render:
-            plt.clf()
-            pts = np.array([[p.x, p.y] for p in self.cloth.normalpts])
-            cpts = np.array([[p.x, p.y] for p in self.cloth.shapepts])
-            if len(pts) > 0:
-                plt.scatter(pts[:,0], pts[:,1], c='w')
-            if len(cpts) > 0:
-                plt.scatter(cpts[:,0], cpts[:,1], c='b')
-            ax = plt.gca()
-            plt.axis([0, 600, 0, 600])
-            ax.set_axis_bgcolor('white')
-            plt.pause(0.01)
+            self.render_sim()
+
+    def render_sim(self):
+        plt.clf()
+        pts = np.array([[p.x, p.y] for p in self.cloth.normalpts])
+        cpts = np.array([[p.x, p.y] for p in self.cloth.shapepts])
+        if len(pts) > 0:
+            plt.scatter(pts[:,0], pts[:,1], c='w')
+        if len(cpts) > 0:
+            plt.scatter(cpts[:,0], cpts[:,1], c='b')
+        ax = plt.gca()
+        plt.axis([0, 600, 0, 600])
+        ax.set_axis_bgcolor('white')
+        plt.pause(0.01)
 
     def pin_position(self, x, y):
         """
@@ -69,8 +72,6 @@ class Simulation(object):
         """
         Resets the simulation object.
         """
-        if self.render:
-            plt.close()
         print "Resetting simulation."
         if not self.stored:
             self.cloth.reset()
