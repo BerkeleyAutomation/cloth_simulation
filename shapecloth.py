@@ -19,11 +19,13 @@ class ShapeCloth(Cloth):
         self.tensioners = []
         self.bounds = bounds
         self.mouse = mouse
+        self.allpts = {}
         if pin_cond == "default":
             pin_cond = lambda x, y, height, width: y == height - 1 or y == 0
         for i in range(height):
             for j in range(width):
                 pt = Point(mouse, 50 + dx * j, 50 + dy * i, gravity=gravity, elasticity=elasticity, bounds=bounds, identity=j + i * height)
+                self.allpts[i * height + j] = pt
                 if i > 0:
                     pt.add_constraint(self.pts[width * (i - 1) + j])
                 if j > 0:
@@ -32,7 +34,7 @@ class ShapeCloth(Cloth):
                     pt.pinned = True
                 if shape_fn(pt.x, pt.y):
                     self.shapepts.append(pt)
-                    pt.shape = True
+                    pt.shape = 1
                 else:
                     self.normalpts.append(pt)
                 self.pts.append(pt)
@@ -79,9 +81,11 @@ class ShapeCloth(Cloth):
         self.shapepts = []
         self.normalpts = []
         self.tensioners = []
+        self.allpts = {}
         for i in range(height):
             for j in range(width):
                 pt = Point(self.mouse, 50 + dx * j, 50 + dy * i, gravity=gravity, elasticity=elasticity, identity=j + i * height)
+                self.allpts[i * height + j] = pt
                 if i > 0:
                     pt.add_constraint(self.pts[width * (i - 1) + j])
                 if j > 0:
@@ -90,7 +94,7 @@ class ShapeCloth(Cloth):
                     pt.pinned = True
                 if shape_fn(pt.x, pt.y):
                     self.shapepts.append(pt)
-                    pt.shape = True
+                    pt.shape = 1
                 else:
                     self.normalpts.append(pt)
                 self.pts.append(pt)
