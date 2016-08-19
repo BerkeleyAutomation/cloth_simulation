@@ -8,6 +8,9 @@ from registration import *
 from scipy import signal
 from scipy import stats
 
+"""
+Using a heuristic, the TensionPointFinder object finds a set of valid points on the cloth that could be grabbed by a tensioner and stilla avoid collisions.
+"""
 
 class TensionPointFinder(object):
 
@@ -15,6 +18,9 @@ class TensionPointFinder(object):
         self.cloth = cloth
 
     def find_valid_pts(self):
+        """
+        Returns a map of valid points on the cloth object that could be used to tensioned without collisions with the second arm.
+        """
         width, height = self.cloth.initial_params[0]
         dx, dy = self.cloth.initial_params[1]
         shape_fn = self.cloth.initial_params[2]
@@ -52,6 +58,9 @@ class TensionPointFinder(object):
         return -grid + 1
 
     def slope(self, x, y, centerx=None, centery=None):
+        """
+        Computes slope from (centerx, centery) to (x, y).
+        """
         if not centerx:
             centerx = 0
         if not centery:
