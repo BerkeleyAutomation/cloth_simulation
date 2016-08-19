@@ -27,7 +27,7 @@ class PinEnv(Env):
 
     @property
     def observation_space(self):
-        return Box(low=-800, high=800, shape=(self.os_dim,))
+        return Box(low=-800, high=800, shape=(self.os_dim + 5,))
 
     @property
     def action_space(self):
@@ -39,7 +39,7 @@ class PinEnv(Env):
         for i in range(self.os_dim / 5):
             pt = self.simulation.cloth.allpts[i]
             lst.append([pt.x, pt.y, pt.z, len(pt.constraints), pt.shape])
-        return np.array(lst)
+        return np.array(lst + [self.tensioner.x, self.tensioner.y] + list(self.tensioner.displacement))
 
     @property
     def _score(self):

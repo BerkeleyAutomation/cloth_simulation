@@ -131,13 +131,32 @@ def load_simulation_from_config(fname="config_files/default.json", shape_fn=None
     mouse = Mouse(mouse["x"], mouse["y"], mouse["z"], mouse["height_limit"], mouse["down"], mouse["button"], bounds)
     cloth = data["shapecloth"]
     if not shape_fn:
-        corners = load_robot_points("calibration_data/" + cloth["shape_fn"][0])
-        pts = load_robot_points("calibration_data/" + cloth["shape_fn"][1])
+        corners = load_robot_points(cloth["shape_fn"][0])
+        pts = load_robot_points(cloth["shape_fn"][1])
         shape_fn = get_shape_fn(corners, pts, True)
     cloth = ShapeCloth(shape_fn, mouse, cloth["width"], cloth["height"], cloth["dx"], cloth["dy"], 
         cloth["gravity"], cloth["elasticity"], cloth["pin_cond"], bounds)
     simulation = data["simulation"]
     return Simulation(cloth, simulation["init"], simulation["render"], simulation["update_iterations"])
+
+def read_trajectory_from_file(fname):
+    """
+    Load a trajectory from file.
+    """
+    f = open(fname, "rb")
+    try:
+        return pickle.load(f)
+    except EOFError:
+        print 'Nothing written to file.'
+
+def write_trajectory_to_file(trajectory, fname):
+    """
+    Writes a trajectory to file.
+    """
+    f = open(fname, "w+")
+    pickle.dump(trajectory, f)
+    f.close()
+
 
 if __name__ == "__main__":
     if len(sys.argv) <= 1:

@@ -8,6 +8,8 @@ class Tensioner(object):
 
     def __init__(self, x, y, cloth):
         self.x, self.y = x, y
+        self.origx, self.origy = x, y
+        self.dz = 0
         self.cloth = cloth
         self.grabbed_pts = []
         cloth.add_tensioner(self)
@@ -38,3 +40,12 @@ class Tensioner(object):
         for pt in self.grabbed_pts:
             pt.px, pt.py, pt.pz = pt.x, pt.y, pt.z
             pt.x, pt.y, pt.z = x + pt.x, y + pt.y, z + pt.z
+            self.dz += z
+
+    @property
+    def displacement(self):
+        """
+        Displacement from the original grabbing position
+        """
+        return np.array((self.x - self.origx, self.y - self.origy, self.dz))
+    
