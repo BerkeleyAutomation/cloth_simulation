@@ -9,6 +9,10 @@ from scorer import *
 from shapecloth import *
 from tensioner import *
 
+"""
+A Rllab Environment for the tensioning policy experiments.
+"""
+
 class PinEnv(Env):
 
     def __init__(self, simulation, x, y, trajectory, scorer=1):

@@ -8,6 +8,7 @@
 *.p
 *.jpg
 *.png
+*.json
 
 # Calibration Data#
 ###################
