@@ -29,7 +29,7 @@ class Simulation(object):
         self.stored = False
 
 
-    def update(self, iterations=3):
+    def update(self, iterations=1):
         """
         Updates the state of the cloth. Iterations signifies the amount of time to spend to allow the cloth to equilibrate.
         """
@@ -126,7 +126,7 @@ if __name__ == "__main__":
     scorer = Scorer(1)
 
     mouse = Mouse(down=True)
-    cloth = ShapeCloth(shape_fn, mouse)
+    cloth = ShapeCloth(shape_fn, mouse, gravity=-2500)
     simulation = Simulation(cloth, render=True)
     simulation.reset()
 
