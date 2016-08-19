@@ -42,9 +42,27 @@ Contains a simulation object class that can be used for running simulations with
 
 To run a trial that cuts a predefined trajectory on a CircleCloth object, run "python simulation.py" in the terminal from within the directory containing the scripts.
 
+### environment_rep
+
+A package containing environments defined for various experiments with various frameworks such as RLPy or rllab.
+
+### config_files
+
+A folder containing configuration files that can be used to generate simulation objects. An example is default.json.
+
 ### Dependencies
 
 * Python 2.7
 * Matplotlib
 * Numpy
 * Scipy 0.18.0 or newer
+
+### Optional Dependencies
+
+Dependencies that are only required for specific scripts in the repository, but not for core functionality.
+
+* rllab
+* RLPy
+* OpenAi Gym
+* ROS
+* dvrk_utils
