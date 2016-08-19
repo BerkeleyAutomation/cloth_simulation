@@ -63,6 +63,6 @@ Dependencies that are only required for specific scripts in the repository, but 
 
 * rllab
 * RLPy
-* OpenAi Gym
+* OpenAI Gym
 * ROS
 * dvrk_utils
