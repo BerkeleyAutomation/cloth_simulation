@@ -14,7 +14,7 @@
     },
     "simulation": {
         "init": 200,
-        "render": true,
+        "render": false,
         "update_iterations": 1
     },
     "shapecloth": {

@@ -13,7 +13,7 @@ class Scorer(object):
 
 	def __init__(self, fn=0):
 		if not fn:
-			self.score_fn = lambda c: len(c.shapepts)
+			self.score_fn = lambda c: -len(c.shapepts)
 		elif fn == 1:
 			self.score_fn = bad_edge_score
 		else:
@@ -31,5 +31,5 @@ def bad_edge_score(cloth):
 		for constraint in pt.constraints:
 			if (constraint.p1 in cloth.normalpts and constraint.p2 in cloth.shapepts) or (constraint.p1 in cloth.shapepts and constraint.p2 in cloth.normalpts):
 				count += 1
-	return count
+	return -count
 
