@@ -5,6 +5,10 @@ from simulation import *
 from shapecloth import *
 from mouse import *
 
+"""
+A scorer object that assigns a score to the state of a cloth object. The scoring function can be overridden or can be specified from a selection of previously defined functions.
+"""
+
 class Scorer(object):
 
 	def __init__(self, fn=0):
@@ -19,6 +23,9 @@ class Scorer(object):
 		return self.score_fn(cloth)
 
 def bad_edge_score(cloth):
+	"""
+	Another naive scoring function that counts the number of edges from shapepts to normalpts.
+	"""
 	count = 0
 	for pt in cloth.normalpts:
 		for constraint in pt.constraints:

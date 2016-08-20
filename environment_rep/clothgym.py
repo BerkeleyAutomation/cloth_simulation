@@ -6,7 +6,7 @@ from gym.utils import seeding
 import numpy as np
 import sys
 # sys.path.insert(0,'..')
-sys.path.append("/home/jarvis/work/code/cloth_simulation/")
+sys.path.append("/home/davinci0/cloth_simulation/")
 from simulation import Simulation
 from mouse import Mouse
 from shapecloth import ShapeCloth

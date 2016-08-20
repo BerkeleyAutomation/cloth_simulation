@@ -4,6 +4,9 @@ from math import sqrt
 from scipy.interpolate import interp1d
 
 def load_robot_points(fname="gauze_pts.p"):
+    """
+    Loads a set of robot frame points from a pickle file.
+    """
     lst = []
     f3 = open('calibration_data/'+fname,"rb")
     while True:
@@ -15,6 +18,9 @@ def load_robot_points(fname="gauze_pts.p"):
             return np.matrix(lst)
 
 def get_basis(corners):
+    """
+    Finds a basis from corners where v1 and v2 are vectors denoting two edges of the robot frame gauze. V3 is a vector perpendicular to these two vectors, thus forming a basis in R^3.
+    """
     v1 = np.array(corners[1]) - np.array(corners[0])
     v2 = np.array(corners[2]) - np.array(corners[0])
     v3 = np.cross(v1, v2)
@@ -25,12 +31,21 @@ def get_basis(corners):
 
 
 def get_scale(corners, px_distance=500):
+    """
+    Finds the scale of a pixel in robot frame.
+    """
     return  float(px_distance) / np.linalg.norm(np.array(corners[0]) - np.array(corners[1]))
 
 def transform_and_project_point(transform, scale, pt, corners, offset=(50,50)):
+    """
+    Takes a point in robot frame and projects it onto the cloth object's plane.
+    """
     return np.ravel(np.matrix(transform) * np.matrix((np.array(pt)  - np.array(corners[0]))).T * scale)[:2] + np.array(offset)
 
 def get_shape_fn(corners, pts, interpolate=False):
+    """
+    Finds a function that represents the shape outlined by pts in robot frame, in the cloth simulation object's coordinate frame.
+    """
     scale = get_scale(corners)
     basis = get_basis(corners)
     pxpts = []
