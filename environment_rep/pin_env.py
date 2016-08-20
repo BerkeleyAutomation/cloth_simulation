@@ -24,6 +24,7 @@ class PinEnv(Env):
         self.scorer = Scorer(scorer)
         self.trajectory = trajectory
         self.traj_index = 0
+        self.pinx, self.piny = x, y
 
     @property
     def observation_space(self):
@@ -39,14 +40,17 @@ class PinEnv(Env):
         for i in range(self.os_dim / 5):
             pt = self.simulation.cloth.allpts[i]
             lst.append([pt.x, pt.y, pt.z, len(pt.constraints), pt.shape])
-        return np.array(lst + [self.tensioner.x, self.tensioner.y] + list(self.tensioner.displacement))
+        state = np.hstack((np.ravel(lst),  [self.tensioner.x, self.tensioner.y], self.tensioner.displacement))
 
+        return state
     @property
     def _score(self):
         return self.scorer.score(self.simulation.cloth)
 
     def reset(self):
         self.simulation.reset()
+        self.tensioner = self.simulation.pin_position(self.pinx, self.piny)
+        self.traj_index = 0
         observation = np.copy(self._state)
         return observation
 
@@ -62,4 +66,6 @@ class PinEnv(Env):
         return Step(observation=next_observation, reward=reward, done=done)
 
     def render(self):
-        self.simulation.render_sim()
+        if self.simulation.render:
+            self.simulation.render_sim()
+
