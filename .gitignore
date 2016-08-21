@@ -1,6 +1,12 @@
 # Compiled Source #
 ###################
 *.pyc
+build/*
+*.so
+
+# C/Cython files  #
+###################
+*.c
 
 # Data            #
 ###################
