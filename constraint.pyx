@@ -19,16 +19,22 @@ class Constraint(object):
         """
         Updates the points in the constraint based on how much the constraint has been violated. Elasticity is a paramter that can be tuned that affects the response of a constraint.
         """
-        dx, dy, dz = self.p1.x - self.p2.x, self.p1.y - self.p2.y, self.p1.z - self.p2.z
-        dist = sqrt(dx ** 2 + dy ** 2 + dz ** 2)
-        diff = (self.length - dist) / float(dist)
+        cdef double delta[3]
+        delta[0] = self.p1.x - self.p2.x
+        delta[1] = self.p1.y - self.p2.y
+        delta[2] = self.p1.z - self.p2.z
+        cdef double dist = sqrt(delta[0] ** 2 + delta[1] ** 2 + delta[2] ** 2)
+        cdef double diff = (self.length - dist) / float(dist) * 0.5 * self.elasticity
+
 
         if dist > self.tear_dist:
             self.p1.constraints.remove(self)
 
         # Elasticity, usually pick something between 0.01 and 1.5
+        cdef double px = diff * delta[0]
+        cdef double py = diff * delta[1]
+        cdef double pz = diff * delta[2]
 
-        px, py, pz = [delta * diff * 0.5 * self.elasticity for delta in (dx, dy, dz)]
 
         if not self.p1.pinned:
             self.p1.x, self.p1.y, self.p1.z = self.p1.x + px, self.p1.y + py, self.p1.z + pz
