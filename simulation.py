@@ -163,9 +163,10 @@ if __name__ == "__main__":
     else:
         shape_fn=None
 
-    scorer = Scorer(1)
+    scorer = Scorer(0)
     simulation = load_simulation_from_config(shape_fn=shape_fn)
     simulation.reset()
+
 
     print "Initial Score", scorer.score(simulation.cloth)
 
