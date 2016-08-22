@@ -21,7 +21,7 @@
     },
     "shapecloth": {
         "shape_fn": [
-            "calibration_data/gauze_pts.p", "calibration_data/gauze_pts2.p"
+            "gauze_pts.p", "gauze_pts2.p"
             ],
         "width": 50,
         "height": 50,

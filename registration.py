@@ -55,6 +55,19 @@ def get_shape_fn(corners, pts, interpolate=False):
         pxpts = interpolation(np.array(pxpts), 10).tolist()
     return lambda x, y: np.min(np.linalg.norm(np.matrix(np.tile(np.array((x, y)), (len(pxpts), 1))) - pxpts, axis=1)) < 10
 
+def get_trajectory(corners, pts, interpolate=True):
+    """
+    Finds a function that represents the shape outlined by pts in robot frame, in the cloth simulation object's coordinate frame.
+    """
+    scale = get_scale(corners)
+    basis = get_basis(corners)
+    pxpts = []
+    for pt in pts:
+        pxpts.append(transform_and_project_point(basis, scale, pt, corners).tolist())
+    if interpolate:
+        pxpts = interpolation(np.array(pxpts), 10).tolist()
+    return pxpts
+
 def interpolation(arr, factor):
     """
     Given a matrix of x,y coordinates, output a linearly interpolated matrix of coordinates with factor * arr.shape[0] points.

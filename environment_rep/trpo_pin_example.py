@@ -21,15 +21,11 @@ from tensioner import *
 
 if __name__ == '__main__':
     
-    shape_fn = lambda x, y: abs((x - 300) **2 + (y - 300) ** 2 - 150 **2) < 2000
     scorer = Scorer(0)
-    simulation = load_simulation_from_config("../config_files/default.json", shape_fn)
+    simulation = load_simulation_from_config("../config_files/experiment.json")
+    trajectory = load_trajectory_from_config("../config_files/experiment.json")
     simulation.reset()
-    trajectory = [(np.cos(deg) * 150 + 300, np.sin(deg) * 150 + 300) for deg in [3.6 * np.pi * i / 180.0 for i in range(100)]]
-
-    # stub(globals())
-
-    env = normalize(PinEnv(simulation, 300, 300, trajectory))
+    env = normalize(PinEnv(simulation, 400, 190, trajectory))
 
 
     policy = GaussianMLPPolicy(
@@ -38,7 +34,6 @@ if __name__ == '__main__':
         hidden_sizes=(32, 32)
     )
 
-
     # baseline = LinearFeatureBaseline(env_spec=env.spec)
     baseline = ZeroBaseline(env_spec=env.spec)
 
@@ -46,11 +41,9 @@ if __name__ == '__main__':
         env=env,
         policy=policy,
         baseline=baseline,
-        batch_size=5000,
+        batch_size=1000,
         step_size = 0.0001,
         discount = 1,
-
-        # plot=True,
     )
 
     # algo = VPG(

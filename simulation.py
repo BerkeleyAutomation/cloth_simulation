@@ -139,6 +139,17 @@ def load_simulation_from_config(fname="config_files/default.json", shape_fn=None
     simulation = data["simulation"]
     return Simulation(cloth, simulation["init"], simulation["render"], simulation["update_iterations"])
 
+def load_trajectory_from_config(fname="config_files/default.json"):
+    """
+    Returns a trajectory created from the pt registration files specified in FNAME.
+    """
+    with open(fname) as data_file:    
+        data = json.load(data_file)
+    cloth = data["shapecloth"]
+    corners = load_robot_points(cloth["shape_fn"][0])
+    pts = load_robot_points(cloth["shape_fn"][1])
+    return get_trajectory(corners, pts, True)
+
 def read_trajectory_from_file(fname):
     """
     Load a trajectory from file.
@@ -160,8 +171,10 @@ def write_trajectory_to_file(trajectory, fname):
 if __name__ == "__main__":
     if len(sys.argv) <= 1:
         shape_fn = lambda x, y: abs((x - 300) **2 + (y - 300) ** 2 - 150 **2) < 2000
+        trajectory = [(np.cos(deg) * 150 + 300, np.sin(deg) * 150 + 300) for deg in [3.6 * np.pi * i / 180.0 for i in range(100)]]
     else:
         shape_fn=None
+        trajectory = load_trajectory_from_config()
 
     scorer = Scorer(0)
     simulation = load_simulation_from_config(shape_fn=shape_fn)
@@ -170,9 +183,9 @@ if __name__ == "__main__":
 
     print "Initial Score", scorer.score(simulation.cloth)
 
-    trajectory = [(np.cos(deg) * 150 + 300, np.sin(deg) * 150 + 300) for deg in [3.6 * np.pi * i / 180.0 for i in range(100)]]
+    
 
-    for i in range(100):
+    for i in range(len(trajectory)):
         simulation.update()
         simulation.move_mouse(trajectory[i][0], trajectory[i][1])
 
@@ -182,7 +195,7 @@ if __name__ == "__main__":
 
     simulation.pin_position(300, 300)
 
-    for i in range(100):
+    for i in range(len(trajectory)):
         simulation.update()
         simulation.move_mouse(trajectory[i][0], trajectory[i][1])    
 
