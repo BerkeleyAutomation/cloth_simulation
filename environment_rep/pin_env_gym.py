@@ -15,6 +15,9 @@ import logging
 An OpenAI Gym environment for the tensioning policy experiments.
 """
 
+### NOTE: code not ready for use yet.
+
+
 class PinClothEnv(gym.Env):
     metadata = {
         'render.modes': ['human', 'rgb_array'],

@@ -30,5 +30,12 @@
         "gravity": -2500,
         "elasticity": 1.0,
         "pin_cond": "default"
+    },
+    "options": {
+        "use_shape_pts": false,
+        "pin_position": {
+            "x": 300,
+            "y": 300
+        }
     }
 }

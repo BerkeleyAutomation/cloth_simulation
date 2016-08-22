@@ -28,29 +28,24 @@ def query_policy(policy, observation):
 if __name__ == "__main__":
     if len(sys.argv) <= 1:
         shape_fn = lambda x, y: abs((x - 300) **2 + (y - 300) ** 2 - 150 **2) < 2000
-        trajectory = [(np.cos(deg) * 150 + 300, np.sin(deg) * 150 + 300) for deg in [3.6 * np.pi * i / 180.0 for i in range(100)]]
     else:
         shape_fn=None
-        trajectory = load_trajectory_from_config()
 
+    simulation = load_simulation_from_config("config_files/experiment.json", shape_fn)
     policy = load_policy("experiment_data/policy.p")
     scorer = Scorer(0)
-    simulation = load_simulation_from_config("config_files/experiment.json", shape_fn)
     simulation.reset()
-
     simulation.render = True
-
 
     print "Initial Score", scorer.score(simulation.cloth)
 
-
     tensioner = simulation.pin_position(300, 300)
 
-    for i in range(100):
+    for i in range(len(simulation.trajectory)):
         simulation.update()
         action = query_policy(policy, i)
         print action[1]['mean']
         tensioner.tension(action[1]['mean'][0], action[1]['mean'][1])
-        simulation.move_mouse(trajectory[i][0], trajectory[i][1])    
+        simulation.move_mouse(simulation.trajectory[i][0], simulation.trajectory[i][1])    
 
     print "Score", scorer.score(simulation.cloth)

@@ -23,9 +23,9 @@ if __name__ == '__main__':
     
     scorer = Scorer(0)
     simulation = load_simulation_from_config("../config_files/experiment.json")
-    trajectory = load_trajectory_from_config("../config_files/experiment.json")
+    pin_position = load_pin_from_config("../config_files/experiment.json")
     simulation.reset()
-    env = normalize(PinEnv(simulation, 400, 190, trajectory))
+    env = normalize(PinEnv(simulation, pin_position[0], pin_position[1], simulation.trajectory))
 
 
     policy = GaussianMLPPolicy(

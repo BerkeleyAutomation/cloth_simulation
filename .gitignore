@@ -3,6 +3,7 @@
 *.pyc
 build/*
 *.so
+*pyd
 
 # C/Cython files  #
 ###################

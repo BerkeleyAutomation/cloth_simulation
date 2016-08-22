@@ -28,22 +28,15 @@ class PinEnv(Env):
 
     @property
     def observation_space(self):
-        # return Box(low=-800, high=800, shape=(self.os_dim + 5,))
         return Box(low=0, high=100, shape=(1,))
 
     @property
     def action_space(self):
-        # return Box(low=np.array([-1.0, -1.0, -1.0]), high=np.array([1.0, 1.0, 1.0]))
         return Box(low=np.array([-1, -1]), high=np.array([1, 1]))
 
 
     @property
     def _state(self):
-        # lst = []
-        # for i in range(self.os_dim / 5):
-        #     pt = self.simulation.cloth.allpts[i]
-        #     lst.append([pt.x, pt.y, pt.z, len(pt.constraints), pt.shape])
-        # state = np.hstack((np.ravel(lst),  [self.tensioner.x, self.tensioner.y], self.tensioner.displacement))
         state = np.array(self.traj_index)
         return state
     
