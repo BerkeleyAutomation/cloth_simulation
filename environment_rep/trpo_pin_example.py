@@ -2,6 +2,7 @@ from __future__ import print_function
 from __future__ import absolute_import
 
 from rllab.algos.trpo import TRPO
+from rllab.algos.vpg import VPG
 from rllab.baselines.linear_feature_baseline import LinearFeatureBaseline
 from rllab.baselines.zero_baseline import ZeroBaseline
 from rllab.envs.gym_env import GymEnv
@@ -28,7 +29,7 @@ if __name__ == '__main__':
 
 	# stub(globals())
 
-	env = (PinEnv(simulation, 300, 300, trajectory))
+	env = normalize(PinEnv(simulation, 300, 300, trajectory))
 
 
 	policy = GaussianMLPPolicy(
@@ -44,7 +45,8 @@ if __name__ == '__main__':
 	    env=env,
 	    policy=policy,
 	    baseline=baseline,
-	    batch_size=100
+	    batch_size=100,
+	    step_size = 0.01
 	    # Uncomment both lines (this and the plot parameter below) to enable plotting
 	    # plot=True,
 	)
@@ -53,7 +55,7 @@ if __name__ == '__main__':
 	#     env=env,
 	#     policy=policy,
 	#     baseline=baseline,
-	#     batch_size=100
+	#     batch_size=10
 	#     # Uncomment both lines (this and the plot parameter below) to enable plotting
 	#     # plot=True,
 	# )

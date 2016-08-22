@@ -15,7 +15,7 @@ A Rllab Environment for the tensioning policy experiments.
 
 class PinEnv(Env):
 
-    def __init__(self, simulation, x, y, trajectory, scorer=1):
+    def __init__(self, simulation, x, y, trajectory, scorer=0):
         self.simulation = simulation
         height, width = simulation.cloth.initial_params[0]
         self.os_dim = height * width * 5
@@ -28,24 +28,29 @@ class PinEnv(Env):
 
     @property
     def observation_space(self):
-        return Box(low=-800, high=800, shape=(self.os_dim + 5,))
+        # return Box(low=-800, high=800, shape=(self.os_dim + 5,))
+        return Box(low=0, high=100, shape=(1,))
 
     @property
     def action_space(self):
-        return Box(low=-10, high=10, shape=(3,))
+        # return Box(low=np.array([-1.0, -1.0, -1.0]), high=np.array([1.0, 1.0, 1.0]))
+        return Box(low=np.array([-0.5, -0.5]), high=np.array([0.5, 0.5]))
+
 
     @property
     def _state(self):
-        lst = []
-        for i in range(self.os_dim / 5):
-            pt = self.simulation.cloth.allpts[i]
-            lst.append([pt.x, pt.y, pt.z, len(pt.constraints), pt.shape])
-        state = np.hstack((np.ravel(lst),  [self.tensioner.x, self.tensioner.y], self.tensioner.displacement))
-
+        # lst = []
+        # for i in range(self.os_dim / 5):
+        #     pt = self.simulation.cloth.allpts[i]
+        #     lst.append([pt.x, pt.y, pt.z, len(pt.constraints), pt.shape])
+        # state = np.hstack((np.ravel(lst),  [self.tensioner.x, self.tensioner.y], self.tensioner.displacement))
+        state = np.array(self.traj_index)
         return state
+    
     @property
     def _score(self):
         return self.scorer.score(self.simulation.cloth)
+
 
     def reset(self):
         self.simulation.reset()
@@ -55,12 +60,12 @@ class PinEnv(Env):
         return observation
 
     def step(self, action):
-        x, y, z = action
-        self.tensioner.tension(x, y, z)
+        x, y = action
+        self.tensioner.tension(x, y, z=0)
         self.simulation.move_mouse(self.trajectory[self.traj_index][0], self.trajectory[self.traj_index][1])
         self.simulation.update()
         reward = self._score
-        done = reward == 0 or self.traj_index >= len(self.trajectory) - 1
+        done = self.traj_index >= len(self.trajectory) - 1
         next_observation = np.copy(self._state)
         self.traj_index += 1
         return Step(observation=next_observation, reward=reward, done=done)

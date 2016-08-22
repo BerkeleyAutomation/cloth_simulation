@@ -12,7 +12,7 @@ A scorer object that assigns a score to the state of a cloth object. The scoring
 class Scorer(object):
 
 	def __init__(self, fn=0):
-		if not fn:
+		if fn == 0:
 			self.score_fn = lambda c: -len(c.shapepts)
 		elif fn == 1:
 			self.score_fn = bad_edge_score

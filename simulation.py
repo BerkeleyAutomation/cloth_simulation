@@ -128,7 +128,7 @@ def load_simulation_from_config(fname="config_files/default.json", shape_fn=None
     mouse = data["mouse"]
     bounds = data["bounds"]
     bounds = (bounds["x"], bounds["y"], bounds["z"])
-    mouse = Mouse(mouse["x"], mouse["y"], mouse["z"], mouse["height_limit"], mouse["down"], mouse["button"], bounds)
+    mouse = Mouse(mouse["x"], mouse["y"], mouse["z"], mouse["height_limit"], mouse["down"], mouse["button"], bounds, mouse["influence"], mouse["cut"])
     cloth = data["shapecloth"]
     if not shape_fn:
         corners = load_robot_points(cloth["shape_fn"][0])

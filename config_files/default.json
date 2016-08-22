@@ -10,7 +10,9 @@
         "z": 0,
         "height_limit": false,
         "down": true,
-        "button": 0
+        "button": 0,
+        "cut": 10,
+        "influence": 5
     },
     "simulation": {
         "init": 200,
