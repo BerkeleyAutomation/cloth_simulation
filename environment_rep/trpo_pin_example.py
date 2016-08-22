@@ -38,6 +38,7 @@ if __name__ == '__main__':
         hidden_sizes=(32, 32)
     )
 
+
     # baseline = LinearFeatureBaseline(env_spec=env.spec)
     baseline = ZeroBaseline(env_spec=env.spec)
 
@@ -45,11 +46,10 @@ if __name__ == '__main__':
         env=env,
         policy=policy,
         baseline=baseline,
-        batch_size=1000,
+        batch_size=5000,
         step_size = 0.0001,
         discount = 1,
-        n_iter=50,
-        # Uncomment both lines (this and the plot parameter below) to enable plotting
+
         # plot=True,
     )
 
@@ -58,11 +58,10 @@ if __name__ == '__main__':
     #     policy=policy,
     #     baseline=baseline,
     #     batch_size=10
-    #     # Uncomment both lines (this and the plot parameter below) to enable plotting
     #     # plot=True,
     # )
 
     algo.train()
 
     with open("../experiment_data/policy.p", "w+") as f:
-        pickle.dump(algo, f)
+        pickle.dump(policy, f)

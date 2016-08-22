@@ -16,17 +16,17 @@
     },
     "simulation": {
         "init": 200,
-        "render": false,
+        "render": true,
         "update_iterations": 1
     },
     "shapecloth": {
         "shape_fn": [
             "calibration_data/gauze_pts.p", "calibration_data/gauze_pts2.p"
             ],
-        "width": 20,
-        "height": 20,
-        "dx": 25,
-        "dy": 25,
+        "width": 50,
+        "height": 50,
+        "dx": 10,
+        "dy": 10,
         "gravity": -2500,
         "elasticity": 1.0,
         "pin_cond": "default"

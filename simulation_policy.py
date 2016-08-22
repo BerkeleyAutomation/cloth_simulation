@@ -11,15 +11,15 @@ from registration import *
 from scorer import *
 
 def load_policy(fname):
-	with open(fname, "rb") as f:
+    with open(fname, "rb") as f:
         try:
             return pickle.load(f)
         except EOFError:
             print 'Nothing written to file.'
 
 def query_policy(policy, observation):
-	observation = np.array(observation)
-	return policy.get_action(observation)
+    observation = np.array(observation)
+    return policy.get_action(observation)
 
 if __name__ == "__main__":
     if len(sys.argv) <= 1:
@@ -32,6 +32,8 @@ if __name__ == "__main__":
     simulation = load_simulation_from_config(shape_fn=shape_fn)
     simulation.reset()
 
+    simulation.render = True
+
 
     print "Initial Score", scorer.score(simulation.cloth)
 
@@ -43,7 +45,7 @@ if __name__ == "__main__":
         simulation.update()
         action = query_policy(policy, i)
         print action
-        # tensioner.tension(action[0], action[1])
+        tensioner.tension(action[1]['mean'][0], action[1]['mean'][1])
         simulation.move_mouse(trajectory[i][0], trajectory[i][1])    
 
     print "Score", scorer.score(simulation.cloth)
