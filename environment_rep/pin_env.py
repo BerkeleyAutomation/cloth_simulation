@@ -3,7 +3,7 @@ from rllab.spaces import Box
 from rllab.envs.base import Step
 import numpy as np
 import sys, pickle, os
-sys.path.append("/home/davinci0/cloth_simulation")
+sys.path.append(os.path.dirname(os.getcwd()))
 from simulation import *
 from scorer import *
 from shapecloth import *
@@ -34,7 +34,7 @@ class PinEnv(Env):
     @property
     def action_space(self):
         # return Box(low=np.array([-1.0, -1.0, -1.0]), high=np.array([1.0, 1.0, 1.0]))
-        return Box(low=np.array([-0.5, -0.5]), high=np.array([0.5, 0.5]))
+        return Box(low=np.array([-1, -1]), high=np.array([1, 1]))
 
 
     @property
@@ -71,6 +71,5 @@ class PinEnv(Env):
         return Step(observation=next_observation, reward=reward, done=done)
 
     def render(self):
-        if self.simulation.render:
-            self.simulation.render_sim()
+        self.simulation.render_sim()
 

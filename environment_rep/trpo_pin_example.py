@@ -13,7 +13,7 @@ from rllab.policies.gaussian_mlp_policy import GaussianMLPPolicy
 from pin_env import *
 import numpy as np
 import sys, pickle, os
-sys.path.append("/home/davinci0/cloth_simulation")
+sys.path.append(os.path.dirname(os.getcwd()))
 from simulation import *
 from scorer import *
 from shapecloth import *
