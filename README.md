@@ -60,6 +60,7 @@ A folder containing configuration files that can be used to generate simulation 
 * Matplotlib
 * Numpy
 * Scipy 0.18.0 or newer
+* Cython
 
 ### Optional Dependencies
 
