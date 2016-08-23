@@ -54,11 +54,11 @@ class Cloth(object):
     def add_tensioner(self, tensioner):
         self.tensioners.append(tensioner)
 
-    def pin_position(self, x, y):
+    def pin_position(self, x, y, max_displacement=False):
         """
         Grab a position on the cloth and pin it in place. Automatically adds it to the cloth's list of tensioners.
         """
-        return Tensioner(x, y, self)
+        return Tensioner(x, y, self, max_displacement)
 
     def unpin_position(self, x, y):
         """

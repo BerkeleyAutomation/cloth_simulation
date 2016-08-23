@@ -7,7 +7,7 @@ A Tensioner grabs a circular region of cloth and fixes it in place. It can then 
 
 class Tensioner(object):
 
-    def __init__(self, x, y, cloth):
+    def __init__(self, x, y, cloth, max_displacement=False):
         self.x, self.y = x, y
         self.origx, self.origy = x, y
         self.dz = 0
@@ -15,6 +15,10 @@ class Tensioner(object):
         self.grabbed_pts = []
         cloth.add_tensioner(self)
         self.pin_position(x, y)
+        if max_displacement:
+            self.max_displacement = max_displacement
+        else:
+            self.max_displacement = float('inf')
 
     def pin_position(self, x, y):
         """
@@ -38,10 +42,14 @@ class Tensioner(object):
         """
         Tug on the grabbed area in a direction.
         """
+        if np.linalg.norm([self.x - self.origx + x, self.y - self.origy + y, self.dz + z]) > self.max_displacement:
+            return
         for pt in self.grabbed_pts:
             pt.px, pt.py, pt.pz = pt.x, pt.y, pt.z
             pt.x, pt.y, pt.z = x + pt.x, y + pt.y, z + pt.z
             self.dz += z
+        self.x += x
+        self.y += y
 
     @property
     def displacement(self):

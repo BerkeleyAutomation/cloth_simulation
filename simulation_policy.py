@@ -43,8 +43,8 @@ if __name__ == "__main__":
     print "No Pin Score", scorer.score(simulation.cloth)
 
     simulation.reset()
-    pin_position = load_pin_from_config("config_files/experiment.json")
-    tensioner = simulation.pin_position(pin_position[0], pin_position[1])
+    pin_position, option = load_pin_from_config("config_files/experiment.json")
+    tensioner = simulation.pin_position(pin_position[0], pin_position[1], option)
 
     for i in range(len(simulation.trajectory)):
         simulation.update()
@@ -53,8 +53,7 @@ if __name__ == "__main__":
     print "Fixed Pin Score", scorer.score(simulation.cloth)
 
     simulation.reset()
-    pin_position = load_pin_from_config("config_files/experiment.json")
-    tensioner = simulation.pin_position(pin_position[0], pin_position[1])
+    tensioner = simulation.pin_position(pin_position[0], pin_position[1], option)
 
     for i in range(len(simulation.trajectory)):
         simulation.update()

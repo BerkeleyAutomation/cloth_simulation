@@ -57,11 +57,11 @@ class Simulation(object):
         ax.set_axis_bgcolor('white')
         plt.pause(0.01)
 
-    def pin_position(self, x, y):
+    def pin_position(self, x, y, max_displacement):
         """
         Pins a position on the cloth.
         """
-        return self.cloth.pin_position(x, y)
+        return self.cloth.pin_position(x, y, max_displacement)
 
     def unpin_position(self, x, y):
         """
@@ -162,11 +162,12 @@ def load_pin_from_config(fname="config_files/default.json"):
         data = json.load(data_file)
     options = data["options"]
     pin = options["pin_position"]
+    option = options["max_displacement"]
     x = pin["x"]
     y = pin["y"]
     if not any((x, y)):
         return None
-    return (x, y)
+    return (x, y), option
 
 def read_trajectory_from_file(fname):
     """
@@ -205,9 +206,9 @@ if __name__ == "__main__":
     print "Score", scorer.score(simulation.cloth)
     
     simulation.reset()
-    pin_position = load_pin_from_config()
+    pin_position, option = load_pin_from_config()
     if pin_position:
-        simulation.pin_position(pin_position[0], pin_position[1])
+        simulation.pin_position(pin_position[0], pin_position[1], option)
 
     for i in range(len(simulation.trajectory)):
         simulation.update()

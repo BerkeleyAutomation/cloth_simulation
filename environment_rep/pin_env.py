@@ -15,12 +15,12 @@ A Rllab Environment for the tensioning policy experiments.
 
 class PinEnv(Env):
 
-    def __init__(self, simulation, x, y, trajectory, scorer=0):
+    def __init__(self, simulation, x, y, trajectory, scorer=0, max_displacement=False):
         self.simulation = simulation
         height, width = simulation.cloth.initial_params[0]
         self.os_dim = height * width * 5
         self.simulation.reset()
-        self.tensioner = self.simulation.pin_position(x, y)
+        self.tensioner = self.simulation.pin_position(x, y, max_displacement)
         self.scorer = Scorer(scorer)
         self.trajectory = trajectory
         self.traj_index = 0
@@ -28,7 +28,8 @@ class PinEnv(Env):
 
     @property
     def observation_space(self):
-        return Box(low=0, high=100, shape=(1,))
+        return Box(low=np.array([0, -self.tensioner.max_displacement, -self.tensioner.max_displacement, -self.tensioner.max_displacement]),
+            high=np.array([len(self.trajectory) + 1, self.tensioner.max_displacement, self.tensioner.max_displacement, self.tensioner.max_displacement]))
 
     @property
     def action_space(self):
@@ -37,8 +38,7 @@ class PinEnv(Env):
 
     @property
     def _state(self):
-        state = np.array(self.traj_index)
-        return state
+        return np.array([self.traj_index] + list(self.tensioner.displacement))
     
     @property
     def _score(self):
@@ -47,7 +47,7 @@ class PinEnv(Env):
 
     def reset(self):
         self.simulation.reset()
-        self.tensioner = self.simulation.pin_position(self.pinx, self.piny)
+        self.tensioner = self.simulation.pin_position(self.pinx, self.piny, self.tensioner.max_displacement)
         self.traj_index = 0
         observation = np.copy(self._state)
         return observation
