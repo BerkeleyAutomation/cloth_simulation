@@ -26,20 +26,35 @@ def query_policy(policy, observation):
     return policy.get_action(observation)
 
 if __name__ == "__main__":
-    if len(sys.argv) <= 1:
-        shape_fn = lambda x, y: abs((x - 300) **2 + (y - 300) ** 2 - 150 **2) < 2000
-    else:
-        shape_fn=None
 
-    simulation = load_simulation_from_config("config_files/experiment.json", shape_fn)
+    simulation = load_simulation_from_config("config_files/experiment.json")
     policy = load_policy("experiment_data/policy.p")
     scorer = Scorer(0)
     simulation.reset()
     simulation.render = True
+    simulation.trajectory = simulation.trajectory[::-1]
 
     print "Initial Score", scorer.score(simulation.cloth)
 
-    tensioner = simulation.pin_position(300, 300)
+    for i in range(len(simulation.trajectory)):
+        simulation.update()
+        simulation.move_mouse(simulation.trajectory[i][0], simulation.trajectory[i][1])    
+
+    print "No Pin Score", scorer.score(simulation.cloth)
+
+    simulation.reset()
+    pin_position = load_pin_from_config("config_files/experiment.json")
+    tensioner = simulation.pin_position(pin_position[0], pin_position[1])
+
+    for i in range(len(simulation.trajectory)):
+        simulation.update()
+        simulation.move_mouse(simulation.trajectory[i][0], simulation.trajectory[i][1])    
+
+    print "Fixed Pin Score", scorer.score(simulation.cloth)
+
+    simulation.reset()
+    pin_position = load_pin_from_config("config_files/experiment.json")
+    tensioner = simulation.pin_position(pin_position[0], pin_position[1])
 
     for i in range(len(simulation.trajectory)):
         simulation.update()
@@ -48,4 +63,4 @@ if __name__ == "__main__":
         tensioner.tension(action[1]['mean'][0], action[1]['mean'][1])
         simulation.move_mouse(simulation.trajectory[i][0], simulation.trajectory[i][1])    
 
-    print "Score", scorer.score(simulation.cloth)
+    print "Policy Pin Score", scorer.score(simulation.cloth)

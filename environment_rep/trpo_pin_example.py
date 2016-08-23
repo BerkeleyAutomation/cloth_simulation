@@ -21,9 +21,11 @@ from tensioner import *
 
 if __name__ == '__main__':
     
+    config_file = "../config_files/experiment.json"
     scorer = Scorer(0)
-    simulation = load_simulation_from_config("../config_files/experiment.json")
-    pin_position = load_pin_from_config("../config_files/experiment.json")
+    simulation = load_simulation_from_config(config_file)
+    simulation.trajectory = simulation.trajectory[::-1]
+    pin_position = load_pin_from_config(config_file)
     simulation.reset()
     env = normalize(PinEnv(simulation, pin_position[0], pin_position[1], simulation.trajectory))
 
@@ -41,7 +43,7 @@ if __name__ == '__main__':
         env=env,
         policy=policy,
         baseline=baseline,
-        batch_size=1000,
+        batch_size=5000,
         step_size = 0.0001,
         discount = 1,
     )

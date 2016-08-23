@@ -32,7 +32,7 @@ class PinEnv(Env):
 
     @property
     def action_space(self):
-        return Box(low=np.array([-1, -1]), high=np.array([1, 1]))
+        return Box(low=np.array([-1, -1, -1]), high=np.array([1, 1, 1]))
 
 
     @property
@@ -53,8 +53,8 @@ class PinEnv(Env):
         return observation
 
     def step(self, action):
-        x, y = action
-        self.tensioner.tension(x, y, z=0)
+        x, y, z = action
+        self.tensioner.tension(x, y, z)
         self.simulation.move_mouse(self.trajectory[self.traj_index][0], self.trajectory[self.traj_index][1])
         self.simulation.update()
         reward = self._score
