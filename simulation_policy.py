@@ -57,9 +57,9 @@ if __name__ == "__main__":
 
     for i in range(len(simulation.trajectory)):
         simulation.update()
-        action = query_policy(policy, i)
+        action = query_policy(policy, [i]+list(tensioner.displacement))
         print action[1]['mean']
-        tensioner.tension(action[1]['mean'][0], action[1]['mean'][1])
+        tensioner.tension(action[1]['mean'][0], action[1]['mean'][1], action[1]['mean'][2])
         simulation.move_mouse(simulation.trajectory[i][0], simulation.trajectory[i][1])    
 
     print "Policy Pin Score", scorer.score(simulation.cloth)

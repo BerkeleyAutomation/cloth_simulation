@@ -54,6 +54,7 @@ class PinEnv(Env):
 
     def step(self, action):
         x, y, z = action
+        print np.max(action) > 1
         self.tensioner.tension(x, y, z)
         self.simulation.move_mouse(self.trajectory[self.traj_index][0], self.trajectory[self.traj_index][1])
         self.simulation.update()
