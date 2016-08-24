@@ -1,5 +1,5 @@
-import pyximport
-pyximport.install()
+# import pyximport
+# pyximport.install()
 
 import matplotlib.pyplot as plt
 import numpy as np
