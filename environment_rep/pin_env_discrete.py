@@ -1,4 +1,5 @@
 from rllab.envs.base import Env
+from rllab.spaces import Discrete
 from rllab.spaces import Box
 from rllab.envs.base import Step
 import numpy as np
@@ -13,7 +14,18 @@ from tensioner import *
 A Rllab Environment for the tensioning policy experiments.
 """
 
-class PinEnv(Env):
+
+class PinEnvDiscrete(Env):
+
+    MAPPING = {
+        0 : (0,0,0),
+        1 : (1,0,0),
+        2 : (0,1,0),
+        3 : (0,0,1),
+        4 : (-1,0,0),
+        5 : (0,-1,0),
+        6 : (0,0,-1)
+    }
 
     def __init__(self, simulation, x, y, trajectory, scorer=0, max_displacement=False):
         self.simulation = simulation
@@ -33,7 +45,7 @@ class PinEnv(Env):
 
     @property
     def action_space(self):
-        return Box(low=np.array([-1, -1, -1]), high=np.array([1, 1, 1]))
+        return Discrete(7)
 
 
     @property
@@ -42,7 +54,10 @@ class PinEnv(Env):
     
     @property
     def _score(self):
+        disp = np.linalg.norm(self._state[1])
         score = self.scorer.score(self.simulation.cloth)
+        if disp >= self.tensioner.max_displacement - 2:
+            score -= 100
         return score
 
 
@@ -54,8 +69,8 @@ class PinEnv(Env):
         return observation
 
     def step(self, action):
-        x, y, z = action
-        self.tensioner.tension(x=x, y=y, z=z)
+        x, y, z = self.MAPPING[action]
+        self.tensioner.tension(x, y, z)
         self.simulation.move_mouse(self.trajectory[self.traj_index][0], self.trajectory[self.traj_index][1])
         reward = self.simulation.update()
         # reward = self._score

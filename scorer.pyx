@@ -13,16 +13,19 @@ class Scorer(object):
 
 	def __init__(self, fn=0):
 		if fn == 0:
-			self.score_fn = lambda c: -len(c.shapepts)
+			self.score_fn = naive_score
 		elif fn == 1:
 			self.score_fn = bad_edge_score
 		else:
 			self.score_fn = fn
 
-	def score(self, cloth):
-		return self.score_fn(cloth)
+	def score(self, cloth, action=None):
+		return self.score_fn(cloth, action)
 
-def bad_edge_score(cloth):
+def naive_score(cloth, action=None):
+	return -len(cloth.shapepts)
+
+def bad_edge_score(cloth, action=None):
 	"""
 	Another naive scoring function that counts the number of edges from shapepts to normalpts.
 	"""
@@ -32,4 +35,3 @@ def bad_edge_score(cloth):
 			if (constraint.p1 in cloth.normalpts and constraint.p2 in cloth.shapepts) or (constraint.p1 in cloth.shapepts and constraint.p2 in cloth.normalpts):
 				count += 1
 	return -count
-

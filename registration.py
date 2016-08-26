@@ -53,7 +53,7 @@ def get_shape_fn(corners, pts, interpolate=False):
         pxpts.append(transform_and_project_point(basis, scale, pt, corners).tolist())
     if interpolate:
         pxpts = interpolation(np.array(pxpts), 10).tolist()
-    return lambda x, y: np.min(np.linalg.norm(np.matrix(np.tile(np.array((x, y)), (len(pxpts), 1))) - pxpts, axis=1)) < 10
+    return lambda x, y: np.min(np.linalg.norm(np.matrix(np.tile(np.array((x, y)), (len(pxpts), 1))) - pxpts, axis=1)) < 20
 
 def get_trajectory(corners, pts, interpolate=True):
     """

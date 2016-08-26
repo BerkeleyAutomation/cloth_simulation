@@ -65,6 +65,7 @@ class ShapeCloth(Cloth):
         for pt in toremoveshape:
             self.pts.remove(pt)
             self.shapepts.remove(pt)
+        return len(toremoveshape)
 
     def reset(self):
         """

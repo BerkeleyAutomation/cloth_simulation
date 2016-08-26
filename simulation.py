@@ -40,9 +40,10 @@ class Simulation(object):
         """
         if iterations < 0:
             iterations = self.update_iterations
-        [self.cloth.update() for _ in range(iterations)]
+        ret = sum([self.cloth.update() for _ in range(iterations)])
         if self.render:
             self.render_sim()
+        return ret
 
     def render_sim(self):
         plt.clf()

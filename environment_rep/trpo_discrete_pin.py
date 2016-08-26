@@ -9,8 +9,9 @@ from rllab.envs.gym_env import GymEnv
 from rllab.envs.normalized_env import normalize
 from rllab.misc.instrument import stub, run_experiment_lite
 from rllab.policies.gaussian_mlp_policy import GaussianMLPPolicy
+from rllab.policies.categorical_mlp_policy import CategoricalMLPPolicy
 
-from pin_env import *
+from pin_env_discrete import *
 import numpy as np
 import sys, pickle, os
 sys.path.append(os.path.dirname(os.getcwd()))
@@ -27,10 +28,10 @@ if __name__ == '__main__':
     simulation.trajectory = simulation.trajectory[::-1]
     pin_position, option = load_pin_from_config(config_file)
     simulation.reset()
-    env = normalize(PinEnv(simulation, pin_position[0], pin_position[1], simulation.trajectory, 0, option))
+    env = normalize(PinEnvDiscrete(simulation, pin_position[0], pin_position[1], simulation.trajectory, 0, option))
 
 
-    policy = GaussianMLPPolicy(
+    policy = CategoricalMLPPolicy(
         env_spec=env.spec,
         # The neural network policy should have two hidden layers, each with 32 hidden units.
         hidden_sizes=(32, 32)
@@ -59,5 +60,5 @@ if __name__ == '__main__':
 
     algo.train()
 
-    with open("../experiment_data/policy.p", "w+") as f:
+    with open("../experiment_data/policydiscrete.p", "w+") as f:
         pickle.dump(policy, f)
