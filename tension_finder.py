@@ -17,7 +17,7 @@ class TensionPointFinder(object):
     def __init__(self, cloth):
         self.cloth = cloth
 
-    def find_valid_pts(self):
+    def find_valid_pts(self, plot=False):
         """
         Returns a map of valid points on the cloth object that could be used to tensioned without collisions with the second arm.
         """
@@ -29,8 +29,9 @@ class TensionPointFinder(object):
             for j in range(width):
                 if shape_fn(j * dy + 50, i * dx + 50):
                     grid[i, j] = 1
-        plt.imshow(-np.flipud(grid) + 1, cmap='Greys_r')
-        plt.show()
+        if plot:
+            plt.imshow(-np.flipud(grid) + 1, cmap='Greys_r')
+            plt.show()
         lock = False
         continued = False
         for i in range(height):
