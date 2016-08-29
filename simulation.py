@@ -58,7 +58,7 @@ class Simulation(object):
         ax.set_axis_bgcolor('white')
         plt.pause(0.01)
 
-    def pin_position(self, x, y, max_displacement):
+    def pin_position(self, x, y, max_displacement=False):
         """
         Pins a position on the cloth.
         """
