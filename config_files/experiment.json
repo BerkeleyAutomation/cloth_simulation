@@ -34,8 +34,8 @@
     "options": {
         "use_shape_pts": true,
         "pin_position": {
-            "x": 425,
-            "y": 325
+            "x": 370,
+            "y": 370
         },
         "max_displacement" : 50
     }

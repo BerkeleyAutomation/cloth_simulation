@@ -25,6 +25,7 @@ class TensionPointFinder(object):
         dx, dy = self.cloth.initial_params[1]
         shape_fn = self.cloth.initial_params[2]
         grid = np.zeros((height, width))
+        print height, width
         for i in range(height):
             for j in range(width):
                 if shape_fn(j * dy + 50, i * dx + 50):
@@ -54,8 +55,9 @@ class TensionPointFinder(object):
                             grid[y, x] = 1
                         elif grid[y, x]:
                             lock = True
-        grid = signal.convolve2d(grid, np.ones((5, 5)))
+        grid = signal.convolve2d(grid, np.ones((5, 5)), mode='same')
         grid = stats.threshold(grid, threshmax=1e-10, newval=1)
+        print grid.shape
         return -grid + 1
 
     def slope(self, x, y, centerx=None, centery=None):

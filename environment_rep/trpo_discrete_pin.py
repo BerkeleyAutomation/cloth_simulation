@@ -47,7 +47,7 @@ if __name__ == '__main__':
         batch_size=1000,
         step_size = 0.001,
         discount = 1,
-        n_itr = 1500
+        n_itr = 500
     )
 
     # algo = VPG(

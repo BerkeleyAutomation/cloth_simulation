@@ -123,7 +123,7 @@ class Simulation(object):
         """
         return copy.deepcopy(self)
 
-def load_simulation_from_config(fname="config_files/default.json", shape_fn=None, trajectory=None):
+def load_simulation_from_config(fname="config_files/experiment.json", shape_fn=None, trajectory=None):
     """
     Creates a Simulation object from a configuration file FNAME, and can optionally take in a SHAPE_FN or create one from discrete points saved to file.
     """
@@ -144,7 +144,7 @@ def load_simulation_from_config(fname="config_files/default.json", shape_fn=None
     simulation = data["simulation"]
     return Simulation(cloth, simulation["init"], simulation["render"], simulation["update_iterations"], trajectory)
 
-def load_trajectory_from_config(fname="config_files/default.json"):
+def load_trajectory_from_config(fname="config_files/experiment.json"):
     """
     Returns a trajectory created from the pt registration files specified in FNAME.
     """
@@ -155,7 +155,7 @@ def load_trajectory_from_config(fname="config_files/default.json"):
     pts = load_robot_points(cloth["shape_fn"][1])
     return get_trajectory(corners, pts, True)
 
-def load_pin_from_config(fname="config_files/default.json"):
+def load_pin_from_config(fname="config_files/experiment.json"):
     """
     Returns a pin position from a config file FNAME.
     """
@@ -197,6 +197,7 @@ if __name__ == "__main__":
     simulation = load_simulation_from_config(shape_fn=shape_fn)
     scorer = Scorer(0)
     simulation.reset()
+    simulation.trajectory = simulation.trajectory[::-1]
 
     print "Initial Score", scorer.score(simulation.cloth)
 
@@ -208,6 +209,7 @@ if __name__ == "__main__":
     
     simulation.reset()
     pin_position, option = load_pin_from_config()
+    print pin_position
     if pin_position:
         simulation.pin_position(pin_position[0], pin_position[1], option)
 
