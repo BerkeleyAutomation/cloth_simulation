@@ -242,7 +242,7 @@ class NotchPointFinder(object):
                             self.segments.append(trajectory[i_min:i_max-1:-1])
         return self.segments
 
-    def find_best_trajectory(self, scorer, armOrientation):
+    def find_best_trajectory(self, scorer):
         """
         Returns a list of semgents in the order of the trajectory that
         corresponds to the best score.
@@ -282,7 +282,7 @@ if __name__ == '__main__':
         else:
             print "Cutting from right to left"
 
-	
+    
     mouse = Mouse(down=True, button=0)
 
     # Create a cloth with an interesting concave shape
@@ -380,7 +380,7 @@ if __name__ == '__main__':
     plt.waitforbuttonpress()
 
     # find the best trajectory and simulate it
-    newOrdering = npf.find_best_trajectory(scorer, armOrientation)
+    newOrdering = npf.find_best_trajectory(scorer)
     # turn into a single list for simulation
     newTrajectory = []
     for seg in newOrdering:
