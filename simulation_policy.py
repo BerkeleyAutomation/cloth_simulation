@@ -58,39 +58,33 @@ if __name__ == "__main__":
         fname = "policy.p"
     fname = "experiment_data/" + fname
 
-    simulation = load_simulation_from_config("config_files/experiment.json")
+    experiment = "config_files/experiment.json"
+    simulation = load_simulation_from_config(experiment)
     policy = load_policy(fname)
     scorer = Scorer(0)
     simulation.reset()
     simulation.render = True
     simulation.trajectory = simulation.trajectory[::-1]
-    pin_position, option = load_pin_from_config("config_files/experiment.json")
+    pin_position, option = load_pin_from_config(experiment)
     print "Initial Score", scorer.score(simulation.cloth)
-    print len(simulation.cloth.shapepts)
     if mode == 'all' or mode == 'one':
-        total_score = 0
-
-
         for i in range(len(simulation.trajectory)):
             simulation.update()
             simulation.move_mouse(simulation.trajectory[i][0], simulation.trajectory[i][1])
-            total_score += scorer.score(simulation.cloth)
 
         print "No Pin Score", scorer.score(simulation.cloth)
-        print "Total Score", total_score
+
+    print pin_position
 
     if mode == 'all' or mode == 'two':
         simulation.reset()
         tensioner = simulation.pin_position(pin_position[0], pin_position[1], option)
-        total_score = 0
 
         for i in range(len(simulation.trajectory)):
             simulation.update()
             simulation.move_mouse(simulation.trajectory[i][0], simulation.trajectory[i][1])
-            total_score += scorer.score(simulation.cloth)
 
         print "Fixed Pin Score", scorer.score(simulation.cloth)
-        print "Total Score", total_score
 
     if mode == 'all' or mode == 'three':
         simulation.reset()
@@ -101,7 +95,7 @@ if __name__ == "__main__":
             simulation.update()
             action = MAPPING[query_policy(policy, [i]+list(tensioner.displacement))[0]]
             # action = clip_action(query_policy(policy, [i]+list(tensioner.displacement))[1]['mean'], [-1, -1, -1], [1, 1, 1])
-            print action
+            # print action
             tensioner.tension(action[0], action[1], action[2])
             simulation.move_mouse(simulation.trajectory[i][0], simulation.trajectory[i][1])
             total_score += scorer.score(simulation.cloth)

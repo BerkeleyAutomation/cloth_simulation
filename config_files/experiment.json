@@ -8,7 +8,7 @@
         "x": 0,
         "y": 0,
         "z": 0,
-        "height_limit": 100,
+        "height_limit": 1000,
         "down": true,
         "button": 0,
         "cut": 20,
@@ -37,6 +37,6 @@
             "x": 370,
             "y": 370
         },
-        "max_displacement" : 50
+        "max_displacement" : 200
     }
 }

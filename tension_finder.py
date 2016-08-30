@@ -25,7 +25,6 @@ class TensionPointFinder(object):
         dx, dy = self.cloth.initial_params[1]
         shape_fn = self.cloth.initial_params[2]
         grid = np.zeros((height, width))
-        print height, width
         for i in range(height):
             for j in range(width):
                 if shape_fn(j * dy + 50, i * dx + 50):

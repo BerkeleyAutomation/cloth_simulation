@@ -117,11 +117,11 @@ class Simulation(object):
         except EOFError:
             print 'Nothing written to file.'
 
-    def __deepcopy__(self):
-        """
-        Returns a deep copy of self.
-        """
-        return copy.deepcopy(self)
+    # def __deepcopy__(self):
+    #     """
+    #     Returns a deep copy of self.
+    #     """
+    #     return copy.deepcopy(self)
 
 def load_simulation_from_config(fname="config_files/experiment.json", shape_fn=None, trajectory=None):
     """

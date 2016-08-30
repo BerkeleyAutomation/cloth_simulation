@@ -22,7 +22,13 @@ from tensioner import *
 
 if __name__ == '__main__':
     
-    config_file = "../config_files/experiment.json"
+    if len(sys.argv) > 1:
+        writefile = sys.argv[1]
+    else:
+        writefile = "policydiscrete.p"
+    experiment_folder = "../experiment_data/experiments/0/"
+    config_file = experiment_folder + "experiment.json"
+    writefile = experiment_folder + writefile
     scorer = Scorer(0)
     simulation = load_simulation_from_config(config_file)
     simulation.trajectory = simulation.trajectory[::-1]
@@ -47,7 +53,7 @@ if __name__ == '__main__':
         batch_size=1000,
         step_size = 0.001,
         discount = 1,
-        n_itr = 500
+        n_itr = 750
     )
 
     # algo = VPG(
@@ -60,5 +66,5 @@ if __name__ == '__main__':
 
     algo.train()
 
-    with open("../experiment_data/policydiscrete.p", "w+") as f:
+    with open("../experiment_data/" + writefile, "w+") as f:
         pickle.dump(policy, f)

@@ -1,4 +1,4 @@
-policydiscrete, policy.p -> (210, 430)
-policydiscrete2.p -> (450, 440)
-policydiscrete3.p -> (370, 370)
+policydiscrete, policy.p -> (210, 430) // minimum with physical limits
+policydiscrete2.p -> (450, 440) // my guess
+policydiscrete3.p -> (370, 370) // minimum without physical limits
 
