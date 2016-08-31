@@ -68,6 +68,12 @@ def get_trajectory(corners, pts, interpolate=True):
         pxpts = interpolation(np.array(pxpts), 10).tolist()
     return pxpts
 
+def get_robot_trajectory(pts, factor):
+    """
+    Returns the interpolated trajectory of pts in robot space.
+    """
+    return interpolation(np.array(pts), factor, True)
+
 def interpolation(arr, factor, z=False):
     """
     Given a matrix of x,y coordinates, output a linearly interpolated matrix of coordinates with factor * arr.shape[0] points.
