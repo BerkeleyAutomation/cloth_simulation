@@ -56,9 +56,10 @@ if __name__ == "__main__":
         fname = sys.argv[2]
     else:
         fname = "policy.p"
-    fname = "experiment_data/" + fname
+    fname = "experiment_data/experiments/0/" + fname
 
     experiment = "config_files/experiment.json"
+    experiment = "experiment_data/experiments/0/experiment.json"
     simulation = load_simulation_from_config(experiment)
     policy = load_policy(fname)
     scorer = Scorer(0)
@@ -89,7 +90,6 @@ if __name__ == "__main__":
     if mode == 'all' or mode == 'three':
         simulation.reset()
         tensioner = simulation.pin_position(pin_position[0], pin_position[1], option)
-        total_score = 0
 
         for i in range(len(simulation.trajectory)):
             simulation.update()
@@ -98,7 +98,5 @@ if __name__ == "__main__":
             # print action
             tensioner.tension(action[0], action[1], action[2])
             simulation.move_mouse(simulation.trajectory[i][0], simulation.trajectory[i][1])
-            total_score += scorer.score(simulation.cloth)
 
         print "Policy Pin Score", scorer.score(simulation.cloth)
-        print "Total Score", total_score

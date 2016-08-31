@@ -16,6 +16,7 @@ build/*
 *.jpg
 *.png
 *.json
+*.txt
 
 # Calibration Data#
 ###################
