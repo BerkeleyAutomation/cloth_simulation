@@ -57,7 +57,7 @@ def get_shape_fn(corners, pts, interpolate=False):
 
 def get_trajectory(corners, pts, interpolate=True):
     """
-    Finds a function that represents the shape outlined by pts in robot frame, in the cloth simulation object's coordinate frame.
+    Finds a list that represents the trajectory outlined by pts in robot frame, in the cloth simulation object's coordinate frame.
     """
     scale = get_scale(corners)
     basis = get_basis(corners)
@@ -68,14 +68,18 @@ def get_trajectory(corners, pts, interpolate=True):
         pxpts = interpolation(np.array(pxpts), 10).tolist()
     return pxpts
 
-def interpolation(arr, factor):
+def interpolation(arr, factor, z=False):
     """
     Given a matrix of x,y coordinates, output a linearly interpolated matrix of coordinates with factor * arr.shape[0] points.
     """
     x = arr[:, 0]
     y = arr[:, 1]
+    if z:
+        z = arr[:,2]
     t = np.linspace(0,x.shape[0],num=x.shape[0])
     to_expand = [x, y]
+    if z:
+        to_expand = [x, y, z]
     for i in range(len(to_expand)):
         spl = interp1d(t, np.ravel(to_expand[i]))
         to_expand[i] = spl(np.linspace(0,len(t), len(t)*factor))

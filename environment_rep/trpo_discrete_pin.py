@@ -26,7 +26,7 @@ if __name__ == '__main__':
         writefile = sys.argv[1]
     else:
         writefile = "policydiscrete.p"
-    experiment_folder = "../experiment_data/experiments/0/"
+    experiment_folder = "../experiment_data/experiments/1/"
     config_file = experiment_folder + "experiment.json"
     writefile = experiment_folder + writefile
     scorer = Scorer(0)

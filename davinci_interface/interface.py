@@ -15,20 +15,24 @@ MAPPING = {
 
 class ScissorArm(robot):
 
-    def __init__(self, robot_name, trajectory):
+    def __init__(self, robot_name, trajectory, gripper):
         robot.__init__(self, robot_name)
         self.mapping = MAPPING
         self.trajectory = trajectory
         self.idx = 0
+        self.gripper = gripper
 
     def step(self):
         """
         Steps to the next position in the trajectory, cutting along the way.
         """
+        if self.done:
+            return False
+        self.gripper.step(self.idx)
         self.open_gripper(80)
-        self.move_cartesian_frame_linear_interpolation(tfx.pose(self.trajectory[idx+1], np.array(self.get_current_cartesian_position().orientation)))
+        self.move_cartesian_frame_linear_interpolation(tfx.pose(self.trajectory[self.idx+1], np.array(self.get_current_cartesian_position().orientation)))
         self.open_gripper(1)
-        idx += 1
+        self.idx += 1
         if self.done:
             return False
         return True
@@ -72,3 +76,6 @@ class GripperArm(robot):
         Given a time index, the arm queries the trained policy for an action to take.
         """
         return self.mapping[query_policy(policy, [i]+list(self.displacement))[0]]
+
+    def step(self, time):
+        execute_action(query_policy(time))

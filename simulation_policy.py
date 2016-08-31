@@ -56,10 +56,10 @@ if __name__ == "__main__":
         fname = sys.argv[2]
     else:
         fname = "policy.p"
-    fname = "experiment_data/experiments/0/" + fname
+    fname = "experiment_data/experiments/1/" + fname
 
     experiment = "config_files/experiment.json"
-    experiment = "experiment_data/experiments/0/experiment.json"
+    experiment = "experiment_data/experiments/1/experiment.json"
     simulation = load_simulation_from_config(experiment)
     policy = load_policy(fname)
     scorer = Scorer(0)
