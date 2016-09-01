@@ -5,6 +5,7 @@ from geometry_msgs.msg import Pose
 import multiprocessing
 import numpy as np
 import sys, os
+import os.path as osp
 
 """
 Launching this script creates a GUI that subscribes to PSM1's position_cartesian_current topic and can write this information to file.
@@ -34,14 +35,14 @@ def callback_PSM1_actual(data):
     position = data.position
     psm1_pose = [position.x, position.y, position.z]
     print psm1_pose
-    f = open('calibration_data/'+gauze_pts+'.p', "a")
+    f = open(osp.join(directory, gauze_pts+'.p'), "a")
     pickle.dump(psm1_pose, f)
     f.close()
     sub.unregister()
 
 def load_robot_points(fname="gauze_pts.p"):
     lst = []
-    f3 = open('calibration_data/'+fname,"rb")
+    f3 = open(osp.join(directory, fname),"rb")
     while True:
         try:
             pos2 = pickle.load(f3)
@@ -75,16 +76,19 @@ def switchCallback():
 
 if __name__ == '__main__':
 
+    if len(sys.argv) > 1:
+        directory = sys.argv[1]
+    else:
+        directory = "calibration_data"
     sub = None
     prs = []
     gauze_pts='gauze_pts'
 
-    directory = "calibration_data"
     if not os.path.exists(directory):
         os.makedirs(directory)
 
-    open('calibration_data/'+gauze_pts+'.p', 'w+').close()
-    open("calibration_data/gauze_pts2.p", "w+").close()
+    open(osp.join(directory, 'gauze_pts.p'), 'w+').close()
+    open(osp.join(directory, 'gauze_pts2.p'), "w+").close()
     top = Tkinter.Tk()
     top.title('Calibration')
     top.geometry('400x200')

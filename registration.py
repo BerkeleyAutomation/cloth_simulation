@@ -3,12 +3,12 @@ import sys, pickle
 from math import sqrt
 from scipy.interpolate import interp1d
 
-def load_robot_points(fname="gauze_pts.p"):
+def load_robot_points(fname="calibration_data/gauze_pts.p"):
     """
     Loads a set of robot frame points from a pickle file.
     """
     lst = []
-    f3 = open('calibration_data/'+fname,"rb")
+    f3 = open(fname,"rb")
     while True:
         try:
             pos2 = pickle.load(f3)
@@ -68,23 +68,23 @@ def get_trajectory(corners, pts, interpolate=True):
         pxpts = interpolation(np.array(pxpts), 10).tolist()
     return pxpts
 
-def get_robot_trajectory(pts, factor):
+def get_robot_trajectory(pts, factor=10):
     """
     Returns the interpolated trajectory of pts in robot space.
     """
     return interpolation(np.array(pts), factor, True)
 
-def interpolation(arr, factor, z=False):
+def interpolation(arr, factor, z_exists=False):
     """
     Given a matrix of x,y coordinates, output a linearly interpolated matrix of coordinates with factor * arr.shape[0] points.
     """
     x = arr[:, 0]
     y = arr[:, 1]
-    if z:
+    if z_exists:
         z = arr[:,2]
     t = np.linspace(0,x.shape[0],num=x.shape[0])
     to_expand = [x, y]
-    if z:
+    if z_exists:
         to_expand = [x, y, z]
     for i in range(len(to_expand)):
         spl = interp1d(t, np.ravel(to_expand[i]))

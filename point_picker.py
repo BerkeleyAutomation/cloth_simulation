@@ -52,7 +52,6 @@ class PointPicker:
         self.simulation = load_simulation_from_config(config)
         self.simulation.render = False
         self.scorer = Scorer(0)
-        self.simulation.trajectory = self.simulation.trajectory[::-1]
         self.tpf = TensionPointFinder(self.simulation.cloth)
         self.scores = None
         self.nofilter = NOFILTER

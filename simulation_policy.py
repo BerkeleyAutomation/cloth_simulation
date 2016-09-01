@@ -56,16 +56,15 @@ if __name__ == "__main__":
         fname = sys.argv[2]
     else:
         fname = "policy.p"
-    fname = "experiment_data/experiments/1/" + fname
+    fname = "experiment_data/experiments/2/" + fname
 
     experiment = "config_files/experiment.json"
-    experiment = "experiment_data/experiments/1/experiment.json"
+    experiment = "experiment_data/experiments/2/experiment.json"
     simulation = load_simulation_from_config(experiment)
     policy = load_policy(fname)
     scorer = Scorer(0)
     simulation.reset()
     simulation.render = True
-    simulation.trajectory = simulation.trajectory[::-1]
     pin_position, option = load_pin_from_config(experiment)
     print "Initial Score", scorer.score(simulation.cloth)
     if mode == 'all' or mode == 'one':

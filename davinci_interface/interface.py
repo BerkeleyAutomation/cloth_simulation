@@ -1,5 +1,5 @@
 from robot import *
-import sys, os, pickle, copy
+import sys, os, pickle, copy, time
 import numpy as np
 import tfx
 
@@ -30,8 +30,10 @@ class ScissorArm(robot):
             return False
         self.gripper.step(self.idx)
         self.open_gripper(80)
-        self.move_cartesian_frame_linear_interpolation(tfx.pose(self.trajectory[self.idx+1], np.array(self.get_current_cartesian_position().orientation)))
+        time.sleep(2.5)
+        self.move_cartesian_frame_linear_interpolation(tfx.pose(self.trajectory[self.idx+1], np.array(self.get_current_cartesian_position().orientation)), 0.1)
         self.open_gripper(1)
+        time.sleep(2.5)
         self.idx += 1
         if self.done:
             return False
@@ -39,11 +41,11 @@ class ScissorArm(robot):
 
     @property
     def done(self):
-        return idx == len(trajectory) - 2
+        return self.idx >= len(self.trajectory) - 2
 
 class GripperArm(robot):
 
-    def __init__(self, robot_name, policy, scale=0.01):
+    def __init__(self, robot_name, policy, scale=0.001):
         robot.__init__(self, robot_name)
     	self.initial_position = np.array(self.get_current_cartesian_position().position)
         self.mapping = MAPPING
@@ -62,20 +64,23 @@ class GripperArm(robot):
         Computes the final position vector after translating the current position by translation.
         """
         translation = np.array(translation)
-        position = np.array(self.get_current_cartesian_position().position)
+        position = np.ravel(np.array(self.get_current_cartesian_position().position))
         return translation + position
 
     def execute_action(self, action):
         """
         Given a 3-tuple, execute the action associated with it on the robot.
         """
-        self.move_cartesian_frame_linear_interpolation(tfx.pose(cur_position_translation(action * self.scale), np.array(self.get_current_cartesian_position().orientation)), 0.1)
+        self.move_cartesian_frame_linear_interpolation(tfx.pose(self.cur_position_translation(np.array(action) * self.scale), np.array(self.get_current_cartesian_position().orientation)), 0.1)
 
     def query_policy(self, time):
         """
         Given a time index, the arm queries the trained policy for an action to take.
         """
-        return self.mapping[query_policy(policy, [i]+list(self.displacement))[0]]
+        return self.mapping[self.policy.get_action(np.array([time]+list(self.displacement)))[0]]
 
     def step(self, time):
-        execute_action(query_policy(time))
+        """
+        Queries the policy and executes the next action.
+        """
+        self.execute_action(self.query_policy(time))

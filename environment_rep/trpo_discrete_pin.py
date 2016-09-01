@@ -26,12 +26,11 @@ if __name__ == '__main__':
         writefile = sys.argv[1]
     else:
         writefile = "policydiscrete.p"
-    experiment_folder = "../experiment_data/experiments/1/"
+    experiment_folder = "../experiment_data/experiments/2/"
     config_file = experiment_folder + "experiment.json"
     writefile = experiment_folder + writefile
     scorer = Scorer(0)
     simulation = load_simulation_from_config(config_file)
-    simulation.trajectory = simulation.trajectory[::-1]
     pin_position, option = load_pin_from_config(config_file)
     simulation.reset()
     env = normalize(PinEnvDiscrete(simulation, pin_position[0], pin_position[1], simulation.trajectory, 0, option))
