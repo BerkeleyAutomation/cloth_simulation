@@ -15,6 +15,9 @@ Presents a visualization of a learned policy.
 """
 
 def load_policy(fname):
+    """
+    Return a policy from a file.
+    """
     with open(fname, "rb") as f:
         try:
             return pickle.load(f)
@@ -22,10 +25,16 @@ def load_policy(fname):
             print 'Nothing written to file.'
 
 def query_policy(policy, observation):
+    """
+    Given a policy and an observation, return an action.
+    """
     observation = np.array(observation)
     return policy.get_action(observation)
 
 def clip_action(action, low, high):
+    """
+    Threshold an action between two vectors, high and low.
+    """
     action = np.array(action)
     for i in range(len(action)):
         if low[i] > action[i]:
@@ -59,7 +68,7 @@ if __name__ == "__main__":
     fname = "experiment_data/experiments/2/" + fname
 
     experiment = "config_files/experiment.json"
-    experiment = "experiment_data/experiments/2/experiment.json"
+    experiment = "experiment_data/experiments/2/default.json"
     simulation = load_simulation_from_config(experiment)
     policy = load_policy(fname)
     scorer = Scorer(0)

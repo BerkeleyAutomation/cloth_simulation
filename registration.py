@@ -42,6 +42,26 @@ def transform_and_project_point(transform, scale, pt, corners, offset=(50,50)):
     """
     return np.ravel(np.matrix(transform) * np.matrix((np.array(pt)  - np.array(corners[0]))).T * scale)[:2] + np.array(offset)
 
+def px_to_robot_frame_args(transform, scale, pt, corners, offset=(50,50)):
+    """
+    Converts a point in pixel space to robot space.
+    """
+    pt = np.array(pt) - np.array(offset)
+    pt = np.array([pt[0], pt[1], 1e-10]) / scale
+    pt = np.linalg.inv(transform) * np.matrix(pt).T
+    pt = pt + np.array(corners[0])
+    return pt
+
+def px_to_robot(pt, corners_file, pts_file, offset=(50,50)):
+    """
+    Takes in the filenames for the corners and pts and converts a point in pixel space to robot space.
+    """
+    corners = load_robot_points(corners_file)
+    pts = load_robot_points(pts_file)
+    scale = get_scale(corners)
+    basis = get_basis(corners)
+    return px_to_robot_frame_args(basis, scale, pt, corners, offset)
+
 def get_shape_fn(corners, pts, interpolate=False):
     """
     Finds a function that represents the shape outlined by pts in robot frame, in the cloth simulation object's coordinate frame.
@@ -99,6 +119,6 @@ if __name__ == "__main__":
     # fn = get_shape_fn(corners, [[2, 0, 0], [2,1,0], [2,2,0]])
 
     corners = load_robot_points()
-    pts = load_robot_points("gauze_pts2.p")
+    pts = load_robot_points("calibration_data/gauze_pts2.p")
 
     shape_fn = get_shape_fn(corners, pts, True)

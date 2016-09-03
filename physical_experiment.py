@@ -18,11 +18,16 @@ if __name__ == '__main__':
 	policy = load_policy(policy_file)
 	pts = load_robot_points(osp.join(experiment_directory, pts))
 	trajectory = np.array(get_robot_trajectory(pts))
+	# trajectory = ?
 
+	# for safety/reproducibility
 	trajectory[:,2]+= 0.02
 
 	grippers = GripperArm("PSM2", policy)
 	scissors = ScissorArm("PSM1", trajectory, grippers)
+
+	grap_pos = [-0.116102607139, 0.0817639759964, -0.0784721770163]
+	grippers.grab_point(pos)
 
 	for i in range(len(trajectory)):
 		scissors.step()

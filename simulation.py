@@ -15,7 +15,7 @@ A Simulation object that can be used to represent an ongoing experiment. It can 
 """
 class Simulation(object):
 
-    def __init__(self, cloth, init=200, render=False, update_iterations=1, trajectory=None):
+    def __init__(self, cloth, init=200, render=False, update_iterations=1, trajectory=None, multi_part=False):
         """
         Constructor takes in a cloth object and optionally, a nonnegative integer representing the amount of time to spend allowing
         the cloth to settle initially. Setting render=True will render the simulation. However, rendering will slow down iterations 
@@ -32,6 +32,14 @@ class Simulation(object):
         self.trajectory = trajectory
         if not trajectory:
             self.trajectory = [(np.cos(deg) * 150 + 300, np.sin(deg) * 150 + 300) for deg in [3.6 * np.pi * i / 180.0 for i in range(100)]]
+        self.multi_part = multi_part
+        traj = []
+        if multi_part:
+            for i in range(len(trajectory)):
+                for j in range(len(trajectory[i])):
+                    traj.append(trajectory[i][j])
+            self.trajectory = traj
+
 
 
     def update(self, iterations=-1):
@@ -123,9 +131,9 @@ class Simulation(object):
     #     """
     #     return copy.deepcopy(self)
 
-def load_simulation_from_config(fname="config_files/default.json", shape_fn=None, trajectory=None):
+def load_simulation_from_config(fname="config_files/default.json", shape_fn=None, trajectory=None, multipart=False):
     """
-    Creates a Simulation object from a configuration file FNAME, and can optionally take in a SHAPE_FN or create one from discrete points saved to file.
+    Creates a Simulation object from a configuration file FNAME, and can optionally take in a SHAPE_FN or create one from discrete points saved to file. MULTIPART indicates whether or not the input trajectory consists of multiple subtrajectories.
     """
     with open(fname) as data_file:    
         data = json.load(data_file)
@@ -138,13 +146,16 @@ def load_simulation_from_config(fname="config_files/default.json", shape_fn=None
         corners = load_robot_points(cloth["shape_fn"][0])
         pts = load_robot_points(cloth["shape_fn"][1])
         shape_fn = get_shape_fn(corners, pts, True)
-        trajectory = load_trajectory_from_config(fname)
+        if not trajectory:
+            trajectory = load_trajectory_from_config(fname)
     cloth = ShapeCloth(shape_fn, mouse, cloth["width"], cloth["height"], cloth["dx"], cloth["dy"], 
         cloth["gravity"], cloth["elasticity"], cloth["pin_cond"], bounds)
     simulation = data["simulation"]
-    return Simulation(cloth, simulation["init"], simulation["render"], simulation["update_iterations"], trajectory)
+    if "multipart" in simulation.keys() and not multipart:
+        multipart = simulation["multipart"]
+    return Simulation(cloth, simulation["init"], simulation["render"], simulation["update_iterations"], trajectory, multipart)
 
-def load_trajectory_from_config(fname="default/experiment.json"):
+def load_trajectory_from_config(fname="config_files/default.json"):
     """
     Returns a trajectory created from the pt registration files specified in FNAME.
     """
@@ -155,7 +166,7 @@ def load_trajectory_from_config(fname="default/experiment.json"):
     pts = load_robot_points(cloth["shape_fn"][1])
     return get_trajectory(corners, pts, True)
 
-def load_pin_from_config(fname="default/experiment.json"):
+def load_pin_from_config(fname="config_files/default.json"):
     """
     Returns a pin position from a config file FNAME.
     """
@@ -199,6 +210,7 @@ if __name__ == "__main__":
     simulation.reset()
 
     print "Initial Score", scorer.score(simulation.cloth)
+    print len(simulation.trajectory), 'asdfsadfa'
 
     for i in range(len(simulation.trajectory)):
         simulation.update()
