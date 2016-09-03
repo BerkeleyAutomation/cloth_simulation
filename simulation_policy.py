@@ -68,7 +68,7 @@ if __name__ == "__main__":
     fname = "experiment_data/experiments/2/" + fname
 
     experiment = "config_files/experiment.json"
-    experiment = "experiment_data/experiments/2/default.json"
+    experiment = "experiment_data/experiments/2/experiment.json"
     simulation = load_simulation_from_config(experiment)
     policy = load_policy(fname)
     scorer = Scorer(0)

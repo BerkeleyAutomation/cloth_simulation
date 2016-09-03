@@ -17,6 +17,13 @@ def load_robot_points(fname="calibration_data/gauze_pts.p"):
             f3.close()
             return np.matrix(lst)
 
+def load_points(fname):
+    with open(fname, "rb") as f:
+        try:
+            return pickle.load(f)
+        except EOFError:
+            print 'Nothing written to file.'
+
 def get_basis(corners):
     """
     Finds a basis from corners where v1 and v2 are vectors denoting two edges of the robot frame gauze. V3 is a vector perpendicular to these two vectors, thus forming a basis in R^3.
@@ -81,6 +88,21 @@ def get_shape_fn(corners, pts, interpolate=False):
     if interpolate:
         pxpts = interpolation(np.array(pxpts), 10).tolist()
     return lambda x, y: np.min(np.linalg.norm(np.matrix(np.tile(np.array((x, y)), (len(pxpts), 1))) - pxpts, axis=1)) < 20
+
+def get_blob_fn(corners, pts):
+    def blob_fn(x, y):
+        dists = np.ravel(np.linalg.norm(np.matrix(np.tile(np.array((x, y, 0)), (len(pxpts), 1))) - pxpts, axis=1))
+        if np.min(dists) < 20:
+            return np.argmin(dists)
+        else:
+            return -1
+        return np.min(np.linalg.norm(np.matrix(np.tile(np.array((x, y, 0)), (len(pxpts), 1))) - pxpts, axis=1)) < 20
+    scale = get_scale(corners)
+    basis = get_basis(corners)
+    pxpts = []
+    for pt in pts:
+        pxpts.append(robot_frame_to_sim_frame(basis, scale, pt, corners).tolist())
+    return blob_fn
 
 def get_trajectory(corners, pts, interpolate=True):
     """

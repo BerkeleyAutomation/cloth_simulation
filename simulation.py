@@ -57,10 +57,17 @@ class Simulation(object):
         plt.clf()
         pts = np.array([[p.x, p.y] for p in self.cloth.normalpts])
         cpts = np.array([[p.x, p.y] for p in self.cloth.shapepts])
+        bpts = []
+        for blob in self.cloth.blobs:
+            for pt in blob:
+                bpts.append([pt.x, pt.y])
+        bpts = np.array(bpts)
         if len(pts) > 0:
             plt.scatter(pts[:,0], pts[:,1], c='w')
         if len(cpts) > 0:
             plt.scatter(cpts[:,0], cpts[:,1], c='b')
+        if len(bpts) > 0:
+            plt.scatter(bpts[:,0], bpts[:,1], c='g')
         ax = plt.gca()
         plt.axis([0, 600, 0, 600])
         ax.set_axis_bgcolor('white')
@@ -142,6 +149,10 @@ def load_simulation_from_config(fname="config_files/default.json", shape_fn=None
     bounds = (bounds["x"], bounds["y"], bounds["z"])
     mouse = Mouse(mouse["x"], mouse["y"], mouse["z"], mouse["height_limit"], mouse["down"], mouse["button"], bounds, mouse["influence"], mouse["cut"])
     cloth = data["shapecloth"]
+    corners, blobs = None, None
+    if "blobs" in data["options"].keys():
+        corners = load_robot_points(data["options"]["blobs"][0])
+        blobs = load_points(data["options"]["blobs"][1])
     if not shape_fn:
         corners = load_robot_points(cloth["shape_fn"][0])
         pts = load_robot_points(cloth["shape_fn"][1])
@@ -149,10 +160,11 @@ def load_simulation_from_config(fname="config_files/default.json", shape_fn=None
         if not trajectory:
             trajectory = load_trajectory_from_config(fname)
     cloth = ShapeCloth(shape_fn, mouse, cloth["width"], cloth["height"], cloth["dx"], cloth["dy"], 
-        cloth["gravity"], cloth["elasticity"], cloth["pin_cond"], bounds)
+        cloth["gravity"], cloth["elasticity"], cloth["pin_cond"], bounds, blobs, corners)
     simulation = data["simulation"]
     if "multipart" in simulation.keys() and not multipart:
         multipart = simulation["multipart"]
+
     return Simulation(cloth, simulation["init"], simulation["render"], simulation["update_iterations"], trajectory, multipart)
 
 def load_trajectory_from_config(fname="config_files/default.json"):
@@ -210,7 +222,7 @@ if __name__ == "__main__":
     simulation.reset()
 
     print "Initial Score", scorer.score(simulation.cloth)
-    print len(simulation.trajectory), 'asdfsadfa'
+    print len(simulation.trajectory)
 
     for i in range(len(simulation.trajectory)):
         simulation.update()
