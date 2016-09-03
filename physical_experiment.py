@@ -26,6 +26,8 @@ if __name__ == '__main__':
 
 	# trajectory = ? insert trajectory here
 
+	# for safety/reproducibility
+	# trajectory[:,2]+= 0.02
 
 	grippers = GripperArm("PSM2", policy)
 	scissors = ScissorArm("PSM1", trajectory, grippers)
