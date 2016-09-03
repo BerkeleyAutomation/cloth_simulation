@@ -14,11 +14,12 @@ from geometry_msgs.msg import PoseStamped
 
 class ImageSubscriber:
 
-    def __init__(self):
+    def __init__(self, write=False):
         self.right_image = None
         self.left_image = None
         self.info = {'l': None, 'r': None}
         self.bridge = cv_bridge.CvBridge()
+        self.write = write
 
 
         #========SUBSCRIBERS========#
@@ -49,13 +50,15 @@ class ImageSubscriber:
         if rospy.is_shutdown():
             return
         self.right_image = self.bridge.imgmsg_to_cv2(msg, "rgb8")
-        scipy.misc.imsave('images/right.jpg', self.right_image)
+        if self.write:
+            scipy.misc.imsave('images/right.jpg', self.right_image)
 
     def left_image_callback(self, msg):
         if rospy.is_shutdown():
             return
         self.left_image = self.bridge.imgmsg_to_cv2(msg, "rgb8")
-        scipy.misc.imsave('images/left.jpg', self.left_image)
+        if self.write:
+            scipy.misc.imsave('images/left.jpg', self.left_image)
 
 
 if __name__ == "__main__":

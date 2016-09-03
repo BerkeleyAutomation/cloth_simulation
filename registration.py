@@ -42,6 +42,13 @@ def transform_and_project_point(transform, scale, pt, corners, offset=(50,50)):
     """
     return np.ravel(np.matrix(transform) * np.matrix((np.array(pt)  - np.array(corners[0]))).T * scale)[:2] + np.array(offset)
 
+def robot_frame_to_sim_frame(transform, scale, pt, corners, offset=(50, 50, 0)):
+    """
+    Converts a point from robot frame to the simulation's frame.
+    """
+    return np.ravel(np.matrix(transform) * np.matrix((np.array(pt)  - np.array(corners[0]))).T * scale) + np.array(offset)
+
+
 def px_to_robot_frame_args(transform, scale, pt, corners, offset=(50,50)):
     """
     Converts a point in pixel space to robot space.

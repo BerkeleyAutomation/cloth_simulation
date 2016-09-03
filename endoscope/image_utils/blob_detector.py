@@ -1,5 +1,4 @@
 # import the necessary packages
-# from pyimagesearch.shapedetector import ShapeDetector
 import argparse
 import imutils
 import cv2
@@ -70,7 +69,6 @@ def contour_detector(image, show_plots = False, rescale=2):
         if cv2.contourArea(c) > 2000 or cv2.contourArea(c) < 1000 or mean_val[0] < 90 or mean_val[2] < 70:
             continue
         lst.append([mean_val[:3], (cX, cY), cv2.contourArea(c)])
-        print cv2.contourArea(c)
 
         # print [mean_val[:3], (cX, cY)]
         if show_plots:
@@ -190,12 +188,15 @@ def leftpixels_to_cframe(surf, left_pts, right_pts, pts3d, x, y, knn=False):
         return (pred[0], pred[1], surf.query_knn(pred[0], pred[1])[2])
     return (pred[0], pred[1], surf.query(pred[0], pred[1])[2])
 
-def get_blobs(left, right):
+def get_blobs(left, right, fname=False):
     with open("../calibration/camera_data/camera_info.p", "rb") as f:
         info = pickle.load(f)
 
-    left_image = cv2.imread(left)
-    right_image = cv2.imread(right)
+    if fname:
+        left_image = cv2.imread(left)
+        right_image = cv2.imread(right)
+    else:
+        left_image, right_image = left, right
     left = contour_detector(left_image)
     right = contour_detector(right_image)
     correspondences = find_correspondences(left, right, 300, 70)
@@ -213,7 +214,7 @@ def get_blobs(left, right):
         pred = cmat * np.matrix(pt).T
         newpts.append(np.ravel(pred).tolist())
     pts3d = newpts
-    print pts3d
+    return pts3d
     
 
 
@@ -229,5 +230,5 @@ if __name__ == "__main__":
     with open("../calibration/camera_data/camera_info.p", "rb") as f:
         info = pickle.load(f)
 
-    surf = get_blobs("images/left.jpg", "images/right.jpg") # specify images
+    surf = get_blobs("images/left.jpg", "images/right.jpg", True) # specify images
 
