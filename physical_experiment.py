@@ -26,8 +26,6 @@ if __name__ == '__main__':
 
 	# trajectory = ? insert trajectory here
 
-	# for safety/reproducibility
-	trajectory[:,2]+= 0.02
 
 	grippers = GripperArm("PSM2", policy)
 	scissors = ScissorArm("PSM1", trajectory, grippers)
@@ -35,7 +33,7 @@ if __name__ == '__main__':
 	# pt = [300, 300] pt in pixel space
 	# grab_point = px_to_robot(pt, corners_file, pts_file)
 	grap_pos = [-0.116102607139, 0.0817639759964, -0.0784721770163] # temporary grab point
-	grippers.grab_point(pos)
+	grippers.grab_point(grap_pos)
 
 	for i in range(len(trajectory)):
 		scissors.step()

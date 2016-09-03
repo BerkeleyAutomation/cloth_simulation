@@ -3,6 +3,8 @@ import sys, os, pickle, copy, time
 import numpy as np
 import tfx
 import os.path as osp
+from scipy.signal import savgol_filter
+import matplotlib.pyplot as plt
 
 MAPPING = {
     0 : (0,0,0),
@@ -33,6 +35,7 @@ class ScissorArm(robot):
                 for j in range(len(trajectory[i])):
                     traj.append(trajectory[i][j])
             self.trajectory = traj
+        self.preprocessing()
 
     def step(self):
         """
@@ -46,7 +49,8 @@ class ScissorArm(robot):
         if self.multipart:
             if self.idx + 1 in self.pivots:
                 self.reenter()
-        self.move_cartesian_frame_linear_interpolation(tfx.pose(self.trajectory[self.idx+1], np.array(self.get_current_cartesian_position().orientation)), 0.1)
+        frame = get_frame(self.trajectory[self.idx+1], self.angles[self.idx+1])
+        self.move_cartesian_frame_linear_interpolation(frame, 0.1)
         self.open_gripper(1)
         time.sleep(2.5)
         self.idx += 1
@@ -56,9 +60,54 @@ class ScissorArm(robot):
 
     def reenter(self):
         """
-        Reenters at the first index of the next trajecory. Needs to be implemented still.
+        Reenters at the first index of the next trajectory. Needs to be implemented still.
         """
         return
+
+    def preprocessing(self):
+        all_angles = []
+        factor = 2
+        if self.multipart:
+            for traj in self.trajectory:
+                pts = np.array(traj)
+                angles = []
+                for i in range(pts.shape[0]-1):
+                    pos = pts[i,:]
+                    nextpos = pts[i+1,:]
+                    angle = self.get_angle(np.ravel(pos), np.ravel(nextpos))
+                    angles.append(angle)
+                for i in range(len(angles)-2):
+                    angles[i] = 0.5 * angles[i] + 0.35 * angles[i+1] + 0.15 * angles[i+2]
+                angles = savgol_filter(angles, factor * (pts.shape[0]/12) + 1, 2)
+                all_angles.extend(angles)
+            self.angles = all_angles
+        else:
+            for traj in [self.trajectory]:
+                pts = np.array(traj)
+                angles = []
+                for i in range(pts.shape[0]-1):
+                    pos = pts[i,:]
+                    nextpos = pts[i+1,:]
+                    angle = self.get_angle(np.ravel(pos), np.ravel(nextpos))
+                    angles.append(angle)
+                for i in range(len(angles)-2):
+                    angles[i] = 0.5 * angles[i] + 0.35 * angles[i+1] + 0.15 * angles[i+2]
+                angles = savgol_filter(angles, factor * (pts.shape[0]/12) + 1, 2)
+                all_angles.extend(angles)
+            self.angles = all_angles
+
+
+
+
+    def get_angle(self, pos, nextpos):
+        """
+        Returns angle to nextpos in degrees
+        """
+        delta = nextpos - pos
+        theta = np.arctan(delta[1]/delta[0]) * 180 / np.pi
+        if delta[0] < 0:
+            return theta + 180
+        return theta
 
     @property
     def done(self):
@@ -122,9 +171,24 @@ class GripperArm(robot):
 
 
     def grab_current_point(self):
+        """
+        Grabs directly below the current location.
+        """
         self.open_gripper(80)
         time.sleep(2.5)
         self.execute_action((0, 0, -10), self.GRAB_ORIENTATION)
         self.open_gripper(-30)
         time.sleep(2.5)
         self.execute_action((0, 0, 10), self.GRAB_ORIENTATION)
+
+def get_frame(pos, angle, offset=0.003):
+    """
+    Given a position and an orientation, compute a tfx frame characterizing the pose.
+    """
+    angle = angle
+    pos = np.array(pos)
+    pos[2] -= offset
+    rotation = [94.299363207+angle, -4.72728031036, 86.1958002688]
+    rot = tfx.tb_angles(rotation[0], rotation[1], rotation[2])
+    frame = tfx.pose(pos, rot)
+    return frame
