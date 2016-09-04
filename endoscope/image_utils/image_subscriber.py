@@ -62,5 +62,5 @@ class ImageSubscriber:
 
 
 if __name__ == "__main__":
-    a = ImageSubscriber()
+    a = ImageSubscriber(True)
     rospy.spin()

@@ -40,6 +40,7 @@ def detect_and_dump_blobs(fname="images/blobs.p"):
             with open(fname, "w+") as f:
                 pickle.dump(blobs, f)
             break
+        time.sleep(1)
 
 def load_blobs(fname="images/blobs.p"):
     """
@@ -57,4 +58,4 @@ if __name__ == '__main__':
         bt.update_blobs()
         time.sleep(2)
 
-    # detect_and_dump_blobs()
+    detect_and_dump_blobs()

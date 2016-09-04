@@ -65,10 +65,10 @@ if __name__ == "__main__":
         fname = sys.argv[2]
     else:
         fname = "policy.p"
-    fname = "experiment_data/experiments/2/" + fname
+    fname = "experiment_data/experiments/4/" + fname
 
     experiment = "config_files/experiment.json"
-    experiment = "experiment_data/experiments/2/experiment.json"
+    experiment = "experiment_data/experiments/4/experiment.json"
     simulation = load_simulation_from_config(experiment)
     policy = load_policy(fname)
     scorer = Scorer(0)
@@ -84,7 +84,6 @@ if __name__ == "__main__":
         print "No Pin Score", scorer.score(simulation.cloth)
 
     print pin_position
-
     if mode == 'all' or mode == 'two':
         simulation.reset()
         tensioner = simulation.pin_position(pin_position[0], pin_position[1], option)

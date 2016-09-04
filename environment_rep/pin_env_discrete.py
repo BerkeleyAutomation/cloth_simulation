@@ -40,8 +40,9 @@ class PinEnvDiscrete(Env):
 
     @property
     def observation_space(self):
-        return Box(low=np.array([0, -self.tensioner.max_displacement, -self.tensioner.max_displacement, -self.tensioner.max_displacement]),
-            high=np.array([len(self.trajectory) + 1, self.tensioner.max_displacement, self.tensioner.max_displacement, self.tensioner.max_displacement]))
+        return Box(low=np.array([0, -self.tensioner.max_displacement, -self.tensioner.max_displacement, -self.tensioner.max_displacement] + len(self.simulation.cloth.blobs) * [0, 0, -800]),
+            high=np.array([len(self.trajectory) + 1, self.tensioner.max_displacement, self.tensioner.max_displacement, self.tensioner.max_displacement]
+                + len(self.simulation.cloth.blobs) * [500, 500, 800]))
 
     @property
     def action_space(self):
@@ -50,7 +51,8 @@ class PinEnvDiscrete(Env):
 
     @property
     def _state(self):
-        return np.array([self.traj_index] + list(self.tensioner.displacement))
+        centroids = np.ravel(np.array(self.simulation.cloth.centroids)).tolist()
+        return np.array([self.traj_index] + list(self.tensioner.displacement) + centroids)
     
     @property
     def _score(self):

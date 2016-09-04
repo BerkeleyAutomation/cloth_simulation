@@ -91,7 +91,6 @@ class ShapeCloth(Cloth):
             for blob in self.blobs:
                 if pt in blob:
                     blob.remove(pt)
-        print self.centroids
         return len(toremoveshape)
 
     def reset(self):

@@ -87,22 +87,50 @@ def get_shape_fn(corners, pts, interpolate=False):
         pxpts.append(transform_and_project_point(basis, scale, pt, corners).tolist())
     if interpolate:
         pxpts = interpolation(np.array(pxpts), 10).tolist()
+
+    # import matplotlib.pyplot as plt
+    # plt.scatter(np.array(pxpts)[:,0], np.array(pxpts)[:,1], c='b')
+    # axes = plt.gca()
+    # axes.set_xlim([50, 500])
+    # axes.set_ylim([50, 500])
+    # plt.show()
+    # plot_points(pts, np.array(corners))
+    # pt = pts[-1]
+    # print pt
+    # print transform_and_project_point(basis, scale, pt, corners)
+    # sys.exit()
     return lambda x, y: np.min(np.linalg.norm(np.matrix(np.tile(np.array((x, y)), (len(pxpts), 1))) - pxpts, axis=1)) < 20
+
+def plot_points(camera_points, cpts=None):
+    """
+    Plots points in camera_frame. Axes may need to be edited.
+    """
+    import matplotlib.pyplot as plt
+    from mpl_toolkits.mplot3d import Axes3D
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.scatter(np.array(camera_points[:,0]), np.array(camera_points[:,1]), np.array(camera_points[:,2]),c='r')
+    ax.scatter(np.array(cpts[:,0]), np.array(cpts[:,1]), np.array(cpts[:,2]),c='g')
+    ax.set_xlim3d(0, 0.15)
+    ax.set_ylim3d(0, 0.15)
+    ax.set_zlim3d(0, -0.15)
+    plt.show()
 
 def get_blob_fn(corners, pts):
     def blob_fn(x, y):
-        dists = np.ravel(np.linalg.norm(np.matrix(np.tile(np.array((x, y, 0)), (len(pxpts), 1))) - pxpts, axis=1))
+        dists = np.ravel(np.linalg.norm(np.matrix(np.tile(np.array((x, y)), (len(pxpts), 1))) - pxpts, axis=1))
         if np.min(dists) < 20:
             return np.argmin(dists)
         else:
             return -1
-        return np.min(np.linalg.norm(np.matrix(np.tile(np.array((x, y, 0)), (len(pxpts), 1))) - pxpts, axis=1)) < 20
     scale = get_scale(corners)
     basis = get_basis(corners)
     pxpts = []
     for pt in pts:
-        pxpts.append(robot_frame_to_sim_frame(basis, scale, pt, corners).tolist())
+        pxpts.append(robot_frame_to_sim_frame(basis, scale, pt, corners).tolist()[:2])
     return blob_fn
+
+
 
 def get_trajectory(corners, pts, interpolate=True):
     """

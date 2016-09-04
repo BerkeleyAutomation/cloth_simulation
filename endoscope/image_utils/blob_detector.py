@@ -66,7 +66,7 @@ def contour_detector(image, show_plots = False, rescale=2):
         mask = np.zeros(gray.shape,np.uint8)
         cv2.drawContours(mask,[c],0,255,-1)
         mean_val = cv2.mean(hsv,mask = mask)
-        if cv2.contourArea(c) > 2000 or cv2.contourArea(c) < 1000 or mean_val[0] < 90 or mean_val[2] < 70:
+        if cv2.contourArea(c) > 2000 or cv2.contourArea(c) < 500 or mean_val[0] < 90 or mean_val[2] < 70:
             continue
         lst.append([mean_val[:3], (cX, cY), cv2.contourArea(c)])
 
@@ -107,7 +107,7 @@ def find_correspondences(left, right, disparity_max, disparity_min=0, blob_area_
             dist = np.linalg.norm(center_left - center_right)
             if dist < disparity_max and dist < best_dist and dist >= disparity_min and blob_left[2] < blob_max_area:
                 # check the h value of the means to see if they are with +-10 of each other
-                if abs(mean_left[0] - right[j][0][0]) < 20 and center_left[0] > center_right[0]:
+                if abs(mean_left[0] - mean_right[0]) < 30 and center_left[0] > center_right[0]:
                     if abs(center_right[1] - center_left[1]) < 20 and abs(blob_left[2] - blob_right[2]) < blob_area_disparity:
                         best_dist = dist
                         best_idx = j
@@ -224,11 +224,9 @@ if __name__ == "__main__":
 
     SHOW_PLOTS = True
     
-    left_image = cv2.imread("left86.jpg")
-    right_image = cv2.imread("right86.jpg")
-
     with open("../calibration/camera_data/camera_info.p", "rb") as f:
         info = pickle.load(f)
 
     surf = get_blobs("images/left.jpg", "images/right.jpg", True) # specify images
 
+    print surf
