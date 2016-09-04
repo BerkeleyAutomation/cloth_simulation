@@ -31,10 +31,10 @@ def get_basis(corners):
     v1 = np.array(corners[1]) - np.array(corners[0])
     v2 = np.array(corners[2]) - np.array(corners[0])
     v3 = np.cross(v1, v2)
-    v1 = v1 / np.linalg.norm(v1)
-    v2 = v2 / np.linalg.norm(v2)
-    v3 = v3 / np.linalg.norm(v3)
-    return np.matrix(np.vstack((v1, v2, v3)).T)
+    return 500 * np.linalg.inv(np.matrix(np.vstack((v1, v2, v3)).T))
+
+
+
 
 
 def get_scale(corners, px_distance=500):
@@ -47,13 +47,13 @@ def transform_and_project_point(transform, scale, pt, corners, offset=(50,50)):
     """
     Takes a point in robot frame and projects it onto the cloth object's plane.
     """
-    return np.ravel(np.matrix(transform) * np.matrix((np.array(pt)  - np.array(corners[0]))).T * scale)[:2] + np.array(offset)
+    return np.ravel(np.matrix(transform) * np.matrix((np.array(pt)  - np.array(corners[0]))).T)[:2] + np.array(offset)
 
 def robot_frame_to_sim_frame(transform, scale, pt, corners, offset=(50, 50, 0)):
     """
     Converts a point from robot frame to the simulation's frame.
     """
-    return np.ravel(np.matrix(transform) * np.matrix((np.array(pt)  - np.array(corners[0]))).T * scale) + np.array(offset)
+    return np.ravel(np.matrix(transform) * np.matrix((np.array(pt)  - np.array(corners[0]))).T) + np.array(offset)
 
 
 def px_to_robot_frame_args(transform, scale, pt, corners, offset=(50,50)):

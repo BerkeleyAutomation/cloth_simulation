@@ -20,7 +20,7 @@ from scorer import *
 from shapecloth import *
 from tensioner import *
 
-stub(globals())
+# stub(globals())
 
 class PolicyGenerator:
 
@@ -57,16 +57,16 @@ class PolicyGenerator:
             n_itr = 500
         )
 
-        run_experiment_lite(
-            algo.train(),
-            n_parallel=1,
-            snapshot_mode="last",
-            log_dir="temp",
-            seed=1,
-            # plot=True,
-        )
+        # run_experiment_lite(
+        #     algo.train(),
+        #     n_parallel=1,
+        #     snapshot_mode="last",
+        #     log_dir="temp",
+        #     seed=1,
+        #     # plot=True,
+        # )
 
-        # algo.train()
+        algo.train()
 
         with open(self.experiment_folder + self.writefile, "w+") as f:
             pickle.dump(policy, f)
@@ -94,6 +94,6 @@ if __name__ == '__main__':
         writefile = "policydiscrete.p"
     experiment_folder = "experiment_data/experiments/4/"
     config_file = "experiment.json"
-    import ipdb; ipdb.set_trace()
+    # import ipdb; ipdb.set_trace()
     pg = PolicyGenerator(experiment_folder, config_file, writefile)
     pg.train()

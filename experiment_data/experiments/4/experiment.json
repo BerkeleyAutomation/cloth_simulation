@@ -34,8 +34,8 @@
     "options": {
         "use_shape_pts": true,
         "pin_position": {
-            "x": 240,
-            "y": 300
+            "x": 380,
+            "y": 130
         },
         "max_displacement" : 50,
         "blobs":["experiment_data/experiments/4/gauze_pts.p", "experiment_data/experiments/4/blobs.p"]
