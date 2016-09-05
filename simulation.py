@@ -168,8 +168,8 @@ def load_simulation_from_config(fname="config_files/default.json", shape_fn=None
     simulation = data["simulation"]
     if "multipart" in simulation.keys() and not multipart:
         multipart = simulation["multipart"]
-
         if multipart:
+            IPython.embed()
             # Find the notch points and segments to complete the trajectory
             npf = NotchPointFinder(cloth, trajectory)
             npf.find_pts("r") # cutting from right "r"

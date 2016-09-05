@@ -18,7 +18,7 @@
         "init": 200,
         "render": false,
         "update_iterations": 1,
-        "multipart": true
+        "multipart": false
     },
     "shapecloth": {
         "shape_fn": [

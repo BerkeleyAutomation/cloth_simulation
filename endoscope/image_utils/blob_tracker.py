@@ -37,16 +37,6 @@ class BlobTracker(object):
                         lst.append([closest, bestdist])
                     else:
                         lst.append([-1, -1])
-
-                # for blob in newblobs:
-                #     dists = []
-                #     for b in self.blobs:
-                #         dists.append(np.linalg.norm(blob - b))
-                #     closest, bestdist = np.argmin(dists), np.min(dists)
-                #     if bestdist < self.threshold:
-                #         lst.append([closest, bestdist])
-                #     else:
-                #         lst.append([-1, -1])
                 tmp = [[0] for i in range(len(self.blobs))]
                 for i in range(len(tmp)):
                     if lst[i][0] >= 0:
@@ -54,7 +44,8 @@ class BlobTracker(object):
                 good_blobs = [a for a in tmp if len(a) != 1]
                 for i in range(len(tmp)):
                     if len(tmp[i]) == 1:
-                        tmp[i] = self.blobs[i]
+                        self.interpolate_blobs2(self.blobs, tmp)
+                        # tmp[i] = self.blobs[i]
                 self.blobs = tmp
             else:
                 self.blobs = newblobs
@@ -79,6 +70,22 @@ class BlobTracker(object):
         x3 = h.predict([missing_blob.tolist()[1:]])
         return np.ravel(np.array([x3, x2, x1]))
 
+    def interpolate_blobs2(self, old_blobs, new_blobs):
+        lst1 = []
+        lst2 = []
+        for i in range(len(old_blobs)):
+            oblob = old_blobs[i]
+            nblob = new_blobs[i]
+            if len(nblob) == 3:
+                lst1.append(list(oblob))
+                lst2.append(list(nblob))
+        for i in range(len(new_blobs)):
+            if len(new_blobs[i]) == 1:
+                dists = np.vstack(lst1) - np.tile(np.array(old_blobs[i]), (len(lst1, 1)))
+                dists = np.linalg.norm(dists, axis=1)
+                closest = np.argmin(dists)
+                delta = np.array(lst2[closest]) - np.array(lst1[closest])
+                new_blobs[i] = old_blobs[i] + delta
 
 def detect_and_dump_blobs(fname="images/blobs.p"):
     """

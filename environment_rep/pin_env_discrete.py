@@ -75,6 +75,8 @@ class PinEnvDiscrete(Env):
         self.tensioner.tension(x, y, z)
         self.simulation.move_mouse(self.trajectory[self.traj_index][0], self.trajectory[self.traj_index][1])
         reward = self.simulation.update()
+        if reward > 0:
+            reward = 1
         # reward = self._score
         done = self.traj_index >= len(self.trajectory) - 1
         next_observation = np.copy(self._state)
