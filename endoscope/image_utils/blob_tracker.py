@@ -5,12 +5,15 @@ from blob_detector import *
 sys.path.append(os.path.dirname(os.getcwd()))
 from calibration.robot import *
 from image_subscriber import *
+import scipy
+from sklearn.neighbors import KNeighborsRegressor
 
 class BlobTracker(object):
 
-    def __init__(self):
+    def __init__(self, blobs=None):
         self.image_subscriber = ImageSubscriber()
-        self.blobs = None
+        self.blobs = blobs
+        self.threshold= 0.01
 
     @property
     def left_image(self):
@@ -22,12 +25,60 @@ class BlobTracker(object):
     
     def update_blobs(self):
         if self.left_image != None and self.right_image != None:
-            self.blobs = get_blobs(self.left_image, self.right_image)
-            # Stable Radix sort style ordering of blobs for consistency
-            self.blobs.sort(key=lambda tup: tup[1])
-            self.blobs.sort(key=lambda tup: tup[0])
+            newblobs = [np.array(blob) for blob in get_blobs(self.left_image, self.right_image)]
+            if self.blobs:
+                lst = []
+                for blob in self.blobs:
+                    dists = []
+                    for b in newblobs:
+                        dists.append(np.linalg.norm(blob - b))
+                    closest, bestdist = np.argmin(dists), np.min(dists)
+                    if bestdist < self.threshold:
+                        lst.append([closest, bestdist])
+                    else:
+                        lst.append([-1, -1])
+
+                # for blob in newblobs:
+                #     dists = []
+                #     for b in self.blobs:
+                #         dists.append(np.linalg.norm(blob - b))
+                #     closest, bestdist = np.argmin(dists), np.min(dists)
+                #     if bestdist < self.threshold:
+                #         lst.append([closest, bestdist])
+                #     else:
+                #         lst.append([-1, -1])
+                tmp = [[0] for i in range(len(self.blobs))]
+                for i in range(len(tmp)):
+                    if lst[i][0] >= 0:
+                        tmp[i] = newblobs[lst[i][0]]
+                good_blobs = [a for a in tmp if len(a) != 1]
+                for i in range(len(tmp)):
+                    if len(tmp[i]) == 1:
+                        tmp[i] = self.blobs[i]
+                self.blobs = tmp
+            else:
+                self.blobs = newblobs
         print self.blobs
         return self.blobs
+
+    def interpolate_blobs(self, good_blobs, missing_blob):
+        X = np.vstack(good_blobs)[:,:2]
+        y = np.vstack(good_blobs)[:,2]
+        h = neigh = KNeighborsRegressor(n_neighbors=2)
+        h = neigh.fit(X, y)
+        x1 = h.predict([missing_blob.tolist()[:2]])
+        X = np.vstack(good_blobs)[:,(0,2)]
+        y = np.vstack(good_blobs)[:,1]
+        h = neigh = KNeighborsRegressor(n_neighbors=2)
+        h = neigh.fit(X, y)
+        x2 = h.predict([[missing_blob[0], missing_blob[2]]])
+        X = np.vstack(good_blobs)[:,1:]
+        y = np.vstack(good_blobs)[:,0]
+        h = neigh = KNeighborsRegressor(n_neighbors=2)
+        h = neigh.fit(X, y)
+        x3 = h.predict([missing_blob.tolist()[1:]])
+        return np.ravel(np.array([x3, x2, x1]))
+
 
 def detect_and_dump_blobs(fname="images/blobs.p"):
     """
@@ -54,8 +105,8 @@ def load_blobs(fname="images/blobs.p"):
 
 if __name__ == '__main__':
     bt = BlobTracker()
-    for i in range(3):
+    time.sleep(1)
+    for i in range(60):
         bt.update_blobs()
-        time.sleep(2)
 
-    detect_and_dump_blobs()
+    # detect_and_dump_blobs()

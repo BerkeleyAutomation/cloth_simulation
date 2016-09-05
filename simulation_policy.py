@@ -100,7 +100,7 @@ if __name__ == "__main__":
 
         for i in range(len(simulation.trajectory)):
             simulation.update()
-            action = MAPPING[query_policy(policy, [i]+list(tensioner.displacement))[0]]
+            action = MAPPING[query_policy(policy, [i]+list(tensioner.displacement) + np.ravel(np.array(simulation.cloth.centroids)).tolist())[0]]
             # action = clip_action(query_policy(policy, [i]+list(tensioner.displacement))[1]['mean'], [-1, -1, -1], [1, 1, 1])
             # print action
             tensioner.tension(action[0], action[1], action[2])

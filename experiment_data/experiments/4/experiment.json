@@ -17,7 +17,8 @@
     "simulation": {
         "init": 200,
         "render": false,
-        "update_iterations": 1
+        "update_iterations": 1,
+        "multipart": true
     },
     "shapecloth": {
         "shape_fn": [
@@ -34,8 +35,8 @@
     "options": {
         "use_shape_pts": true,
         "pin_position": {
-            "x": 380,
-            "y": 130
+            "x": 400,
+            "y": 250
         },
         "max_displacement" : 50,
         "blobs":["experiment_data/experiments/4/gauze_pts.p", "experiment_data/experiments/4/blobs.p"]

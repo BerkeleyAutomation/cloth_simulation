@@ -247,16 +247,18 @@ class NotchPointFinder(object):
         Returns a list of semgents in the order of the trajectory that
         corresponds to the best score.
         """
+        from simulation import *
         numSegments = len(self.segments)
         permutation = list(permutations(range(0, numSegments)))
         bestScore = -10000 # arbitrary upper limit
         bestPerm = []
+        simulation = Simulation(self.cloth, trajectory=None)
         for perm in permutation:
             newTrajectory = []
             for i in perm:
                 seg = self.segments[i]
                 newTrajectory = newTrajectory + seg
-            simulation = Simulation(self.cloth, trajectory=newTrajectory)
+            simulation.trajectory = newTrajectory
             simulation.reset()
             for i in range(len(simulation.trajectory)):
                 simulation.update()

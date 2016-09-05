@@ -54,7 +54,7 @@ class PolicyGenerator:
             batch_size=1000,
             step_size = 0.001,
             discount = 1,
-            n_itr = 500
+            n_itr = 100
         )
 
         # run_experiment_lite(

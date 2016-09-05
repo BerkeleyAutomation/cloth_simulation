@@ -9,6 +9,9 @@ from tensioner import *
 from mouse import *
 from registration import *
 from scorer import *
+import IPython
+from notch_finder import *
+
 
 """
 A Simulation object that can be used to represent an ongoing experiment. It can be rendered by setting render=True on construction. See the main method for an example.
@@ -67,7 +70,7 @@ class Simulation(object):
         if len(cpts) > 0:
             plt.scatter(cpts[:,0], cpts[:,1], c='b')
         if len(bpts) > 0:
-            plt.scatter(bpts[:,0], bpts[:,1], c='g')
+            plt.scatter(bpts[:,0], bpts[:,1], c='r')
         ax = plt.gca()
         plt.axis([0, 600, 0, 600])
         ax.set_axis_bgcolor('white')
@@ -132,6 +135,7 @@ class Simulation(object):
         except EOFError:
             print 'Nothing written to file.'
 
+
     # def __deepcopy__(self):
     #     """
     #     Returns a deep copy of self.
@@ -165,6 +169,15 @@ def load_simulation_from_config(fname="config_files/default.json", shape_fn=None
     if "multipart" in simulation.keys() and not multipart:
         multipart = simulation["multipart"]
 
+        if multipart:
+            # Find the notch points and segments to complete the trajectory
+            npf = NotchPointFinder(cloth, trajectory)
+            npf.find_pts("r") # cutting from right "r"
+            npf.find_segments("r")
+            from scorer import *
+            scorer = Scorer(0)
+            trajectory = npf.find_best_trajectory(scorer) # trajectory is now a list of lists
+            IPython.embed()
     return Simulation(cloth, simulation["init"], simulation["render"], simulation["update_iterations"], trajectory, multipart)
 
 def load_trajectory_from_config(fname="config_files/default.json"):
