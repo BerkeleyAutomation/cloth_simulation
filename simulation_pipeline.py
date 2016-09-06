@@ -114,7 +114,7 @@ if __name__ == '__main__':
     # Call load_simulation_from_config in simulation.py with filename, trajectory, and boolean
     #=========================================================
 
-    simulation = load_simulation_from_config(shape_fn=shape_fn, trajectory=trajectory, multipart=True)
+    #simulation = load_simulation_from_config(shape_fn=shape_fn, trajectory=trajectory, multipart=True) ??
 
     #=========================================================
     # Pinning policy
