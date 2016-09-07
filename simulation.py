@@ -169,16 +169,65 @@ def load_simulation_from_config(fname="config_files/default.json", shape_fn=None
     if "multipart" in simulation.keys() and not multipart:
         multipart = simulation["multipart"]
         if multipart:
-            IPython.embed()
             # Find the notch points and segments to complete the trajectory
             npf = NotchPointFinder(cloth, trajectory)
-            npf.find_pts("r") # cutting from right "r"
-            npf.find_segments("r")
+            npf.find_pts("right") # cutting from right "r"
+            npf.find_segments("right")
             from scorer import *
             scorer = Scorer(0)
+            oldtraj = trajectory
             trajectory = npf.find_best_trajectory(scorer) # trajectory is now a list of lists
-            IPython.embed()
+            if  "trajectory_indices_file" in data["options"].keys():
+                with open(data["options"]["trajectory_indices_file"], "w+") as f:
+                    indices = find_indices_naive(oldtraj, trajectory)
+                    pickle.dump(indices, f)
     return Simulation(cloth, simulation["init"], simulation["render"], simulation["update_iterations"], trajectory, multipart)
+
+def load_rect_simulation_from_config(fname="config_files/default.json", width=20, height=20):
+    """
+    Rectangular pattern cloth simulation.
+    """
+    multipart = True
+    with open(fname) as data_file:    
+        data = json.load(data_file)
+    mouse = data["mouse"]
+    bounds = data["bounds"]
+    bounds = (bounds["x"], bounds["y"], bounds["z"])
+    mouse = Mouse(mouse["x"], mouse["y"], mouse["z"], mouse["height_limit"], mouse["down"], mouse["button"], bounds, mouse["influence"], mouse["cut"])
+    cloth = data["shapecloth"]
+    corners, blobs = None, None
+    if "blobs" in data["options"].keys():
+        corners = load_robot_points(data["options"]["blobs"][0])
+        blobs = load_points(data["options"]["blobs"][1])
+    corners = load_robot_points(cloth["shape_fn"][0])
+    pxpts =  rect_pt_generator(width, height, dx=20, dy=20)
+    shape_fn = rect_fn(width, height, dx=20, dy=20)
+    trajectory = pxpts
+    cloth = ShapeCloth(shape_fn, mouse, cloth["width"], cloth["height"], cloth["dx"], cloth["dy"], 
+        cloth["gravity"], cloth["elasticity"], cloth["pin_cond"], bounds, blobs, corners)
+    simulation = data["simulation"]
+    if multipart:
+        # Find the notch points and segments to complete the trajectory
+        npf = NotchPointFinder(cloth, trajectory)
+        npf.find_pts("right") # cutting from right "r"
+        npf.find_segments("right")
+        from scorer import *
+        scorer = Scorer(0)
+        oldtraj = trajectory
+        trajectory = npf.find_best_trajectory(scorer) # trajectory is now a list of lists
+    return Simulation(cloth, simulation["init"], simulation["render"], simulation["update_iterations"], trajectory, multipart)
+
+
+def find_indices_naive(trajectory_old, trajectory_new):
+    lst = []
+    for i in range(len(trajectory_new)):
+        lst.append([])
+        for j in range(len(trajectory_new[i])):
+            for k in range(len(trajectory_old)):
+                if trajectory_old[k] == trajectory_new[i][j]:
+                    lst[i].append(k)
+    return lst
+
 
 def load_trajectory_from_config(fname="config_files/default.json"):
     """

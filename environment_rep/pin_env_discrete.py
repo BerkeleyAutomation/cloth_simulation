@@ -27,7 +27,7 @@ class PinEnvDiscrete(Env):
         6 : (0,0,-1)
     }
 
-    def __init__(self, simulation, x, y, trajectory, scorer=0, max_displacement=False):
+    def __init__(self, simulation, x, y, trajectory, scorer=0, max_displacement=False, predict=False, original=False):
         self.simulation = simulation
         height, width = simulation.cloth.initial_params[0]
         self.os_dim = height * width * 5
@@ -37,12 +37,21 @@ class PinEnvDiscrete(Env):
         self.trajectory = trajectory
         self.traj_index = 0
         self.pinx, self.piny = x, y
+        self.predict = predict
+        self.original = original
 
     @property
     def observation_space(self):
-        return Box(low=np.array([0, -self.tensioner.max_displacement, -self.tensioner.max_displacement, -self.tensioner.max_displacement] + len(self.simulation.cloth.blobs) * [0, 0, -800]),
+        if self.original:
+            return Box(low=np.array([0, -self.tensioner.max_displacement, -self.tensioner.max_displacement, -self.tensioner.max_displacement]),
+                high=np.array([len(self.trajectory) + 1, self.tensioner.max_displacement, self.tensioner.max_displacement, self.tensioner.max_displacement]))
+        if not self.predict:
+            return Box(low=np.array([0, -self.tensioner.max_displacement, -self.tensioner.max_displacement, -self.tensioner.max_displacement] + len(self.simulation.cloth.blobs) * [0, 0, -800]),
+                high=np.array([len(self.trajectory) + 1, self.tensioner.max_displacement, self.tensioner.max_displacement, self.tensioner.max_displacement]
+                    + len(self.simulation.cloth.blobs) * [500, 500, 800]))
+        return Box(low=np.array([0, -self.tensioner.max_displacement, -self.tensioner.max_displacement, -self.tensioner.max_displacement] + len(self.simulation.cloth.blobs) * [0, 0, -800] + 3 * [-1000, -1000, -1000, -1000, -3.2] + [0, 0]),
             high=np.array([len(self.trajectory) + 1, self.tensioner.max_displacement, self.tensioner.max_displacement, self.tensioner.max_displacement]
-                + len(self.simulation.cloth.blobs) * [500, 500, 800]))
+                + len(self.simulation.cloth.blobs) * [500, 500, 800] + 3 * [800, 800, 800, 800, 3.2] + [600, 600]))
 
     @property
     def action_space(self):
@@ -51,8 +60,37 @@ class PinEnvDiscrete(Env):
 
     @property
     def _state(self):
+        scissors = self.simulation.mouse.x, self.simulation.mouse.y
         centroids = np.ravel(np.array(self.simulation.cloth.centroids)).tolist()
-        return np.array([self.traj_index] + list(self.tensioner.displacement) + centroids)
+        if self.original:
+            return np.array([self.traj_index] + list(self.tensioner.displacement))
+        if not self.predict:
+            return np.array([self.traj_index] + list(self.tensioner.displacement) + centroids)
+        next_position3 = [-1000, -1000]
+        closest_shape3 = [-1000, -1000]
+        angle3 = 0
+        next_position2 = [-1000, -1000]
+        closest_shape2 = [-1000, -1000]
+        angle2 = 0
+        next_position = [-1000, -1000]
+        closest_shape = [-1000, -1000]
+        angle = 0
+        if self.traj_index < len(self.trajectory) - 1:
+            next_position = [self.trajectory[self.traj_index+1][0], self.trajectory[self.traj_index+1][1]]
+            closest_shape = list(self.simulation.cloth.find_closest_shapept(next_position[0], next_position[1]))
+            angle = self.simulation.cloth.find_dtheta(scissors[0], scissors[1], next_position[0], next_position[1], closest_shape[0], closest_shape[1])
+            if self.traj_index < len(self.trajectory) - 5:
+                next_position2 = [self.trajectory[self.traj_index+5][0], self.trajectory[self.traj_index+5][1]]
+                if np.linalg.norm(np.array(next_position2) - np.array(next_position)) < 100:
+                    closest_shape2 = list(self.simulation.cloth.find_closest_shapept(next_position2[0], next_position2[1]))
+                    angle2 = self.simulation.cloth.find_dtheta(next_position[0], next_position[1], next_position2[0], next_position2[1], closest_shape2[0], closest_shape2[1])
+                    if self.traj_index < len(self.trajectory) - 10:
+                        next_position3 = [self.trajectory[self.traj_index+10][0], self.trajectory[self.traj_index+10][1]]
+                        if np.linalg.norm(np.array(next_position3) - np.array(next_position2)) < 100:
+                            closest_shape3 = list(self.simulation.cloth.find_closest_shapept(next_position3[0], next_position3[1]))
+                            angle3 = self.simulation.cloth.find_dtheta(next_position2[0], next_position2[1], next_position3[0], next_position3[1], closest_shape3[0], closest_shape3[1])
+        return np.array([self.traj_index] + list(self.tensioner.displacement) + centroids + next_position + closest_shape + [angle] + next_position2 + closest_shape2 + [angle2]
+            + next_position3 + closest_shape3 + [angle3] + list(scissors))
     
     @property
     def _score(self):
@@ -74,15 +112,23 @@ class PinEnvDiscrete(Env):
         x, y, z = self.MAPPING[action]
         self.tensioner.tension(x, y, z)
         self.simulation.move_mouse(self.trajectory[self.traj_index][0], self.trajectory[self.traj_index][1])
-        reward = self.simulation.update()
-        if reward > 0:
-            reward = 1
+        reward = self.simulation.update() * np.floor(self.traj_index/30)
+        self.traj_index += 1
+        self.simulation.move_mouse(self.trajectory[self.traj_index][0], self.trajectory[self.traj_index][1])
+        reward += self.simulation.update() * np.floor(self.traj_index/30)
+
+        # if reward > 0:
+        #     reward = 1
         # reward = self._score
-        done = self.traj_index >= len(self.trajectory) - 1
+        done = self.traj_index >= len(self.trajectory) - 2
         next_observation = np.copy(self._state)
         self.traj_index += 1
         return Step(observation=next_observation, reward=reward, done=done)
 
     def render(self):
         self.simulation.render_sim()
+
+    # def local_angles(self, n=5):
+    #     if self.
+    #     for i in range(n):
 
