@@ -17,13 +17,15 @@ for the entire shape function. The start points of the segments are the notches.
 
 class NotchPointFinder(object):
 
-    def __init__(self, cloth, trajectory):
+    def __init__(self, cloth, trajectory, pin_position):
         self.cloth = cloth
         self.trajectory = trajectory
         self.isLoop = False
         self.min_pts = []
         self.max_pts = []
         self.segments = []
+        self.segment_indices = []
+        self.pin_position = pin_position
 
     def find_pts(self, armOrientation):
         """
@@ -167,6 +169,7 @@ class NotchPointFinder(object):
         
         trajectory = self.trajectory
         isLoop = self.isLoop
+        length = len(trajectory)
 
         if (isLoop):
             i_first_min = trajectory.index(self.min_pts[0])
@@ -177,34 +180,42 @@ class NotchPointFinder(object):
                     i_min = trajectory.index(self.min_pts[i])
                     i_max = trajectory.index(self.max_pts[i])
                     self.segments.append(trajectory[i_min:i_max+1])
+                    self.segment_indices.append(range(i_min, i_max+1))
                 # backward trajectory
                 i_min = trajectory.index(self.min_pts[0])
                 i_max = trajectory.index(self.max_pts[-1])
                 self.segments.append(trajectory[:i_min+1][::-1]+trajectory[i_max:][::-1])
+                self.segment_indices.append(range(0, i_min+1)[::-1]+range(i_max, length)[::-1])
                 for i in range(1, len(self.min_pts)):
                     i_min = trajectory.index(self.min_pts[i])
                     i_max = trajectory.index(self.max_pts[i-1])
                     if (i_max == 0):
                         self.segments.append(trajectory[:i_min+1][::-1])
+                        self.segment_indices.append(range(0, i_min+1)[::-1])
                     else:
                         self.segments.append(trajectory[i_min:i_max-1:-1])
+                        self.segment_indices.append(range(i_max, i_min+1)[::-1])
             else:
                 # forward trajectory
                 i_min = trajectory.index(self.min_pts[-1])
                 i_max = trajectory.index(self.max_pts[0])
                 self.segments.append(trajectory[i_min:]+trajectory[:i_max+1])
+                self.segment_indices.append(range(i_min, length) + range(0, i_max+1))
                 for i in range(len(self.min_pts)-1):
                     i_min = trajectory.index(self.min_pts[i])
                     i_max = trajectory.index(self.max_pts[i+1])
                     self.segments.append(trajectory[i_min:i_max+1])
+                    self.segment_indices.append(range(i_min, i_max+1))
                 # backward trajectory
                 for i in range(len(self.min_pts)):
                     i_min = trajectory.index(self.min_pts[i])
                     i_max = trajectory.index(self.max_pts[i])
                     if (i_max == 0):
                         self.segments.append(trajectory[:i_min+1][::-1])
+                        self.segment_indices.append(range(0, i_min+1)[::-1])
                     else:
                         self.segments.append(trajectory[i_min:i_max-1:-1])
+                        self.segment_indices.append(range(i_max, i_min+1)[::-1])
         else: # for non-looped trajectories
             numMin = len(self.min_pts)
             numMax = len(self.max_pts)
@@ -213,64 +224,104 @@ class NotchPointFinder(object):
                     i_min = trajectory.index(self.min_pts[i])
                     i_max = trajectory.index(self.max_pts[i-1])
                     self.segments.append(trajectory[i_min:i_max-1:-1])
+                    self.segment_indices.append(range(i_max, i_min+1)[::-1])
                 for i in range(len(self.min_pts)-1):
                     i_min = trajectory.index(self.min_pts[i])
                     i_max = trajectory.index(self.max_pts[i])
                     self.segments.append(trajectory[i_min:i_max+1])
+                    self.segment_indices.append(range(i_min, i_max+1))
             elif (numMin < numMax):
                 for i in range(len(self.min_pts)):
                     i_min = trajectory.index(self.min_pts[i])
                     i_max = trajectory.index(self.max_pts[i])
                     if (i_max == 0):
                         self.segments.append(trajectory[:i_min+1][::-1])
+                        self.segment_indices.append(range(0, i_min+1)[::-1])
                     else:
                         self.segments.append(trajectory[i_min:i_max-1:-1])
+                        self.segment_indices.append(range(i_max, i_min+1)[::-1])
                 for i in range(len(self.min_pts)):
                     i_min = trajectory.index(self.min_pts[i])
                     i_max = trajectory.index(self.max_pts[i+1])
                     self.segments.append(trajectory[i_min:i_max+1])
+                    self.segment_indices.append(range(i_min, i_max+1))
             else:
                 for i in range(len(self.min_pts)):
                     i_min = trajectory.index(self.min_pts[i])
                     i_max = trajectory.index(self.max_pts[i])
                     if (i_min < i_max):
                         self.segments.append(trajectory[i_min:i_max+1])
+                        self.segment_indices.append(range(i_min, i_max+1))
                     else:
                         if (i_max == 0):
                             self.segments.append(trajectory[:i_min+1][::-1])
+                            self.segment_indices.append(range(0, i_min+1)[::-1])
                         else:
                             self.segments.append(trajectory[i_min:i_max-1:-1])
-        return self.segments
+                            self.segment_indices.append(range(i_max, i_min+1)[::-1])
+        return self.segments, self.segment_indices
 
-    def find_best_trajectory(self, scorer):
+    def find_best_trajectory(self, scorer, mode="brute"):
         """
         Returns a list of semgents in the order of the trajectory that
         corresponds to the best score.
         """
-        from simulation import *
+        # from simulation import *
         numSegments = len(self.segments)
-        permutation = list(permutations(range(0, numSegments)))
-        bestScore = -10000 # arbitrary upper limit
-        bestPerm = []
-        simulation = Simulation(self.cloth, trajectory=None)
-        for perm in permutation:
-            newTrajectory = []
-            for i in perm:
-                seg = self.segments[i]
-                newTrajectory = newTrajectory + seg
-            simulation.trajectory = newTrajectory
-            simulation.reset()
-            for i in range(len(simulation.trajectory)):
-                simulation.update()
-                simulation.move_mouse(simulation.trajectory[i][0], simulation.trajectory[i][1])
-            if (scorer.score(simulation.cloth) > bestScore):
-                bestScore = scorer.score(simulation.cloth)
-                bestPerm = perm
+        newTrajectory = []
+        newIndices = []
+        # brute force approach: iterate through all the permutations of segments
+        if (mode == "brute"):
+            permutation = list(permutations(range(0, numSegments)))
+            bestScore = -10000 # arbitrary upper limit
+            bestPerm = []
+            simulation = Simulation(self.cloth, trajectory=None)
+            for perm in permutation:
+                newTrajectory = []
+                newIndices = []
+                for i in perm:
+                    seg = self.segments[i]
+                    ind = self.segment_indices[i]
+                    newTrajectory = newTrajectory + seg
+                    newIndices = newIndices + ind
+                simulation.trajectory = newTrajectory
+                simulation.reset()
+                for i in range(len(simulation.trajectory)):
+                    simulation.update()
+                    simulation.move_mouse(simulation.trajectory[i][0], simulation.trajectory[i][1])
+                if (scorer.score(simulation.cloth) > bestScore):
+                    bestScore = scorer.score(simulation.cloth)
+                    bestPerm = perm
+
+        # length approach: order by shortest segment to longest segment
+        elif (mode == "length"):
+            lengths = []
+            for seg in self.segments:
+                lengths.append(len(seg))
+            bestPerm = sorted(range(numSegments), key=lambda i: lengths[i])
+
+        # distance approach: order by closest segment to farthest segment (average distances of all points from pin point)
+        else:
+            distances = []
+            for seg in self.segments:
+                num_pts = len(seg)
+                total_sq_dist = 0
+                for pt in seg:
+                    dx = pt[0] - self.pin_position[0]
+                    dy = pt[1] - self.pin_position[1]
+                    total_sq_dist = total_sq_dist + dx**2 + dy**2
+                distances.append((total_sq_dist+0.0)/num_pts)
+            bestPerm = sorted(range(numSegments), key=lambda i: distances[i])
+            bestPerm = bestPerm[:][::-1]
+
         newTrajectory = [self.segments[bestPerm[0]]]
+        newIndices = [self.segment_indices[bestPerm[0]]]
         for i in bestPerm[1:]:
             seg = self.segments[i]
+            ind = self.segment_indices[i]
             newTrajectory.append(seg)
-        return newTrajectory # a list of lists
+            newIndices.append(ind)  
+        return newTrajectory, newIndices # a list of lists
 
 
 if __name__ == '__main__':
@@ -325,7 +376,7 @@ if __name__ == '__main__':
     trajectory = get_trajectory(corners, points, True)
     
     # Find the notch points and segments to complete the trajectory
-    npf = NotchPointFinder(cloth, trajectory)
+    npf = NotchPointFinder(cloth, trajectory, [600, 600])
     npf.find_pts(armOrientation)
     npf.find_segments(armOrientation)
 
@@ -382,7 +433,7 @@ if __name__ == '__main__':
     plt.waitforbuttonpress()
 
     # find the best trajectory and simulate it
-    newOrdering = npf.find_best_trajectory(scorer)
+    newOrdering, newIndices = npf.find_best_trajectory(scorer, mode="length")
     # turn into a single list for simulation
     newTrajectory = []
     for seg in newOrdering:
