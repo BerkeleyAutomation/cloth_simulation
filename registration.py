@@ -108,19 +108,19 @@ def get_shape_fn(corners, pts, interpolate=False, thickness=10):
     # sys.exit()
     return lambda x, y: np.min(np.linalg.norm(np.matrix(np.tile(np.array((x, y)), (len(pxpts), 1))) - pxpts, axis=1)) < thickness
 
-def rect_pt_generator(width, height, dx=20, dy=20):
+def rect_pt_generator(width, height, dx=10, dy=10, center=(310, 310)):
     pts = []
     for i in range(width):
-        pts.append([50 + dx * i, 50])
+        pts.append([center[0] - dx * width / 2 + dx * i, center[1] + dy * height/2])
     for j in range(height):
-        pts.append([50 + dx * (width - 1), 50 + dy * j])
+        pts.append([center[0] + dx * width / 2, center[1] + dy * height/2 - dy * j])
     for i in range(width):
-        pts.append([50 + dx * (width - 1 - i), 50 + dy * (height - 1)])
+        pts.append([center[0] + dx * width / 2 - dx * i, center[1] - dy * height/2])
     for j in range(height):
-        pts.append([50, 50 + dy * (height - j)])
+        pts.append([center[0] - dx * width / 2, center[1] - dy * height/2 + dy * j])
     return pts
 
-def rect_fn(width, height, dx=20, dy=20):
+def rect_fn(width, height, dx=20, dy=20, thickness=1):
     pxpts = rect_pt_generator(width, height, dx, dy)
     pxpts = interpolation(np.array(pxpts), 10).tolist()
     return lambda x, y: np.min(np.linalg.norm(np.matrix(np.tile(np.array((x, y)), (len(pxpts), 1))) - pxpts, axis=1)) < thickness
@@ -154,6 +154,14 @@ def get_blob_fn(corners, pts):
         pxpts.append(robot_frame_to_sim_frame(basis, scale, pt, corners).tolist()[:2])
     return blob_fn
 
+def sample_from_trajectory(trajectory, n=100):
+    while len(trajectory) < 2*n:
+        print "interpolating"
+        trajectory = interpolation(np.array(trajectory), 1+2*n/len(trajectory)).tolist()
+        print len(trajectory)
+    freq = int(np.floor(len(trajectory) / n))
+    lst = trajectory[::freq][:100]
+    return lst
 
 
 def get_trajectory(corners, pts, interpolate=True):
