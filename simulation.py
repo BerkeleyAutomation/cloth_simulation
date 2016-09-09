@@ -144,7 +144,7 @@ def load_simulation_from_config(fname="config_files/default.json", shape_fn=None
     simulation = data["simulation"]
     return Simulation(cloth, simulation["init"], simulation["render"], simulation["update_iterations"], trajectory)
 
-def load_trajectory_from_config(fname="default/experiment.json"):
+def load_trajectory_from_config(fname="config_files/default.json"):
     """
     Returns a trajectory created from the pt registration files specified in FNAME.
     """
@@ -155,7 +155,7 @@ def load_trajectory_from_config(fname="default/experiment.json"):
     pts = load_robot_points(cloth["shape_fn"][1])
     return get_trajectory(corners, pts, True)
 
-def load_pin_from_config(fname="default/experiment.json"):
+def load_pin_from_config(fname="config_files/default.json"):
     """
     Returns a pin position from a config file FNAME.
     """
