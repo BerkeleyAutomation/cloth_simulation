@@ -1,0 +1,45 @@
+{
+    "bounds": {
+        "x": 600,
+        "y": 600,
+        "z": 800
+    },
+    "mouse": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+        "height_limit": 1000,
+        "down": true,
+        "button": 0,
+        "cut": 20,
+        "influence": 5
+    },
+    "simulation": {
+        "init": 200,
+        "render": false,
+        "update_iterations": 1,
+        "multipart": false
+    },
+    "shapecloth": {
+        "shape_fn": [
+            "curve/gauze_pts.p", "curve/gauze_pts2.p"
+            ],
+        "width": 25,
+        "height": 25,
+        "dx": 20,
+        "dy": 20,
+        "gravity": -2500,
+        "elasticity": 1.0,
+        "pin_cond": "default"
+    },
+    "options": {
+        "use_shape_pts": true,
+        "pin_position": {
+            "x": 180,
+            "y": 280
+        },
+        "max_displacement" : 50,
+        "blobs":["curve/gauze_pts.p", "curve/blobs.p"],
+        "trajectory_indices_file" : "curve/trajindices.p"
+    }
+}
