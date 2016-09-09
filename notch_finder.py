@@ -307,6 +307,16 @@ class NotchPointFinder(object):
             worstPerm = sorted(range(numSegments), key=lambda i: -lengths[i])
             simulation = Simulation(self.cloth, trajectory=None)
             newTrajectory = []
+            for i in bestPerm:
+                seg = self.segments[i]
+                newTrajectory = newTrajectory + seg
+            simulation.trajectory = newTrajectory
+            simulation.reset()
+            for i in range(len(simulation.trajectory)):
+                simulation.update()
+                simulation.move_mouse(simulation.trajectory[i][0], simulation.trajectory[i][1])
+            bestScore = scorer.score(simulation.cloth)
+            newTrajectory = []
             for i in worstPerm:
                 seg = self.segments[i]
                 newTrajectory = newTrajectory + seg
@@ -332,8 +342,18 @@ class NotchPointFinder(object):
             bestPerm = sorted(range(numSegments), key=lambda i: distances[i])
             bestPerm = bestPerm[:][::-1]
             # calculate worst score
-            worstPerm = sorted(range(numSegments), key=lambda i: -distances[i])
+            worstPerm = sorted(range(numSegments), key=lambda i: distances[i])
             simulation = Simulation(self.cloth, trajectory=None)
+            newTrajectory = []
+            for i in bestPerm:
+                seg = self.segments[i]
+                newTrajectory = newTrajectory + seg
+            simulation.trajectory = newTrajectory
+            simulation.reset()
+            for i in range(len(simulation.trajectory)):
+                simulation.update()
+                simulation.move_mouse(simulation.trajectory[i][0], simulation.trajectory[i][1])
+            bestScore = scorer.score(simulation.cloth)
             newTrajectory = []
             for i in worstPerm:
                 seg = self.segments[i]
@@ -352,7 +372,7 @@ class NotchPointFinder(object):
             ind = self.segment_indices[i]
             newTrajectory.append(seg)
             newIndices.append(ind)  
-        return newTrajectory, newIndices, worstScore # a list of lists
+        return newTrajectory, newIndices, bestScore, worstScore # a list of lists
 
 
 if __name__ == '__main__':
@@ -466,7 +486,7 @@ if __name__ == '__main__':
     plt.waitforbuttonpress()
 
     # find the best trajectory and simulate it
-    newOrdering, newIndices = npf.find_best_trajectory(scorer, mode="length")
+    newOrdering, newIndices, bestScore, worstScore = npf.find_best_trajectory(scorer, mode="length")
     # turn into a single list for simulation
     newTrajectory = []
     for seg in newOrdering:
