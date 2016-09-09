@@ -287,7 +287,8 @@ class NotchPointFinder(object):
                     newIndices = newIndices + ind
                 simulation.trajectory = newTrajectory
                 simulation.reset()
-                simulation.pin_position(self.pin_position[0], self.pin_position[1])
+                if (self.pin_position):
+                    simulation.pin_position(self.pin_position[0], self.pin_position[1])
                 for i in range(len(simulation.trajectory)):
                     simulation.update()
                     simulation.move_mouse(simulation.trajectory[i][0], simulation.trajectory[i][1])
