@@ -9,13 +9,16 @@ from tensioner import *
 from mouse import *
 from registration import *
 from scorer import *
+import IPython
+from notch_finder import *
+
 
 """
 A Simulation object that can be used to represent an ongoing experiment. It can be rendered by setting render=True on construction. See the main method for an example.
 """
 class Simulation(object):
 
-    def __init__(self, cloth, init=200, render=False, update_iterations=1, trajectory=None):
+    def __init__(self, cloth, init=200, render=False, update_iterations=1, trajectory=None, multi_part=False):
         """
         Constructor takes in a cloth object and optionally, a nonnegative integer representing the amount of time to spend allowing
         the cloth to settle initially. Setting render=True will render the simulation. However, rendering will slow down iterations 
@@ -32,6 +35,14 @@ class Simulation(object):
         self.trajectory = trajectory
         if not trajectory:
             self.trajectory = [(np.cos(deg) * 150 + 300, np.sin(deg) * 150 + 300) for deg in [3.6 * np.pi * i / 180.0 for i in range(100)]]
+        self.multi_part = multi_part
+        traj = []
+        if multi_part:
+            for i in range(len(trajectory)):
+                for j in range(len(trajectory[i])):
+                    traj.append(trajectory[i][j])
+            self.trajectory = traj
+
 
 
     def update(self, iterations=-1):
@@ -49,10 +60,17 @@ class Simulation(object):
         plt.clf()
         pts = np.array([[p.x, p.y] for p in self.cloth.normalpts])
         cpts = np.array([[p.x, p.y] for p in self.cloth.shapepts])
+        bpts = []
+        for blob in self.cloth.blobs:
+            for pt in blob:
+                bpts.append([pt.x, pt.y])
+        bpts = np.array(bpts)
         if len(pts) > 0:
             plt.scatter(pts[:,0], pts[:,1], c='w')
         if len(cpts) > 0:
             plt.scatter(cpts[:,0], cpts[:,1], c='b')
+        if len(bpts) > 0:
+            plt.scatter(bpts[:,0], bpts[:,1], c='r')
         ax = plt.gca()
         plt.axis([0, 600, 0, 600])
         ax.set_axis_bgcolor('white')
@@ -117,15 +135,16 @@ class Simulation(object):
         except EOFError:
             print 'Nothing written to file.'
 
+
     # def __deepcopy__(self):
     #     """
     #     Returns a deep copy of self.
     #     """
     #     return copy.deepcopy(self)
 
-def load_simulation_from_config(fname="config_files/default.json", shape_fn=None, trajectory=None):
+def load_simulation_from_config(fname="config_files/default.json", shape_fn=None, trajectory=None, multipart=False):
     """
-    Creates a Simulation object from a configuration file FNAME, and can optionally take in a SHAPE_FN or create one from discrete points saved to file.
+    Creates a Simulation object from a configuration file FNAME, and can optionally take in a SHAPE_FN or create one from discrete points saved to file. MULTIPART indicates whether or not the input trajectory consists of multiple subtrajectories.
     """
     with open(fname) as data_file:    
         data = json.load(data_file)
@@ -134,15 +153,32 @@ def load_simulation_from_config(fname="config_files/default.json", shape_fn=None
     bounds = (bounds["x"], bounds["y"], bounds["z"])
     mouse = Mouse(mouse["x"], mouse["y"], mouse["z"], mouse["height_limit"], mouse["down"], mouse["button"], bounds, mouse["influence"], mouse["cut"])
     cloth = data["shapecloth"]
+    corners, blobs = None, None
+    if "blobs" in data["options"].keys():
+        corners = load_robot_points(data["options"]["blobs"][0])
+        blobs = load_points(data["options"]["blobs"][1])
     if not shape_fn:
         corners = load_robot_points(cloth["shape_fn"][0])
         pts = load_robot_points(cloth["shape_fn"][1])
         shape_fn = get_shape_fn(corners, pts, True)
-        trajectory = load_trajectory_from_config(fname)
+        if not trajectory:
+            trajectory = load_trajectory_from_config(fname)
     cloth = ShapeCloth(shape_fn, mouse, cloth["width"], cloth["height"], cloth["dx"], cloth["dy"], 
-        cloth["gravity"], cloth["elasticity"], cloth["pin_cond"], bounds)
+        cloth["gravity"], cloth["elasticity"], cloth["pin_cond"], bounds, blobs, corners)
     simulation = data["simulation"]
-    return Simulation(cloth, simulation["init"], simulation["render"], simulation["update_iterations"], trajectory)
+    if "multipart" in simulation.keys() and not multipart:
+        multipart = simulation["multipart"]
+        if multipart:
+            IPython.embed()
+            # Find the notch points and segments to complete the trajectory
+            npf = NotchPointFinder(cloth, trajectory)
+            npf.find_pts("r") # cutting from right "r"
+            npf.find_segments("r")
+            from scorer import *
+            scorer = Scorer(0)
+            trajectory = npf.find_best_trajectory(scorer) # trajectory is now a list of lists
+            IPython.embed()
+    return Simulation(cloth, simulation["init"], simulation["render"], simulation["update_iterations"], trajectory, multipart)
 
 def load_trajectory_from_config(fname="config_files/default.json"):
     """
@@ -199,6 +235,7 @@ if __name__ == "__main__":
     simulation.reset()
 
     print "Initial Score", scorer.score(simulation.cloth)
+    print len(simulation.trajectory)
 
     for i in range(len(simulation.trajectory)):
         simulation.update()

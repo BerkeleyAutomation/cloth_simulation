@@ -40,8 +40,9 @@ class PinEnvDiscrete(Env):
 
     @property
     def observation_space(self):
-        return Box(low=np.array([0, -self.tensioner.max_displacement, -self.tensioner.max_displacement, -self.tensioner.max_displacement]),
-            high=np.array([len(self.trajectory) + 1, self.tensioner.max_displacement, self.tensioner.max_displacement, self.tensioner.max_displacement]))
+        return Box(low=np.array([0, -self.tensioner.max_displacement, -self.tensioner.max_displacement, -self.tensioner.max_displacement] + len(self.simulation.cloth.blobs) * [0, 0, -800]),
+            high=np.array([len(self.trajectory) + 1, self.tensioner.max_displacement, self.tensioner.max_displacement, self.tensioner.max_displacement]
+                + len(self.simulation.cloth.blobs) * [500, 500, 800]))
 
     @property
     def action_space(self):
@@ -50,7 +51,8 @@ class PinEnvDiscrete(Env):
 
     @property
     def _state(self):
-        return np.array([self.traj_index] + list(self.tensioner.displacement))
+        centroids = np.ravel(np.array(self.simulation.cloth.centroids)).tolist()
+        return np.array([self.traj_index] + list(self.tensioner.displacement) + centroids)
     
     @property
     def _score(self):
@@ -73,6 +75,8 @@ class PinEnvDiscrete(Env):
         self.tensioner.tension(x, y, z)
         self.simulation.move_mouse(self.trajectory[self.traj_index][0], self.trajectory[self.traj_index][1])
         reward = self.simulation.update()
+        if reward > 0:
+            reward = 1
         # reward = self._score
         done = self.traj_index >= len(self.trajectory) - 1
         next_observation = np.copy(self._state)

@@ -11,14 +11,16 @@ from rllab.misc.instrument import stub, run_experiment_lite
 from rllab.policies.gaussian_mlp_policy import GaussianMLPPolicy
 from rllab.policies.categorical_mlp_policy import CategoricalMLPPolicy
 
-from pin_env_discrete import *
+from environment_rep import *
+from environment_rep.pin_env_discrete import *
 import numpy as np
 import sys, pickle, os
-sys.path.append(os.path.dirname(os.getcwd()))
 from simulation import *
 from scorer import *
 from shapecloth import *
 from tensioner import *
+
+# stub(globals())
 
 class PolicyGenerator:
 
@@ -26,11 +28,10 @@ class PolicyGenerator:
     Class that trains a tensioning policy given a config file and a file to dump the policy to.
     """
 
-    def __init__(self, experiment_folder="../experiment_data/experiments/2/", config_file="experiment.json", writefile="policydiscrete"):
+    def __init__(self, experiment_folder="experiment_data/experiments/3/", config_file="experiment.json", writefile="policydiscrete.p"):
         self.experiment_folder = experiment_folder
         self.config_file = self.experiment_folder + config_file
         self.writefile = writefile
-        self.scorer = Scorer(0)
         self.simulation = load_simulation_from_config(self.config_file)
         self.pin_position, self.option = load_pin_from_config(self.config_file)
         self.simulation.reset()
@@ -53,11 +54,36 @@ class PolicyGenerator:
             batch_size=1000,
             step_size = 0.001,
             discount = 1,
-            n_itr = 750
+            n_itr = 100
         )
+
+        # run_experiment_lite(
+        #     algo.train(),
+        #     n_parallel=1,
+        #     snapshot_mode="last",
+        #     log_dir="temp",
+        #     seed=1,
+        #     # plot=True,
+        # )
+
         algo.train()
+
         with open(self.experiment_folder + self.writefile, "w+") as f:
             pickle.dump(policy, f)
+
+
+
+def rollout(env, policy):
+    observations, actions, rewards = [], [], []
+    env.reset()
+    observation = env.state
+    while not env.traj_index >= len(env.trajectory) - 1:
+        action = policy.get_action(np.array(observation))[0]
+        actions.append(action)
+        observations.append(observation)
+        observation, reward, terminal, _ = env.step(action)
+        rewards.append(reward)
+
 
 
 if __name__ == '__main__':
@@ -66,7 +92,8 @@ if __name__ == '__main__':
         writefile = sys.argv[1]
     else:
         writefile = "policydiscrete.p"
-    experiment_folder = "../experiment_data/experiments/4/"
+    experiment_folder = "experiment_data/experiments/4/"
     config_file = "experiment.json"
+    # import ipdb; ipdb.set_trace()
     pg = PolicyGenerator(experiment_folder, config_file, writefile)
     pg.train()

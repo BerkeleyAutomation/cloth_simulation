@@ -15,6 +15,9 @@ Presents a visualization of a learned policy.
 """
 
 def load_policy(fname):
+    """
+    Return a policy from a file.
+    """
     with open(fname, "rb") as f:
         try:
             return pickle.load(f)
@@ -22,10 +25,16 @@ def load_policy(fname):
             print 'Nothing written to file.'
 
 def query_policy(policy, observation):
+    """
+    Given a policy and an observation, return an action.
+    """
     observation = np.array(observation)
     return policy.get_action(observation)
 
 def clip_action(action, low, high):
+    """
+    Threshold an action between two vectors, high and low.
+    """
     action = np.array(action)
     for i in range(len(action)):
         if low[i] > action[i]:
@@ -56,10 +65,10 @@ if __name__ == "__main__":
         fname = sys.argv[2]
     else:
         fname = "policy.p"
-    fname = "experiment_data/experiments/2/" + fname
+    fname = "experiment_data/experiments/4/" + fname
 
     experiment = "config_files/experiment.json"
-    experiment = "experiment_data/experiments/2/experiment.json"
+    experiment = "experiment_data/experiments/4/experiment.json"
     simulation = load_simulation_from_config(experiment)
     policy = load_policy(fname)
     scorer = Scorer(0)
@@ -75,7 +84,6 @@ if __name__ == "__main__":
         print "No Pin Score", scorer.score(simulation.cloth)
 
     print pin_position
-
     if mode == 'all' or mode == 'two':
         simulation.reset()
         tensioner = simulation.pin_position(pin_position[0], pin_position[1], option)
@@ -92,7 +100,7 @@ if __name__ == "__main__":
 
         for i in range(len(simulation.trajectory)):
             simulation.update()
-            action = MAPPING[query_policy(policy, [i]+list(tensioner.displacement))[0]]
+            action = MAPPING[query_policy(policy, [i]+list(tensioner.displacement) + np.ravel(np.array(simulation.cloth.centroids)).tolist())[0]]
             # action = clip_action(query_policy(policy, [i]+list(tensioner.displacement))[1]['mean'], [-1, -1, -1], [1, 1, 1])
             # print action
             tensioner.tension(action[0], action[1], action[2])
