@@ -17,7 +17,7 @@ for the entire shape function. The start points of the segments are the notches.
 
 class NotchPointFinder(object):
 
-    def __init__(self, cloth, trajectory, pin_position):
+    def __init__(self, cloth, trajectory, pin_position=[]):
         self.cloth = cloth
         self.trajectory = trajectory
         self.isLoop = False
@@ -27,12 +27,12 @@ class NotchPointFinder(object):
         self.segment_indices = []
         self.pin_position = pin_position
 
-    def find_pts(self, armOrientation):
+    def find_pts(self, armOrientation="right"):
         """
         Returns a list of points on the shape cloth for notching.
         """
         trajectory = self.trajectory
-        self.isLoop = (trajectory[0] == trajectory[-1])
+        self.isLoop = (((trajectory[0][0] - trajectory[-1][0])**2 + (trajectory[0][1] - trajectory[-1][1])**2 )**0.5 < 10)
         isLoop = self.isLoop
 
         # traverse the trajectory to find minimums and maximums
@@ -160,7 +160,7 @@ class NotchPointFinder(object):
 
         return self.min_pts,self.max_pts
 
-    def find_segments(self, armOrientation):
+    def find_segments(self, armOrientation="right"):
         """
         Returns a list of segments on the shape cloth for notching.
         """
@@ -266,7 +266,7 @@ class NotchPointFinder(object):
         Returns a list of semgents in the order of the trajectory that
         corresponds to the best score.
         """
-        # from simulation import *
+        from simulation import Simulation
         numSegments = len(self.segments)
         newTrajectory = []
         newIndices = []
