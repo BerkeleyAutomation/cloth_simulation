@@ -17,7 +17,7 @@ for the entire shape function. The start points of the segments are the notches.
 
 class NotchPointFinder(object):
 
-    def __init__(self, cloth, trajectory, pin_position):
+    def __init__(self, cloth, trajectory, pin_position=[]):
         self.cloth = cloth
         self.trajectory = trajectory
         self.isLoop = False
@@ -27,12 +27,12 @@ class NotchPointFinder(object):
         self.segment_indices = []
         self.pin_position = pin_position
 
-    def find_pts(self, armOrientation):
+    def find_pts(self, armOrientation="right"):
         """
         Returns a list of points on the shape cloth for notching.
         """
         trajectory = self.trajectory
-        self.isLoop = (trajectory[0] == trajectory[-1])
+        self.isLoop = (((trajectory[0][0] - trajectory[-1][0])**2 + (trajectory[0][1] - trajectory[-1][1])**2 )**0.5 < 10)
         isLoop = self.isLoop
 
         # traverse the trajectory to find minimums and maximums
@@ -160,7 +160,7 @@ class NotchPointFinder(object):
 
         return self.min_pts,self.max_pts
 
-    def find_segments(self, armOrientation):
+    def find_segments(self, armOrientation="right"):
         """
         Returns a list of segments on the shape cloth for notching.
         """
@@ -264,9 +264,9 @@ class NotchPointFinder(object):
     def find_best_trajectory(self, scorer, mode="brute"):
         """
         Returns a list of semgents in the order of the trajectory that
-        corresponds to the best score.
+        corresponds to the best score. Also returns worst score
         """
-        # from simulation import *
+        from simulation import Simulation
         numSegments = len(self.segments)
         newTrajectory = []
         newIndices = []
@@ -274,6 +274,7 @@ class NotchPointFinder(object):
         if (mode == "brute"):
             permutation = list(permutations(range(0, numSegments)))
             bestScore = -10000 # arbitrary upper limit
+            worstScore = 10000
             bestPerm = []
             simulation = Simulation(self.cloth, trajectory=None)
             for perm in permutation:
@@ -286,12 +287,15 @@ class NotchPointFinder(object):
                     newIndices = newIndices + ind
                 simulation.trajectory = newTrajectory
                 simulation.reset()
+                simulation.pin_position(self.pin_position[0], self.pin_position[1])
                 for i in range(len(simulation.trajectory)):
                     simulation.update()
                     simulation.move_mouse(simulation.trajectory[i][0], simulation.trajectory[i][1])
                 if (scorer.score(simulation.cloth) > bestScore):
                     bestScore = scorer.score(simulation.cloth)
                     bestPerm = perm
+                if (scorer.score(simulation.cloth) < worstScore):
+                    worstScore = scorer.score(simulation.cloth)
 
         # length approach: order by shortest segment to longest segment
         elif (mode == "length"):
@@ -299,6 +303,20 @@ class NotchPointFinder(object):
             for seg in self.segments:
                 lengths.append(len(seg))
             bestPerm = sorted(range(numSegments), key=lambda i: lengths[i])
+            # calculate worst score
+            worstPerm = sorted(range(numSegments), key=lambda i: -lengths[i])
+            simulation = Simulation(self.cloth, trajectory=None)
+            newTrajectory = []
+            for i in worstPerm:
+                seg = self.segments[i]
+                newTrajectory = newTrajectory + seg
+            simulation.trajectory = newTrajectory
+            simulation.reset()
+            for i in range(len(simulation.trajectory)):
+                simulation.update()
+                simulation.move_mouse(simulation.trajectory[i][0], simulation.trajectory[i][1])
+            worstScore = scorer.score(simulation.cloth)
+
 
         # distance approach: order by closest segment to farthest segment (average distances of all points from pin point)
         else:
@@ -313,6 +331,19 @@ class NotchPointFinder(object):
                 distances.append((total_sq_dist+0.0)/num_pts)
             bestPerm = sorted(range(numSegments), key=lambda i: distances[i])
             bestPerm = bestPerm[:][::-1]
+            # calculate worst score
+            worstPerm = sorted(range(numSegments), key=lambda i: -distances[i])
+            simulation = Simulation(self.cloth, trajectory=None)
+            newTrajectory = []
+            for i in worstPerm:
+                seg = self.segments[i]
+                newTrajectory = newTrajectory + seg
+            simulation.trajectory = newTrajectory
+            simulation.reset()
+            for i in range(len(simulation.trajectory)):
+                simulation.update()
+                simulation.move_mouse(simulation.trajectory[i][0], simulation.trajectory[i][1])
+            worstScore = scorer.score(simulation.cloth)
 
         newTrajectory = [self.segments[bestPerm[0]]]
         newIndices = [self.segment_indices[bestPerm[0]]]
@@ -321,7 +352,7 @@ class NotchPointFinder(object):
             ind = self.segment_indices[i]
             newTrajectory.append(seg)
             newIndices.append(ind)  
-        return newTrajectory, newIndices # a list of lists
+        return newTrajectory, newIndices, worstScore # a list of lists
 
 
 if __name__ == '__main__':
@@ -376,7 +407,7 @@ if __name__ == '__main__':
     trajectory = get_trajectory(corners, points, True)
     
     # Find the notch points and segments to complete the trajectory
-    npf = NotchPointFinder(cloth, trajectory, [600, 600])
+    npf = NotchPointFinder(cloth, trajectory, [300, 300])
     npf.find_pts(armOrientation)
     npf.find_segments(armOrientation)
 
@@ -425,6 +456,8 @@ if __name__ == '__main__':
     simulation = Simulation(cloth, render=True, trajectory=newTrajectory)
     scorer = Scorer(0)
     simulation.reset()
+    simulation.pin_position(npf.pin_position[0], npf.pin_position[1])
+
     print "Initial Score", scorer.score(simulation.cloth)
     for i in range(len(simulation.trajectory)):
         simulation.update()
