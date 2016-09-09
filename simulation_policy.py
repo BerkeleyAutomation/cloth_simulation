@@ -9,6 +9,7 @@ from tensioner import *
 from mouse import *
 from registration import *
 from scorer import *
+from policy_test import *
 
 """
 Presents a visualization of a learned policy.
@@ -65,9 +66,11 @@ if __name__ == "__main__":
         fname = sys.argv[2]
     else:
         fname = "policy.p"
+    policy_file = fname
     fname = "experiment_data/experiments/4/" + fname
 
     experiment = "config_files/experiment.json"
+    experiment_directory = "experiment_data/experiments/4/"
     experiment = "experiment_data/experiments/4/experiment.json"
     simulation = load_simulation_from_config(experiment)
     policy = load_policy(fname)
@@ -75,13 +78,14 @@ if __name__ == "__main__":
     simulation.reset()
     simulation.render = True
     pin_position, option = load_pin_from_config(experiment)
-    print "Initial Score", scorer.score(simulation.cloth)
+    totalpts = -scorer.score(simulation.cloth)
+    print "Best possible score: ", -scorer.score(simulation.cloth)
     if mode == 'all' or mode == 'one':
         for i in range(len(simulation.trajectory)):
             simulation.update()
             simulation.move_mouse(simulation.trajectory[i][0], simulation.trajectory[i][1])
 
-        print "No Pin Score", scorer.score(simulation.cloth)
+        print "No Pin Score", totalpts + scorer.score(simulation.cloth)
 
     print pin_position
     if mode == 'all' or mode == 'two':
@@ -92,18 +96,9 @@ if __name__ == "__main__":
             simulation.update()
             simulation.move_mouse(simulation.trajectory[i][0], simulation.trajectory[i][1])
 
-        print "Fixed Pin Score", scorer.score(simulation.cloth)
+        print "Fixed Pin Score", totalpts + scorer.score(simulation.cloth)
 
     if mode == 'all' or mode == 'three':
-        simulation.reset()
-        tensioner = simulation.pin_position(pin_position[0], pin_position[1], option)
+        simulation = test_policy(experiment_directory, policy=policy_file)
 
-        for i in range(len(simulation.trajectory)):
-            simulation.update()
-            action = MAPPING[query_policy(policy, [i]+list(tensioner.displacement) + np.ravel(np.array(simulation.cloth.centroids)).tolist())[0]]
-            # action = clip_action(query_policy(policy, [i]+list(tensioner.displacement))[1]['mean'], [-1, -1, -1], [1, 1, 1])
-            # print action
-            tensioner.tension(action[0], action[1], action[2])
-            simulation.move_mouse(simulation.trajectory[i][0], simulation.trajectory[i][1])
-
-        print "Policy Pin Score", scorer.score(simulation.cloth)
+        print "Policy Pin Score", totalpts + scorer.score(simulation.cloth)

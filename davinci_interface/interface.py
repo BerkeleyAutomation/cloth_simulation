@@ -18,13 +18,14 @@ MAPPING = {
 
 class ScissorArm(robot):
 
-    def __init__(self, robot_name, trajectory, gripper, multipart=False):
+    def __init__(self, robot_name, trajectory, gripper, multipart=True):
         robot.__init__(self, robot_name)
         self.mapping = MAPPING
         self.trajectory = trajectory
         self.idx = 0
         self.multipart = multipart
         self.gripper = gripper
+        self.preprocessing()
         if multipart:
             pivots = [0]
             for traj in trajectory:
@@ -35,21 +36,24 @@ class ScissorArm(robot):
                 for j in range(len(trajectory[i])):
                     traj.append(trajectory[i][j])
             self.trajectory = traj
-        self.preprocessing()
+            self.pivots = pivots
+        
 
-    def step(self):
+    def step(self, blobs=None):
         """
         Steps to the next position in the trajectory, cutting along the way.
         """
         if self.done:
             return False
-        self.gripper.step(self.idx)
+        self.gripper.step(self.idx, blobs)
         self.open_gripper(80)
         time.sleep(2.5)
         if self.multipart:
             if self.idx + 1 in self.pivots:
                 self.reenter()
-        frame = get_frame(self.trajectory[self.idx+1], self.angles[self.idx+1])
+        pos = self.trajectory[self.idx+1]
+        pos[2] += 0.02
+        frame = get_frame(pos, self.angles[self.idx+1])
         self.move_cartesian_frame_linear_interpolation(frame, 0.1)
         self.open_gripper(1)
         time.sleep(2.5)
@@ -62,6 +66,7 @@ class ScissorArm(robot):
         """
         Reenters at the first index of the next trajectory. Needs to be implemented still.
         """
+        self.home()
         return
 
     def preprocessing(self):
@@ -113,6 +118,10 @@ class ScissorArm(robot):
     def done(self):
         return self.idx >= len(self.trajectory) - 2
 
+    def home(self):
+        frame = get_frame([0.0591553404947, 0.0836998693038, -0.0970342513022], [0.454656883574, 0.518820631996, 0.583873517581, 0.428023346912])
+        self.move_cartesian_frame_linear_interpolation(frame, 0.1)
+
 class GripperArm(robot):
 
     # GRAB_ORIENTATION = (0.178626136475, 0.980532321834, -0.0781338284913, -0.0233275385155)
@@ -149,17 +158,18 @@ class GripperArm(robot):
         else:
             self.move_cartesian_frame_linear_interpolation(tfx.pose(self.cur_position_translation(np.array(action) * self.scale), np.array(orientation)), 0.1)
 
-    def query_policy(self, time):
+    def query_policy(self, time, blobs=None):
         """
         Given a time index, the arm queries the trained policy for an action to take.
         """
-        return self.mapping[self.policy.get_action(np.array([time]+list(self.displacement)))[0]]
+        print np.array([time]+list(self.displacement) + list(blobs)).shape
+        return self.mapping[self.policy.get_action([time]+list(self.displacement) + list(blobs))[0]]
 
-    def step(self, time):
+    def step(self, time, blobs):
         """
         Queries the policy and executes the next action.
         """
-        self.execute_action(self.query_policy(time))
+        self.execute_action(self.query_policy(time, blobs))
 
     def grab_point(self, pos):
         """

@@ -55,15 +55,22 @@ def robot_frame_to_sim_frame(transform, scale, pt, corners, offset=(50, 50, 0)):
     """
     return np.ravel(np.matrix(transform) * np.matrix((np.array(pt)  - np.array(corners[0]))).T) + np.array(offset)
 
+def robot_frame_to_sim_file(pt, corners_file, pts_file, offset=(50, 50, 0)):
+    corners = load_robot_points(corners_file)
+    pts = load_robot_points(pts_file)
+    scale = get_scale(corners)
+    basis = get_basis(corners)
+    return robot_frame_to_sim_frame(basis, scale, pt, corners)
+
 
 def px_to_robot_frame_args(transform, scale, pt, corners, offset=(50,50)):
     """
     Converts a point in pixel space to robot space.
     """
     pt = np.array(pt) - np.array(offset)
-    pt = np.array([pt[0], pt[1], 1e-10]) / scale
+    pt = np.array([pt[0], pt[1], 1e-10])
     pt = np.linalg.inv(transform) * np.matrix(pt).T
-    pt = pt + np.array(corners[0])
+    pt = np.ravel(pt) + np.ravel(np.array(corners[0]))
     return pt
 
 def px_to_robot(pt, corners_file, pts_file, offset=(50,50)):
@@ -76,7 +83,7 @@ def px_to_robot(pt, corners_file, pts_file, offset=(50,50)):
     basis = get_basis(corners)
     return px_to_robot_frame_args(basis, scale, pt, corners, offset)
 
-def get_shape_fn(corners, pts, interpolate=False):
+def get_shape_fn(corners, pts, interpolate=False, thickness=10):
     """
     Finds a function that represents the shape outlined by pts in robot frame, in the cloth simulation object's coordinate frame.
     """
@@ -99,7 +106,24 @@ def get_shape_fn(corners, pts, interpolate=False):
     # print pt
     # print transform_and_project_point(basis, scale, pt, corners)
     # sys.exit()
-    return lambda x, y: np.min(np.linalg.norm(np.matrix(np.tile(np.array((x, y)), (len(pxpts), 1))) - pxpts, axis=1)) < 20
+    return lambda x, y: np.min(np.linalg.norm(np.matrix(np.tile(np.array((x, y)), (len(pxpts), 1))) - pxpts, axis=1)) < thickness
+
+def rect_pt_generator(width, height, dx=10, dy=10, center=(310, 310)):
+    pts = []
+    for i in range(width):
+        pts.append([center[0] - dx * width / 2 + dx * i, center[1] + dy * height/2])
+    for j in range(height):
+        pts.append([center[0] + dx * width / 2, center[1] + dy * height/2 - dy * j])
+    for i in range(width):
+        pts.append([center[0] + dx * width / 2 - dx * i, center[1] - dy * height/2])
+    for j in range(height):
+        pts.append([center[0] - dx * width / 2, center[1] - dy * height/2 + dy * j])
+    return pts
+
+def rect_fn(width, height, dx=20, dy=20, thickness=1):
+    pxpts = rect_pt_generator(width, height, dx, dy)
+    pxpts = interpolation(np.array(pxpts), 10).tolist()
+    return lambda x, y: np.min(np.linalg.norm(np.matrix(np.tile(np.array((x, y)), (len(pxpts), 1))) - pxpts, axis=1)) < thickness
 
 def plot_points(camera_points, cpts=None):
     """
@@ -130,6 +154,14 @@ def get_blob_fn(corners, pts):
         pxpts.append(robot_frame_to_sim_frame(basis, scale, pt, corners).tolist()[:2])
     return blob_fn
 
+def sample_from_trajectory(trajectory, n=100):
+    while len(trajectory) < 2*n:
+        print "interpolating"
+        trajectory = interpolation(np.array(trajectory), 1+2*n/len(trajectory)).tolist()
+        print len(trajectory)
+    freq = int(np.floor(len(trajectory) / n))
+    lst = trajectory[::freq][:100]
+    return lst
 
 
 def get_trajectory(corners, pts, interpolate=True):

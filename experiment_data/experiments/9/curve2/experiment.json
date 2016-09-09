@@ -18,11 +18,11 @@
         "init": 200,
         "render": false,
         "update_iterations": 1,
-        "multipart": true
+        "multipart": false
     },
     "shapecloth": {
         "shape_fn": [
-            "experiment_data/experiments/4/gauze_pts.p", "experiment_data/experiments/4/gauze_pts2.p"
+            "curve2/gauze_pts.p", "curve2/gauze_pts2.p"
             ],
         "width": 25,
         "height": 25,
@@ -35,11 +35,11 @@
     "options": {
         "use_shape_pts": true,
         "pin_position": {
-            "x": 370,
-            "y": 380
+            "x": 180,
+            "y": 280
         },
         "max_displacement" : 50,
-        "blobs":["experiment_data/experiments/4/gauze_pts.p", "experiment_data/experiments/4/blobs.p"],
-        "trajectory_indices_file" : "experiment_data/experiments/4/trajindices.p"
+        "blobs":["curve2/gauze_pts.p", "curve2/blobs.p"],
+        "trajectory_indices_file" : "curve2/trajindices.p"
     }
 }

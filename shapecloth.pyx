@@ -156,3 +156,17 @@ class ShapeCloth(Cloth):
         sum_y = np.sum(arr[:, 1])
         sum_z = np.sum(arr[:, 2])
         return sum_x/length, sum_y/length, sum_z/length
+
+    def find_closest_shapept(self, x, y):
+        pt = self.shapepts[np.argmin(np.linalg.norm(np.array([(pt.x, pt.y) for pt in self.shapepts]) - np.tile(np.array((x, y)), (len(self.shapepts), 1)),  axis=1))]
+        return pt.x, pt.y
+
+    def find_dtheta(self, x0, y0, x1, y1, x2, y2):
+        v1 = np.array((x1, y1)) - np.array((x0, y0)) + 1e-5
+        v2 = np.array((x2, y2)) - np.array((x0, y0)) + 1e-5
+        v1, v2 = v1 / np.linalg.norm(v1), v2 / np.linalg.norm(v2)
+        costheta = np.dot(v1, v2)
+        theta = np.arccos(costheta)
+        return theta
+
+

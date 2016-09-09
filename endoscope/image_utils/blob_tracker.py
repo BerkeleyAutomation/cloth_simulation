@@ -3,16 +3,20 @@ import sys, os, time, pickle
 import matplotlib.pyplot as plt
 from blob_detector import *
 sys.path.append(os.path.dirname(os.getcwd()))
-from calibration.robot import *
+from robot import *
 from image_subscriber import *
 import scipy
 from sklearn.neighbors import KNeighborsRegressor
+import IPython
 
 class BlobTracker(object):
 
     def __init__(self, blobs=None):
         self.image_subscriber = ImageSubscriber()
-        self.blobs = blobs
+        if blobs:
+            self.blobs = [np.array(blob) for blob in blobs]
+        else:
+            self.blobs = blobs
         self.threshold= 0.01
 
     @property
@@ -81,7 +85,7 @@ class BlobTracker(object):
                 lst2.append(list(nblob))
         for i in range(len(new_blobs)):
             if len(new_blobs[i]) == 1:
-                dists = np.vstack(lst1) - np.tile(np.array(old_blobs[i]), (len(lst1, 1)))
+                dists = np.vstack(lst1) - np.tile(np.array(old_blobs[i]), (len(lst1), 1))
                 dists = np.linalg.norm(dists, axis=1)
                 closest = np.argmin(dists)
                 delta = np.array(lst2[closest]) - np.array(lst1[closest])
