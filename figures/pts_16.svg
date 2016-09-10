@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Created with matplotlib (http://matplotlib.org/) -->
+<svg height="288pt" version="1.1" viewBox="0 0 432 288" width="432pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style type="text/css">
+*{stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:100000;}
+  </style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 288 
+L 432 288 
+L 432 0 
+L 0 0 
+z
+" style="fill:#ffffff;"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 54 252 
+L 388.8 252 
+L 388.8 28.8 
+L 54 28.8 
+z
+" style="fill:#ffffff;"/>
+   </g>
+   <g id="line2d_1">
+    <path clip-path="url(#pe94b6f0e4f)" d="M 291.15 42.75 
+L 274.991699 49.482625 
+L 269.993398 50.829151 
+L 245.454324 56.888514 
+L 207.751622 63.621139 
+L 199.004595 66.314189 
+L 186.077954 70.353764 
+L 184.526757 71.404054 
+L 173.862278 84.869305 
+L 168.476178 98.334556 
+L 168.842432 99.115541 
+L 173.689923 105.174903 
+L 174.745598 105.848166 
+L 207.062201 119.313417 
+L 213.396255 121.333205 
+L 228.477336 126.046042 
+L 230.200888 126.98861 
+L 240.908456 140.453861 
+L 235.522355 153.919112 
+L 233.884981 154.807819 
+L 190.796178 168.273069 
+L 185.366988 168.3 
+L 179.980888 168.3 
+L 178.580502 168.703958 
+L 164.038031 174.76332 
+L 162.680734 175.598166 
+L 157.294633 189.063417 
+L 157.23 190.490734 
+L 157.23 195.876834 
+L 157.790154 196.900193 
+L 167.485135 209.018919 
+L 168.648533 210.257722 
+L 184.806834 216.990347 
+L 193.316873 219.683398 
+L 206.243514 223.722973 
+L 208.634942 224.1 
+L 235.479266 224.153861 
+L 251.637568 230.886486 
+L 257.950077 232.906274 
+L 273.031158 237.619112 
+L 274.991699 238.05 
+L 291.15 238.05 
+L 291.15 238.05 
+" style="fill:none;stroke:#0000ff;stroke-linecap:square;"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 54 28.8 
+L 388.8 28.8 
+" style="fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter;"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 388.8 252 
+L 388.8 28.8 
+" style="fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter;"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 54 252 
+L 388.8 252 
+" style="fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter;"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 54 252 
+L 54 28.8 
+" style="fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter;"/>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="pe94b6f0e4f">
+   <rect height="223.2" width="334.8" x="54.0" y="28.8"/>
+  </clipPath>
+ </defs>
+</svg>
