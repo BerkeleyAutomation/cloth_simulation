@@ -43,4 +43,4 @@ if __name__ == '__main__':
     ap = AnalyticPolicy(simulation, pin_position[0], pin_position[1])
     ap.rollout()
     scorer.score(simulation.cloth)
-    print simulation.cloth.evaluate()
+    print simulation.score

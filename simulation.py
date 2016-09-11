@@ -135,6 +135,11 @@ class Simulation(object):
         except EOFError:
             print 'Nothing written to file.'
 
+    @property
+    def score(self):
+        return -self.cloth.evaluate()
+    
+
 
     # def __deepcopy__(self):
     #     """
