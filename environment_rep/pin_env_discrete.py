@@ -112,10 +112,10 @@ class PinEnvDiscrete(Env):
         x, y, z = self.MAPPING[action]
         self.tensioner.tension(x, y, z)
         self.simulation.move_mouse(self.trajectory[self.traj_index][0], self.trajectory[self.traj_index][1])
-        reward = self.simulation.update() * np.floor(self.traj_index/30)
+        reward = self.simulation.update() * np.ceil(self.traj_index/30)
         self.traj_index += 1
         self.simulation.move_mouse(self.trajectory[self.traj_index][0], self.trajectory[self.traj_index][1])
-        reward += self.simulation.update() * np.floor(self.traj_index/30)
+        reward += self.simulation.update() * np.ceil(self.traj_index/30)
 
         # if reward > 0:
         #     reward = 1
