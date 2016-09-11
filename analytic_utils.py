@@ -38,8 +38,9 @@ if __name__ == '__main__':
     pin_position, option = load_pin_from_config()
     print pin_position
 
+    print simulation.cloth.evaluate()
 
     ap = AnalyticPolicy(simulation, pin_position[0], pin_position[1])
     ap.rollout()
     scorer.score(simulation.cloth)
-
+    print simulation.cloth.evaluate()

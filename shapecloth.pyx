@@ -2,6 +2,12 @@ from point import *
 from cloth import *
 from mouse import *
 from registration import *
+from collections import deque
+from scipy import signal
+from scipy import stats
+import matplotlib.pyplot as plt
+import IPython
+
 
 """
 A subclass of cloth, on which a shape pattern is drawn. It also can be grabbed and tensioned.
@@ -33,7 +39,7 @@ class ShapeCloth(Cloth):
             pin_cond = lambda x, y, height, width: y == height - 1 or y == 0
         for i in range(height):
             for j in range(width):
-                pt = Point(mouse, 50 + dx * j, 50 + dy * i, gravity=gravity, elasticity=elasticity, bounds=bounds, identity=j + i * height)
+                pt = Point(mouse, 50 + dx * j, 50 + dy * i, gravity=gravity, elasticity=elasticity, bounds=bounds, identity=j + i * width)
                 self.allpts[i * height + j] = pt
                 if i > 0:
                     pt.add_constraint(self.pts[width * (i - 1) + j])
@@ -57,6 +63,7 @@ class ShapeCloth(Cloth):
                     self.blobpts.append(pt)
         self.pts, self.normalpts, self.shapepts = set(self.pts), set(self.normalpts), set(self.shapepts)
         self.initial_params = [(width, height), (dx, dy), shape_fn, gravity, elasticity, pin_cond]
+        self.setup()
 
 
     def update(self):
@@ -116,7 +123,7 @@ class ShapeCloth(Cloth):
             self.blobs.append([])
         for i in range(height):
             for j in range(width):
-                pt = Point(self.mouse, 50 + dx * j, 50 + dy * i, gravity=gravity, elasticity=elasticity, identity=j + i * height)
+                pt = Point(self.mouse, 50 + dx * j, 50 + dy * i, gravity=gravity, elasticity=elasticity, identity=j + i * width)
                 self.allpts[i * height + j] = pt
                 if i > 0:
                     pt.add_constraint(self.pts[width * (i - 1) + j])
@@ -168,5 +175,71 @@ class ShapeCloth(Cloth):
         costheta = np.dot(v1, v2)
         theta = np.arccos(costheta)
         return theta
+
+
+    def setup(self, plot=False):
+        width, height = self.initial_params[0]
+        dx, dy = self.initial_params[1]
+        shape_fn = self.initial_params[2]
+        grid = np.zeros((height, width))
+        for i in range(height):
+            for j in range(width):
+                if shape_fn(j * dy + 50, i * dx + 50):
+                    grid[i, j] = 1
+        grid = signal.convolve2d(grid, np.ones((1, 1)), mode='same')
+        grid = stats.threshold(grid, threshmax=1e-10, newval=1)
+        if plot:
+            plt.imshow(np.flipud(grid), cmap='Greys_r')
+            plt.show()
+        grid = -grid + 1
+        grid2 = np.zeros_like(grid)
+        queue = deque([])
+        seen = []
+        queue.append((0,0))
+        i = 0
+        while len(queue) > 0:
+            i += 1; print i
+            pos = queue.popleft()
+            if pos in seen:
+                continue
+            seen.append(pos)
+            if grid[pos]:
+                grid2[pos] = 1
+                neighbors = [(pos[0] + 1, pos[1]), (pos[0] - 1, pos[1]), (pos[0], pos[1] - 1), (pos[0], pos[1] + 1)]
+                for pos in neighbors:
+                    if pos in seen or min(pos) < 0 or pos[0] >= height or pos[1] >= width:
+                        pass
+                    else:
+                        queue.append(pos)
+        if plot:
+            plt.imshow(np.flipud(grid2), cmap='Greys_r')
+            plt.show()
+        self.outgrid = grid2
+        self.shapegrid = grid
+        return grid2
+
+    def evaluate(self, log=False):
+        width, height = self.initial_params[0]
+        insum, outsum, cutsum = 0, 0, 0
+        for key in self.allpts.keys():
+            pt = self.allpts[key]
+            if pt in self.pts:
+                continue
+            else:
+                pos = (np.floor(pt.identity / width), pt.identity % width)
+                if self.shapegrid[pos]:
+                    cutsum += 1
+                elif self.outgrid[pos]:
+                    outsum += 1
+                else:
+                    insum += 1
+        if log:                    
+            print len(self.allpts.keys()), len(self.pts), cutsum
+            print insum, outsum
+        return insum + outsum
+
+
+
+
 
 
