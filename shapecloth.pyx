@@ -196,9 +196,7 @@ class ShapeCloth(Cloth):
         queue = deque([])
         seen = []
         queue.append((0,0))
-        i = 0
         while len(queue) > 0:
-            i += 1; print i
             pos = queue.popleft()
             if pos in seen:
                 continue

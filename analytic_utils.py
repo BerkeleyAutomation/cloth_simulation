@@ -22,6 +22,7 @@ class AnalyticPolicy(object):
             displacement = scale * (tensioner.x - pos[0]), scale * (tensioner.y - pos[1])
             if log:
                 print displacement
+                print self.simulation.score
             tensioner.tension(displacement[0], displacement[1])
 
 
