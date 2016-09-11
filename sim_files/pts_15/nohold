@@ -1,10 +1,10 @@
 (dp0
 S'worst_score'
 p1
-I33
+I24
 sS'totalpts'
 p2
-I78
+I36
 sS'trajectory'
 p3
 (lp4
@@ -701,7 +701,7 @@ F110.0
 aF412.5
 aaasS'best_score'
 p236
-I33
+I24
 sS'init_score'
 p237
 I0
