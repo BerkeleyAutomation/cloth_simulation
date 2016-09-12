@@ -191,6 +191,7 @@ class ShapeCloth(Cloth):
         if plot:
             plt.imshow(np.flipud(grid), cmap='Greys_r')
             plt.show()
+        self.shape_area = np.sum(grid)
         grid = -grid + 1
         grid2 = np.zeros_like(grid)
         queue = deque([])
@@ -213,28 +214,93 @@ class ShapeCloth(Cloth):
             plt.imshow(np.flipud(grid2), cmap='Greys_r')
             plt.show()
         self.outgrid = grid2
-        self.shapegrid = grid
+        self.shapegrid = -grid + 1
+        self.out_area = np.sum(self.outgrid)
+        self.in_area = height * width - self.out_area - self.shape_area
         return grid2
 
-    def evaluate(self, log=False):
+    def setup_helper(self, plot=False):
         width, height = self.initial_params[0]
-        insum, outsum, cutsum = 0, 0, 0
+        dx, dy = self.initial_params[1]
+        shape_fn = self.initial_params[2]
+        grid = np.zeros((height, width))
         for key in self.allpts.keys():
             pt = self.allpts[key]
             if pt in self.pts:
                 continue
             else:
                 pos = (np.floor(pt.identity / width), pt.identity % width)
-                if self.shapegrid[pos]:
-                    cutsum += 1
-                elif self.outgrid[pos]:
-                    outsum += 1
-                else:
-                    insum += 1
-        if log:                    
-            print len(self.allpts.keys()), len(self.pts), cutsum
-            print insum, outsum
-        return insum + outsum
+                grid[pos] = 1
+        grid = signal.convolve2d(grid, np.ones((1, 1)), mode='same')
+        grid = stats.threshold(grid, threshmax=1e-10, newval=1)
+        grid = grid + self.shapegrid
+        temp = stats.threshold(grid, threshmax=1.1, newval=0)
+        extra = np.sum(temp)
+        grid = stats.threshold(grid, threshmax=1e-10, newval=1)
+        if plot:
+            plt.imshow(np.flipud(grid), cmap='Greys_r')
+            plt.show()
+        grid = -grid + 1
+        grid2 = np.zeros_like(grid)
+        queue = deque([])
+        seen = []
+        queue.append((4,0))
+        grid = stats.threshold(grid, threshmax=1e-10, newval=1)
+        if plot:
+            plt.imshow(np.flipud(grid), cmap='Greys_r')
+            plt.show()
+        while len(queue) > 0:
+            pos = queue.popleft()
+            if pos in seen:
+                continue
+            seen.append(pos)
+            if grid[pos]:
+                grid2[pos] = 1
+                neighbors = [(pos[0] + 1, pos[1]), (pos[0] - 1, pos[1]), (pos[0], pos[1] - 1), (pos[0], pos[1] + 1)]
+                for pos in neighbors:
+                    if pos in seen or min(pos) < 0 or pos[0] >= height or pos[1] >= width:
+                        pass
+                    else:
+                        queue.append(pos)
+        if plot:
+            plt.imshow(np.flipud(grid2), cmap='Greys_r')
+            plt.show()
+        newoutarea = np.sum(grid2)
+
+        grid2 = np.zeros_like(grid)
+        queue = deque([])
+        seen = []
+        p = height / 2, width / 2
+        queue.append(p)
+        grid = stats.threshold(grid, threshmax=1e-10, newval=1)
+        if plot:
+            plt.imshow(np.flipud(grid), cmap='Greys_r')
+            plt.show()
+        while len(queue) > 0:
+            pos = queue.popleft()
+            if pos in seen:
+                continue
+            seen.append(pos)
+            if grid[pos]:
+                grid2[pos] = 1
+                neighbors = [(pos[0] + 1, pos[1]), (pos[0] - 1, pos[1]), (pos[0], pos[1] - 1), (pos[0], pos[1] + 1)]
+                for pos in neighbors:
+                    if pos in seen or min(pos) < 0 or pos[0] >= height or pos[1] >= width:
+                        pass
+                    else:
+                        queue.append(pos)
+        if plot:
+            plt.imshow(np.flipud(grid2), cmap='Greys_r')
+            plt.show()
+
+        newinarea = np.sum(grid2)
+        din = self.in_area - newinarea
+        dout = self.out_area - newoutarea
+        score = din + dout + extra
+        return score
+
+    def evaluate(self, log=False):
+        return -self.setup_helper()
 
 
 

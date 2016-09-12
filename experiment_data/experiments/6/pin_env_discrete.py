@@ -5,6 +5,8 @@ from rllab.envs.base import Step
 import numpy as np
 import sys, pickle, os
 sys.path.append(os.path.dirname(os.getcwd()))
+from os.path import dirname
+sys.path.append(dirname(dirname(dirname(os.getcwd()))))
 from simulation import *
 from scorer import *
 from shapecloth import *
@@ -27,7 +29,7 @@ class PinEnvDiscrete(Env):
         6 : (0,0,-1)
     }
 
-    def __init__(self, simulation, x, y, trajectory, scorer=0, max_displacement=False, predict=False, original=False):
+    def __init__(self, simulation, x, y, trajectory, scorer=0, max_displacement=False, predict=False, original=False, sample=False):
         self.simulation = simulation
         height, width = simulation.cloth.initial_params[0]
         self.os_dim = height * width * 5
@@ -39,7 +41,7 @@ class PinEnvDiscrete(Env):
         self.pinx, self.piny = x, y
         self.predict = predict
         self.original = original
-        self.last_score = 0
+        self.sample = sample
 
     @property
     def observation_space(self):
@@ -103,7 +105,6 @@ class PinEnvDiscrete(Env):
 
 
     def reset(self):
-        self.last_score = 0
         self.simulation.reset()
         self.tensioner = self.simulation.pin_position(self.pinx, self.piny, self.tensioner.max_displacement)
         self.traj_index = 0
@@ -114,16 +115,13 @@ class PinEnvDiscrete(Env):
         x, y, z = self.MAPPING[action]
         self.tensioner.tension(x, y, z)
         self.simulation.move_mouse(self.trajectory[self.traj_index][0], self.trajectory[self.traj_index][1])
-        # reward = self.simulation.update() * np.ceil(self.traj_index/30)
-        self.simulation.update()
+        reward = self.simulation.update() * np.floor(self.traj_index/30)
         self.traj_index += 1
         self.simulation.move_mouse(self.trajectory[self.traj_index][0], self.trajectory[self.traj_index][1])
-        # reward += self.simulation.update() * np.ceil(self.traj_index/30)
-        self.simulation.update()
+        reward += self.simulation.update() * np.floor(self.traj_index/30)
         done = self.traj_index >= len(self.trajectory) - 2
         if done:
             reward = self.simulation.cloth.evaluate()
-            print "score", reward
         else:
             reward = 0
         next_observation = np.copy(self._state)

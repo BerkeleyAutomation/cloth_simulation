@@ -2,6 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pickle, copy, sys
 import json
+from os.path import dirname
+sys.path.append(dirname(dirname(dirname(os.getcwd()))))
 from cloth import *
 from circlecloth import *
 from shapecloth import *
@@ -10,6 +12,7 @@ from mouse import *
 from registration import *
 from scorer import *
 from policy_test import *
+from trpo_discrete_pin import *
 
 """
 Presents a visualization of a learned policy.
@@ -67,11 +70,8 @@ if __name__ == "__main__":
     else:
         fname = "policy.p"
     policy_file = fname
-    fname = "experiment_data/experiments/4/" + fname
-
-    experiment = "config_files/experiment.json"
-    experiment_directory = "experiment_data/experiments/4/"
-    experiment = "experiment_data/experiments/4/experiment.json"
+    fname = "circle/policy.p"
+    experiment = "circle/experiment3.json"
     simulation = load_simulation_from_config(experiment)
     policy = load_policy(fname)
     scorer = Scorer(0)
@@ -84,21 +84,18 @@ if __name__ == "__main__":
         for i in range(len(simulation.trajectory)):
             simulation.update()
             simulation.move_mouse(simulation.trajectory[i][0], simulation.trajectory[i][1])
-
-        print "No Pin Score", totalpts + scorer.score(simulation.cloth), simulation.cloth.evaluate()
+        print "No Pin Score", totalpts + scorer.score(simulation.cloth)
 
     print pin_position
     if mode == 'all' or mode == 'two':
         simulation.reset()
         tensioner = simulation.pin_position(pin_position[0], pin_position[1], option)
-
         for i in range(len(simulation.trajectory)):
             simulation.update()
             simulation.move_mouse(simulation.trajectory[i][0], simulation.trajectory[i][1])
-
-        print "Fixed Pin Score", totalpts + scorer.score(simulation.cloth), simulation.cloth.evaluate()
+        print "Fixed Pin Score", totalpts + scorer.score(simulation.cloth)
 
     if mode == 'all' or mode == 'three':
-        simulation = test_policy(experiment_directory, policy=policy_file)
-
+        env = PolicyGenerator("", experiment).env
+        rollout(env, policy, flag=False, wait=False, render=True)
         print "Policy Pin Score", totalpts + scorer.score(simulation.cloth)

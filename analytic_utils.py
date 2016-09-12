@@ -34,14 +34,11 @@ if __name__ == '__main__':
         shape_fn=None
 
     simulation = load_simulation_from_config(shape_fn=shape_fn)
-    scorer = Scorer(0)
-
     pin_position, option = load_pin_from_config()
     print pin_position
-
-    print simulation.cloth.evaluate()
+    simulation.render = False
 
     ap = AnalyticPolicy(simulation, pin_position[0], pin_position[1])
     ap.rollout()
-    scorer.score(simulation.cloth)
-    print simulation.score
+    print simulation.cloth.evaluate()
+

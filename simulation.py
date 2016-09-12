@@ -137,7 +137,7 @@ class Simulation(object):
 
     @property
     def score(self):
-        return -self.cloth.evaluate()
+        return self.cloth.evaluate()
     
 
 
