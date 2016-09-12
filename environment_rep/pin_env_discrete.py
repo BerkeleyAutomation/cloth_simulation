@@ -39,6 +39,7 @@ class PinEnvDiscrete(Env):
         self.pinx, self.piny = x, y
         self.predict = predict
         self.original = original
+        self.last_score = 0
 
     @property
     def observation_space(self):
@@ -102,6 +103,7 @@ class PinEnvDiscrete(Env):
 
 
     def reset(self):
+        self.last_score = 0
         self.simulation.reset()
         self.tensioner = self.simulation.pin_position(self.pinx, self.piny, self.tensioner.max_displacement)
         self.traj_index = 0
@@ -112,14 +114,15 @@ class PinEnvDiscrete(Env):
         x, y, z = self.MAPPING[action]
         self.tensioner.tension(x, y, z)
         self.simulation.move_mouse(self.trajectory[self.traj_index][0], self.trajectory[self.traj_index][1])
-        reward = self.simulation.update() * np.ceil(self.traj_index/30)
+        # reward = self.simulation.update() * np.ceil(self.traj_index/30)
+        self.simulation.update()
         self.traj_index += 1
         self.simulation.move_mouse(self.trajectory[self.traj_index][0], self.trajectory[self.traj_index][1])
-        reward += self.simulation.update() * np.ceil(self.traj_index/30)
-
-        # if reward > 0:
-        #     reward = 1
-        # reward = self._score
+        # reward += self.simulation.update() * np.ceil(self.traj_index/30)
+        self.simulation.update()
+        score = self.simulation.score
+        reward = score - self.last_score
+        self.last_score = score
         done = self.traj_index >= len(self.trajectory) - 2
         next_observation = np.copy(self._state)
         self.traj_index += 1
