@@ -100,7 +100,6 @@ def rollout(env, policy, flag=False, wait=False, render=False):
         env = env._wrapped_env
     if wait:
         import ipdb; ipdb.set_trace()
-    import IPython; IPython.embed()
     observation = env.reset()
     total = len(env.simulation.cloth.shapepts)
     while not env.traj_index >= len(env.trajectory) - 1:
@@ -174,7 +173,6 @@ if __name__ == '__main__':
 
     pg = PolicyGenerator(None, "", config_file, writefile, datafile)
     pg.train()
-
 
 
     policy = "circle/one.p"
