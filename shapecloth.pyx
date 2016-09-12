@@ -186,7 +186,7 @@ class ShapeCloth(Cloth):
             for j in range(width):
                 if shape_fn(j * dy + 50, i * dx + 50):
                     grid[i, j] = 1
-        grid = signal.convolve2d(grid, np.ones((1, 1)), mode='same')
+        grid = signal.convolve2d(grid, np.ones((2, 2)), mode='same')
         grid = stats.threshold(grid, threshmax=1e-10, newval=1)
         if plot:
             plt.imshow(np.flipud(grid), cmap='Greys_r')
@@ -231,7 +231,7 @@ class ShapeCloth(Cloth):
             else:
                 pos = (np.floor(pt.identity / width), pt.identity % width)
                 grid[pos] = 1
-        grid = signal.convolve2d(grid, np.ones((1, 1)), mode='same')
+        grid = signal.convolve2d(grid, np.ones((2, 2)), mode='same')
         grid = stats.threshold(grid, threshmax=1e-10, newval=1)
         grid = grid + self.shapegrid
         temp = stats.threshold(grid, threshmax=1.1, newval=0)
