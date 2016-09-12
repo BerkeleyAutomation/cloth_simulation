@@ -99,7 +99,7 @@ def rollout(env, policy, flag=False):
         rewards.append(reward)
     print(rewards)
     print "Score", total - len(env.simulation.cloth.shapepts)
-    print env.simulation.score, env.simulation.cloth.evaluate()
+    return env.simulation.cloth.evaluate(), rewards
 
 
 def rollout_no_policy(env, policy=None, flag=False):
@@ -118,7 +118,7 @@ def rollout_no_policy(env, policy=None, flag=False):
         rewards.append(reward)
     print(rewards)
     print "Score", total - len(env.simulation.cloth.shapepts)
-    print env.simulation.score, env.simulation.cloth.evaluate()
+    return env.simulation.cloth.evaluate(), rewards
 
 
 
