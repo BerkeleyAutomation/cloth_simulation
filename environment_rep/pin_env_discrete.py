@@ -120,10 +120,12 @@ class PinEnvDiscrete(Env):
         self.simulation.move_mouse(self.trajectory[self.traj_index][0], self.trajectory[self.traj_index][1])
         # reward += self.simulation.update() * np.ceil(self.traj_index/30)
         self.simulation.update()
-        score = self.simulation.score
-        reward = score - self.last_score
-        self.last_score = score
         done = self.traj_index >= len(self.trajectory) - 2
+        if done:
+            reward = self.simulation.cloth.evaluate()
+            print "score", reward
+        else:
+            reward = 0
         next_observation = np.copy(self._state)
         self.traj_index += 1
         return Step(observation=next_observation, reward=reward, done=done)

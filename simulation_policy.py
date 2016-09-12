@@ -85,7 +85,7 @@ if __name__ == "__main__":
             simulation.update()
             simulation.move_mouse(simulation.trajectory[i][0], simulation.trajectory[i][1])
 
-        print "No Pin Score", totalpts + scorer.score(simulation.cloth)
+        print "No Pin Score", totalpts + scorer.score(simulation.cloth), simulation.cloth.evaluate()
 
     print pin_position
     if mode == 'all' or mode == 'two':
@@ -96,7 +96,7 @@ if __name__ == "__main__":
             simulation.update()
             simulation.move_mouse(simulation.trajectory[i][0], simulation.trajectory[i][1])
 
-        print "Fixed Pin Score", totalpts + scorer.score(simulation.cloth)
+        print "Fixed Pin Score", totalpts + scorer.score(simulation.cloth), simulation.cloth.evaluate()
 
     if mode == 'all' or mode == 'three':
         simulation = test_policy(experiment_directory, policy=policy_file)

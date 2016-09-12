@@ -234,6 +234,8 @@ class ShapeCloth(Cloth):
         grid = signal.convolve2d(grid, np.ones((1, 1)), mode='same')
         grid = stats.threshold(grid, threshmax=1e-10, newval=1)
         grid = grid + self.shapegrid
+        temp = stats.threshold(grid, threshmax=1.1, newval=0)
+        extra = np.sum(temp)
         grid = stats.threshold(grid, threshmax=1e-10, newval=1)
         if plot:
             plt.imshow(np.flipud(grid), cmap='Greys_r')
@@ -268,7 +270,8 @@ class ShapeCloth(Cloth):
         grid2 = np.zeros_like(grid)
         queue = deque([])
         seen = []
-        queue.append((25,25))
+        p = height / 2, width / 2
+        queue.append(p)
         grid = stats.threshold(grid, threshmax=1e-10, newval=1)
         if plot:
             plt.imshow(np.flipud(grid), cmap='Greys_r')
@@ -293,14 +296,11 @@ class ShapeCloth(Cloth):
         newinarea = np.sum(grid2)
         din = self.in_area - newinarea
         dout = self.out_area - newoutarea
-        score = din + dout
-        print score, "Score"
-        print din, dout
-        print self.in_area, newinarea, self.out_area, newoutarea
+        score = din + dout + extra
         return score
 
     def evaluate(self, log=False):
-        return = self.setup_helper()
+        return -self.setup_helper()
 
 
 
