@@ -27,7 +27,7 @@ z
 " style="fill:#ffffff;"/>
    </g>
    <g id="line2d_1">
-    <path clip-path="url(#p593f7e5b2e)" d="M 209.232 150.768 
+    <path clip-path="url(#p13aea06ac4)" d="M 209.232 150.768 
 L 209.232 137.553435 
 L 208.731989 135.731968 
 L 202.785435 117.892306 
@@ -111,7 +111,7 @@ L 12.96 12.96
   </g>
  </g>
  <defs>
-  <clipPath id="p593f7e5b2e">
+  <clipPath id="p13aea06ac4">
    <rect height="262.08" width="406.08" x="12.96" y="12.96"/>
   </clipPath>
  </defs>
