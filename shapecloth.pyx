@@ -244,7 +244,7 @@ class ShapeCloth(Cloth):
         grid2 = np.zeros_like(grid)
         queue = deque([])
         seen = []
-        queue.append((10,0))
+        queue.append((4,0))
         grid = stats.threshold(grid, threshmax=1e-10, newval=1)
         if plot:
             plt.imshow(np.flipud(grid), cmap='Greys_r')
