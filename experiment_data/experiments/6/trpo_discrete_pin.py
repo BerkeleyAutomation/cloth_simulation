@@ -51,7 +51,7 @@ class PolicyGenerator:
         baseline = ZeroBaseline(env_spec=env.spec)
 
         scores = []
-        for i in range(10):
+        for i in range(1):
             print "Iteration", i
             algo = TRPO(
                 env=env,
@@ -141,7 +141,7 @@ if __name__ == '__main__':
     datafile = "data.p"
     config_file = "experiment.json"
     # import ipdb; ipdb.set_trace()
-    pg = PolicyGenerator("", config_file, writefile, datafile)
+    pg = PolicyGenerator("", config_file, writefile, datafile, gravity=-2500)
     pg.train()
 
     policy =  "one.p"
@@ -151,12 +151,12 @@ if __name__ == '__main__':
         policy = pickle.load(f)
 
     d = {}
-    for i in range(21):
+    for i in range(1):
         gravity = -i * 200
         d[gravity] = []
         print gravity
         env = PolicyGenerator("", "experiment.json", gravity=gravity).env
-        for j in range(20):
+        for j in range(1):
             a, b = rollout(env, policy)
             d[gravity].append([a, b])
 
@@ -166,12 +166,12 @@ if __name__ == '__main__':
     datafile = "nopolicy.p"
 
     d = {}
-    for i in range(21):
+    for i in range(1):
         gravity = -i * 200
         d[gravity] = []
         print gravity
         env = PolicyGenerator("", "experiment.json", gravity=gravity).env
-        for j in range(20):
+        for j in range(2):
             d[gravity].append(list(rollout_no_policy(env)))
 
     with open(datafile, "w+") as f:
@@ -180,13 +180,13 @@ if __name__ == '__main__':
     datafile = "nograsp.p"
 
     d = {}
-    for i in range(21):
+    for i in range(1):
         gravity = -i * 200
         d[gravity] = []
         print gravity
         env = PolicyGenerator("", "experiment.json", gravity=gravity).env
         env.pinx, env.piny = 0, 0
-        for j in range(20):
+        for j in range(2):
             d[gravity].append(list(rollout_no_policy(env)))
 
     with open(datafile, "w+") as f:
