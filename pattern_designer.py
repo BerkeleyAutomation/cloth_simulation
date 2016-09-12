@@ -22,7 +22,7 @@ If you click on the same point twice, it will disappear.
 
 class PatternDesigner(object):
 
-    def __init__(self, width=50, height=40):
+    def __init__(self, width=50, height=50):
         self.width = width
         self.height = height
         self.corners = [[0, 0, 0], [width, 0, 0], [0, height, 0], [width, height, 0]]
@@ -60,6 +60,7 @@ class PatternDesigner(object):
         ax.grid(color='grey', linestyle='-')
         plt.setp(ax.get_xticklabels(), visible=False)
         plt.setp(ax.get_yticklabels(), visible=False)
+        plt.scatter(24.5, 24.5, c='r')
 
         cid = fig.canvas.mpl_connect('button_press_event', onclick)
         fig.canvas.mpl_connect('close_event', handle_close)
