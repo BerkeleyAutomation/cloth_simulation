@@ -241,7 +241,7 @@ if __name__ == '__main__':
     directory = "policy_training_pts"
     if not os.path.exists(directory):
         os.makedirs(directory)
-    pts_to_test = [[300, 300]]
+    # pts_to_test = [[300, 300]]
     for pt in pts_to_test:
         x, y = pt[0], pt[1]
         writefile = "policy_training_pts/"+ fn + "_" + str(x) + "_" + str(y) + ".p"
