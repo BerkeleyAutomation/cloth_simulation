@@ -7,6 +7,7 @@ from cloth import *
 from circlecloth import *
 from registration import *
 from simulation import *
+from pattern_designer import *
 from itertools import permutations
 
 """
@@ -423,6 +424,12 @@ if __name__ == '__main__':
     # # The following two lines go together
     # corners = load_robot_points()
     # points = load_robot_points("gauze_pts2.p")
+
+    filename = "pts_4"
+    pd = PatternDesigner()
+    pd.load_pts(filename)
+    corners = pd.corners
+    points = pd.trajectory
     
     shape_fn = get_shape_fn(corners, points, True)
     cloth = ShapeCloth(shape_fn, mouse, width=25, height=25, dx=20, dy=20)
@@ -433,43 +440,45 @@ if __name__ == '__main__':
     npf.find_pts(armOrientation)
     npf.find_segments(armOrientation)
 
-    # # Visualize the trajectory
-    # for i in range(10):
-    #     cloth.update()
-    #     if i % 10 == 0:
-    #         print "Iteration", i
-    # fig = plt.figure()
-    # plt.hold(True)
-    # plot = fig.add_subplot(111)
-    # plt.clf()
-    # pts = np.array([[p.x, p.y] for p in cloth.normalpts])
-    # cpts = np.array([[p.x, p.y] for p in cloth.shapepts])
-    # if len(pts) > 0:
-    #     plt.scatter(pts[:,0], pts[:,1], c='w')
-    # if len(cpts) > 0:
-    #     plt.scatter(cpts[:,0], cpts[:,1], c='b')
-    # plt.draw()
-    # plt.waitforbuttonpress()
+    # Visualize the trajectory
+    for i in range(10):
+        cloth.update()
+        if i % 10 == 0:
+            print "Iteration", i
+    fig = plt.figure()
+    plt.hold(True)
+    plot = fig.add_subplot(111)
+    plt.clf()
+    pts = np.array([[p.x, p.y] for p in cloth.normalpts])
+    cpts = np.array([[p.x, p.y] for p in cloth.shapepts])
+    if len(pts) > 0:
+        plt.scatter(pts[:,0], pts[:,1], c='w')
+    if len(cpts) > 0:
+        plt.scatter(cpts[:,0], cpts[:,1], c='b')
+    plt.draw()
+    plt.waitforbuttonpress()
 
-    # # Visualize the mins and maxes
-    # minpts = np.array(npf.min_pts)
-    # maxpts = np.array(npf.max_pts)
-    # if len(minpts) > 0:
-    #     plt.scatter(minpts[:,0], minpts[:,1], c='g', marker='s', edgecolors='none', s=80)
-    # if len(maxpts) > 0:
-    #     plt.scatter(maxpts[:,0], maxpts[:,1], c='r', marker='s', edgecolors='none', s=80)
-    # plt.draw()
-    # plt.waitforbuttonpress()
+    # Visualize the mins and maxes
+    minpts = np.array(npf.min_pts)
+    maxpts = np.array(npf.max_pts)
+    if len(minpts) > 0:
+        plt.scatter(minpts[:,0], minpts[:,1], c='g', marker='s', edgecolors='none', s=80)
+    if len(maxpts) > 0:
+        plt.scatter(maxpts[:,0], maxpts[:,1], c='r', marker='s', edgecolors='none', s=80)
+    plt.draw()
+    plt.waitforbuttonpress()
 
-    # # Visualize the segments in different colors
-    # numSegs = len(npf.segments)
-    # color = iter(plt.cm.jet(np.linspace(0, 1, numSegs)))
-    # for i in range(numSegs):
-    #     segpts = np.array(npf.segments[i])
-    #     c = next(color)
-    #     plt.scatter(segpts[:,0], segpts[:,1], c=c, marker='o', edgecolors='none', s=20)
-    # plt.draw()
-    # plt.waitforbuttonpress()
+    # Visualize the segments in different colors
+    numSegs = len(npf.segments)
+    print numSegs
+    color = iter(plt.cm.jet(np.linspace(0, 1, numSegs)))
+    for i in range(numSegs):
+        segpts = np.array(npf.segments[i])
+        print segpts
+        c = next(color)
+        plt.scatter(segpts[:,0], segpts[:,1], c=c, marker='o', edgecolors='none', s=20)
+    plt.draw()
+    plt.waitforbuttonpress()
 
     # # simulate the new trajectory
     # newTrajectory = []
@@ -497,14 +506,13 @@ if __name__ == '__main__':
     simulation = Simulation(cloth, trajectory=newTrajectory)
     # simulation = Simulation(cloth, render=True, trajectory=newTrajectory)
     simulation.reset()
-    print "Initial Score", simulation.cloth.evaluate() #scorer.score(simulation.cloth)
+    # print "Initial Score", simulation.cloth.evaluate() #scorer.score(simulation.cloth)
     for i in range(len(simulation.trajectory)):
-        print simulation.cloth.evaluate()
         simulation.update()
         simulation.move_mouse(simulation.trajectory[i][0], simulation.trajectory[i][1])
     print "Best Score", simulation.cloth.evaluate() #scorer.score(simulation.cloth)
     # print newIndices
-    plt.waitforbuttonpress()
+    # plt.waitforbuttonpress()
 
 
 
