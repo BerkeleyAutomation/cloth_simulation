@@ -73,7 +73,7 @@ class PolicyGenerator2:
                 batch_size=500,
                 step_size = 0.01,
                 discount = 1,
-                n_itr = 3
+                n_itr = 2
             )
 
             # run_experiment_lite(

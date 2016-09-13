@@ -266,7 +266,7 @@ class ShapeCloth(Cloth):
             plt.imshow(np.flipud(grid2), cmap='Greys_r')
             plt.show()
         newoutarea = np.sum(grid2)
-
+        savedgrid = grid2
         grid2 = np.zeros_like(grid)
         queue = deque([])
         seen = []
@@ -292,6 +292,7 @@ class ShapeCloth(Cloth):
         if plot:
             plt.imshow(np.flipud(grid2), cmap='Greys_r')
             plt.show()
+        grid2 = stats.threshold(grid2 + savedgrid, threshmax=1.1, newval=0)
 
         newinarea = np.sum(grid2)
         din = self.in_area - newinarea
@@ -300,8 +301,10 @@ class ShapeCloth(Cloth):
         return score
 
     def evaluate(self, log=False):
-        return -self.setup_helper()
-
+        temp = -self.setup_helper()
+        if temp > 0:
+            return -600
+        return temp
 
 
 
