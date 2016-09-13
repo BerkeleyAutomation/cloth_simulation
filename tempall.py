@@ -64,7 +64,7 @@ class PolicyGenerator2:
         baseline = ZeroBaseline(env_spec=env.spec)
 
         scores = []
-        for i in range(10):
+        for i in range(20):
             print "Iteration", i
             algo = TRPO(
                 env=env,
@@ -173,6 +173,8 @@ if __name__ == '__main__':
         filename = sys.argv[1]
         fn = filename
         pd = PatternDesigner()
+        start = int(sys.argv[2])
+        end = start + 20
 
     pd.load_pts(filename)
    
@@ -216,10 +218,7 @@ if __name__ == '__main__':
         lst.append([pts[0][i]*10+50, pts[1][i]*10+50])
     pts = lst
 
-    pts_to_test = pts
-    if len(pts_to_test) > 30:
-        indices = np.random.choice(len(pts_to_test), 30, replace=False)
-        pts_to_test = np.array(pts_to_test)[indices,:].tolist()
+    pts_to_test = pts[start:end]
 
     # while len(pts_to_test) > 30:
         # pts_to_test = pts_to_test[::2]
@@ -230,22 +229,16 @@ if __name__ == '__main__':
     while len(newTrajectory) > 150:
         newTrajectory = newTrajectory[::2]
     simulation = Simulation(cloth, trajectory=newTrajectory)
-    # simulation.render = True
 
-    x, y = 300, 300
-    env = PolicyGenerator2(simulation, x, y, "writefile", "datafile").env
-    print "SCORE", rollout_no_policy(env, render=False)
-    print "SCORE"
-
-    print len(pts_to_test)
-    directory = "policy_training_pts"
+    print len(pts_to_test), "NUM POINTS"
+    directory = "pinpts"
     if not os.path.exists(directory):
         os.makedirs(directory)
     # pts_to_test = [[300, 300]]
     for pt in pts_to_test:
         x, y = pt[0], pt[1]
-        writefile = "policy_training_pts/"+ fn + "_" + str(x) + "_" + str(y) + ".p"
-        datafile = "policy_training_pts/data" + fn + "_" + str(x) + "_" + str(y) + ".p"
+        writefile = "pinpts/"+ fn + "_" + str(x) + "_" + str(y) + ".p"
+        datafile = "pinpts/data" + fn + "_" + str(x) + "_" + str(y) + ".p"
         pg2 = PolicyGenerator2(simulation, x, y, writefile, datafile)
         pg2.train()
 
