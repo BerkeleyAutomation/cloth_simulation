@@ -187,7 +187,6 @@ if __name__ == '__main__':
     ##################################################################################
     trajectory = get_trajectory(corners, points, True)
 
-
     #=========================================================
     # Find the best segment trajectory to pass to pinning
     #=========================================================
@@ -228,12 +227,20 @@ if __name__ == '__main__':
     newTrajectory = []
     for seg in newOrdering:
         newTrajectory = newTrajectory + seg
-
+    while len(newTrajectory) > 150:
+        newTrajectory = newTrajectory[::2]
     simulation = Simulation(cloth, trajectory=newTrajectory)
+
+    x, y = 300, 300
+    env = PolicyGenerator2(simulation, x, y, "writefile", "datafile").env
+    print "SCORE", rollout_no_policy(env, render=False)
+    print "SCORE"
+
     print len(pts_to_test)
     directory = "policy_training_pts"
     if not os.path.exists(directory):
         os.makedirs(directory)
+    pts_to_test = [[300, 300]]
     for pt in pts_to_test:
         x, y = pt[0], pt[1]
         writefile = "policy_training_pts/"+ fn + "_" + str(x) + "_" + str(y) + ".p"
