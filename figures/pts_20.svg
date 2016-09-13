@@ -27,7 +27,7 @@ z
 " style="fill:#ffffff;"/>
    </g>
    <g id="line2d_1">
-    <path clip-path="url(#p4a9fea9522)" d="M 292.704 35.712 
+    <path clip-path="url(#pb60ab0da34)" d="M 292.704 35.712 
 L 273.898953 45.190228 
 L 250.884725 58.877638 
 L 233.957154 67.356564 
@@ -43,7 +43,7 @@ L 152.044671 187.363651
 L 143.565745 216.918765 
 L 130.272 256.8 
 L 130.272 256.8 
-" style="fill:none;stroke:#0099ff;stroke-linecap:square;"/>
+" style="fill:none;stroke:#000000;stroke-linecap:square;stroke-width:8.0;"/>
    </g>
    <g id="patch_3">
     <path d="M 12.96 12.96 
@@ -68,7 +68,7 @@ L 12.96 12.96
   </g>
  </g>
  <defs>
-  <clipPath id="p4a9fea9522">
+  <clipPath id="pb60ab0da34">
    <rect height="262.08" width="406.08" x="12.96" y="12.96"/>
   </clipPath>
  </defs>
