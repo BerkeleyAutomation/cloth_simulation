@@ -14,7 +14,7 @@ A subclass of cloth, on which a shape pattern is drawn. It also can be grabbed a
 """
 class ShapeCloth(Cloth):
 
-    def __init__(self, shape_fn, mouse=None, width=50, height=50, dx=10, dy=10,gravity=-2500.0, elasticity=1.0, pin_cond="default", bounds=(600, 600, 800), blobs=None, corners=None):
+    def __init__(self, shape_fn, mouse=None, width=50, height=50, dx=10, dy=10,gravity=-2500.0, elasticity=1.0, pin_cond="default", bounds=(600, 600, 800), blobs=None, corners=None, noise=0):
         """
         A cloth on which a shape can be drawn. It can also be grabbed and tensioned at specific coordinates. It takes in a function shape_fn that takes in 2 arguments, x and y, that specify whether or not a point is located on the outline of a shape.
         """
@@ -29,6 +29,7 @@ class ShapeCloth(Cloth):
         self.allpts = {}
         self.blobs = []
         self.blobpts = []
+        self.noise = noise
         if self.blobs != None and corners != None:
             self.blob_fn = get_blob_fn(corners, blobs)
             for blob in blobs:
@@ -39,7 +40,7 @@ class ShapeCloth(Cloth):
             pin_cond = lambda x, y, height, width: y == height - 1 or y == 0
         for i in range(height):
             for j in range(width):
-                pt = Point(mouse, 50 + dx * j, 50 + dy * i, gravity=gravity, elasticity=elasticity, bounds=bounds, identity=j + i * width)
+                pt = Point(mouse, 50 + dx * j, 50 + dy * i, gravity=gravity, elasticity=elasticity, bounds=bounds, identity=j + i * width, noise=noise)
                 self.allpts[i * height + j] = pt
                 if i > 0:
                     pt.add_constraint(self.pts[width * (i - 1) + j])
@@ -65,6 +66,18 @@ class ShapeCloth(Cloth):
         self.initial_params = [(width, height), (dx, dy), shape_fn, gravity, elasticity, pin_cond]
         self.setup()
 
+    def displacement_to_line(self, x, y):
+        bestdist = float('inf')
+        bestdisp = None
+        for pt in self.shapepts:
+            disp = np.array((x - pt.x, y - pt.y))
+            dist = np.linalg.norm(disp)
+            if dist <= bestdist:
+                bestdist = dist
+                bestdisp = disp
+        return bestdist
+
+
 
     def update(self):
         """
@@ -85,6 +98,8 @@ class ShapeCloth(Cloth):
                     toremovenorm.append(pt)
                 else:
                     toremoveblob.append(pt)
+            # else:
+                # pt.x, pt.y, pt.z = pt.x + np.random.randn() * self.noise, pt.y + np.random.randn() * self.noise, pt.z + np.random.randn() * self.noise
 
         for pt in toremovenorm:
             self.pts.remove(pt)
@@ -123,7 +138,7 @@ class ShapeCloth(Cloth):
             self.blobs.append([])
         for i in range(height):
             for j in range(width):
-                pt = Point(self.mouse, 50 + dx * j, 50 + dy * i, gravity=gravity, elasticity=elasticity, identity=j + i * width)
+                pt = Point(self.mouse, 50 + dx * j, 50 + dy * i, gravity=gravity, elasticity=elasticity, identity=j + i * width, noise=self.noise)
                 self.allpts[i * height + j] = pt
                 if i > 0:
                     pt.add_constraint(self.pts[width * (i - 1) + j])
@@ -292,7 +307,7 @@ class ShapeCloth(Cloth):
         if plot:
             plt.imshow(np.flipud(grid2), cmap='Greys_r')
             plt.show()
-        grid2 = stats.threshold(grid2 + savedgrid, threshmax=1.1, newval=0)
+        # grid2 = stats.threshold(grid2 + savedgrid, threshmax=1.1, newval=0)
 
         newinarea = np.sum(grid2)
         din = self.in_area - newinarea

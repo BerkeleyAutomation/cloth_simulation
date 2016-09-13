@@ -147,7 +147,7 @@ class Simulation(object):
     #     """
     #     return copy.deepcopy(self)
 
-def load_simulation_from_config(fname="config_files/default.json", shape_fn=None, trajectory=None, multipart=False, gravity=None, elasticity=False):
+def load_simulation_from_config(fname="config_files/default.json", shape_fn=None, trajectory=None, multipart=False, gravity=None, elasticity=False, noise=0):
     """
     Creates a Simulation object from a configuration file FNAME, and can optionally take in a SHAPE_FN or create one from discrete points saved to file. MULTIPART indicates whether or not the input trajectory consists of multiple subtrajectories.
     """
@@ -173,7 +173,7 @@ def load_simulation_from_config(fname="config_files/default.json", shape_fn=None
     if not elasticity:
         elasticity = cloth["elasticity"]
     cloth = ShapeCloth(shape_fn, mouse, cloth["width"], cloth["height"], cloth["dx"], cloth["dy"], 
-        gravity, elasticity, cloth["pin_cond"], bounds, blobs, corners)
+        gravity, elasticity, cloth["pin_cond"], bounds, blobs, corners, noise=noise)
     simulation = data["simulation"]
     if "multipart" in simulation.keys() and not multipart:
         multipart = simulation["multipart"]
