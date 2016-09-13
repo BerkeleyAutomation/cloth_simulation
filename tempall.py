@@ -173,6 +173,8 @@ if __name__ == '__main__':
         filename = sys.argv[1]
         fn = filename
         pd = PatternDesigner()
+        start = int(sys.argv[2])
+        end = start + 20
 
     pd.load_pts(filename)
    
@@ -216,7 +218,7 @@ if __name__ == '__main__':
         lst.append([pts[0][i]*10+50, pts[1][i]*10+50])
     pts = lst
 
-    pts_to_test = pts
+    pts_to_test = pts[start:end]
 
     # while len(pts_to_test) > 30:
         # pts_to_test = pts_to_test[::2]
