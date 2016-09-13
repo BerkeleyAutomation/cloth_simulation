@@ -230,6 +230,7 @@ if __name__ == '__main__':
     while len(newTrajectory) > 150:
         newTrajectory = newTrajectory[::2]
     simulation = Simulation(cloth, trajectory=newTrajectory)
+    # simulation.render = True
 
     x, y = 300, 300
     env = PolicyGenerator2(simulation, x, y, "writefile", "datafile").env
