@@ -74,6 +74,7 @@ if __name__ == '__main__':
     # if len(cpts) > 0:
     #     plt.scatter(cpts[:,0], cpts[:,1], c='b')
     # plt.draw()
+    # plt.waitforbuttonpress()
 
     # # Visualize the mins and maxes
     # minpts = np.array(npf.min_pts)
@@ -96,8 +97,8 @@ if __name__ == '__main__':
     # plt.waitforbuttonpress()
 
     # find the best trajectory and simulate it
-    scorer = Scorer(0)
-    newOrdering, newIndices, best_score, worst_score = npf.find_best_trajectory(scorer)
+    # scorer = Scorer(0)
+    newOrdering, newIndices, best_score, worst_score = npf.find_best_trajectory()#scorer)
 
     old_trajectory = []
     for seg in npf.segments:
@@ -106,22 +107,24 @@ if __name__ == '__main__':
     simulation = Simulation(cloth, render=simulate, trajectory=newOrdering, multi_part=True)
     simulation.reset()
     totalpts = len(simulation.cloth.shapepts)
-    init_score = scorer.score(simulation.cloth) + totalpts
+    # init_score = scorer.score(simulation.cloth) + totalpts
 
-    print "Initial Score", init_score
-    print "Best Score", best_score + totalpts
-    print "Worst Score", worst_score + totalpts
+    # print "Initial Score", init_score
+    print "Best Score", best_score #+ totalpts
+    print "Worst Score", worst_score #+ totalpts
     
     # save results
     f = open("sim_files/%s/nohold" %(filename), "w+")
-    data = {'totalpts': totalpts, 'init_score': init_score, 'best_score': best_score+totalpts, 'worst_score': worst_score+totalpts,
+    data = {'totalpts': totalpts, 'best_score': best_score, 'worst_score': worst_score,
             'old_trajectory': old_trajectory, 'trajectory': newOrdering, 'indices_of_pts': newIndices}
+    # data = {'totalpts': totalpts, 'init_score': init_score, 'best_score': best_score+totalpts, 'worst_score': worst_score+totalpts,
+    #         'old_trajectory': old_trajectory, 'trajectory': newOrdering, 'indices_of_pts': newIndices}
     pickle.dump(data, f)
     f.close()
 
-    # plt.waitforbuttonpress()
+    # # plt.waitforbuttonpress()
 
-    #########################################
+    # #########################################
 
     # 10 times to get std error
     with open("sim_files/%s/nohold" %(filename), "rb") as f:
@@ -130,23 +133,23 @@ if __name__ == '__main__':
         except EOFError:
             print 'Nothing written to file.'
     totalpts = data['totalpts']
-    init_score = data['init_score']
+    # init_score = data['init_score']
     old_trajectory = data['old_trajectory']
     new_trajectory = data['trajectory']
     score = []
 
-    # simulation = Simulation(cloth, render=True, trajectory=new_trajectory, multi_part=True)
-    # simulation.reset()
-    # totalpts = len(simulation.cloth.shapepts)
-    # init_score = scorer.score(simulation.cloth) + totalpts
-    # print "Initial Score", init_score
-    # for i in range(len(simulation.trajectory)):
-    #     simulation.update()
-    #     simulation.move_mouse(simulation.trajectory[i][0], simulation.trajectory[i][1])
-    # print scorer.score(simulation.cloth) + totalpts
+    # # simulation = Simulation(cloth, render=True, trajectory=new_trajectory, multi_part=True)
+    # # simulation.reset()
+    # # totalpts = len(simulation.cloth.shapepts)
+    # # init_score = scorer.score(simulation.cloth) + totalpts
+    # # print "Initial Score", init_score
+    # # for i in range(len(simulation.trajectory)):
+    # #     simulation.update()
+    # #     simulation.move_mouse(simulation.trajectory[i][0], simulation.trajectory[i][1])
+    # # print scorer.score(simulation.cloth) + totalpts
 
     for t in range(1,11):
-        scorer = Scorer(0)
+        # scorer = Scorer(0)
 
         simulation = Simulation(cloth, render=simulate, trajectory=new_trajectory, multi_part=True)
         simulation.reset()
@@ -154,18 +157,20 @@ if __name__ == '__main__':
         for i in range(len(simulation.trajectory)):
             simulation.update()
             simulation.move_mouse(simulation.trajectory[i][0], simulation.trajectory[i][1])
-        score.append(scorer.score(simulation.cloth) + totalpts) 
-        print "Score %d" %(t), scorer.score(simulation.cloth) + totalpts
+        s = simulation.cloth.evaluate()
+        if (s <= 0):
+            score.append(simulation.cloth.evaluate())#scorer.score(simulation.cloth) + totalpts) 
+            print "Score %d" %(t), simulation.cloth.evaluate()#scorer.score(simulation.cloth) + totalpts
 
     # save results
     f = open("sim_files/%s/noholds" %(filename), "w+")
-    data = {'totalpts': totalpts, 'init_score': init_score, 'scores': score}
+    data = {'totalpts': totalpts, 'scores': score}
     pickle.dump(data, f)
     f.close()
 
-    #===============================================================
-    # Find best segment ordering now with pinning and new trajectory 
-    #===============================================================
+    # #===============================================================
+    # # Find best segment ordering now with pinning and new trajectory 
+    # #===============================================================
 
     # find valid points and sample these
     tpf = TensionPointFinder(cloth)
@@ -192,33 +197,37 @@ if __name__ == '__main__':
     print len(pts_to_test)
     for pin_pt in pts_to_test:
         npf.pin_position = pin_pt
-        scorer = Scorer(0)
-        newOrdering, newIndices, best_score, worst_score = npf.find_best_trajectory(scorer)
-        scores.append(best_score + totalpts)
-        if (best_score > bestScore):
-            bestScore = best_score
-            best_pin_pt = pin_pt
-            bestOrdering = newOrdering
-            bestIndices = newIndices
-        if (worst_score < worstScore):
-            worstScore = worst_score
-            worst_pin_pt = pin_pt
+        # scorer = Scorer(0)
+        newOrdering, newIndices, best_score, worst_score = npf.find_best_trajectory()#scorer)
+        if (best_score <= 0):
+            scores.append(best_score)#best_score + totalpts)
+            if (best_score > bestScore):
+                bestScore = best_score
+                best_pin_pt = pin_pt
+                bestOrdering = newOrdering
+                bestIndices = newIndices
+            if (worst_score < worstScore):
+                worstScore = worst_score
+                worst_pin_pt = pin_pt
 
     # get some variables to save
-    scorer = Scorer(0)
+    # scorer = Scorer(0)
     simulation = Simulation(cloth, render=simulate, trajectory=bestOrdering, multi_part=True)
     simulation.reset()
     totalpts = len(simulation.cloth.shapepts)
-    init_score = scorer.score(simulation.cloth) + totalpts
+    # init_score = scorer.score(simulation.cloth) + totalpts
     old_trajectory = []
     for seg in npf.segments:
         old_trajectory = old_trajectory + seg
 
     # save results
     f = open("sim_files/%s/hold" %(filename), "w+")
-    data = {'totalpts': totalpts, 'init_score': init_score, 'best_score': bestScore+totalpts, 'worst_score': worstScore+totalpts,
+    data = {'totalpts': totalpts, 'best_score': bestScore, 'worst_score': worstScore,
             'old_trajectory': old_trajectory, 'trajectory': bestOrdering, 'indices_of_pts': bestIndices,
             'best_pin_pt': best_pin_pt, 'worst_pin_pt': worst_pin_pt, 'pin_pts': pts_to_test, 'pin_scores': scores}
+    # data = {'totalpts': totalpts, 'init_score': init_score, 'best_score': bestScore+totalpts, 'worst_score': worstScore+totalpts,
+    #         'old_trajectory': old_trajectory, 'trajectory': bestOrdering, 'indices_of_pts': bestIndices,
+    #         'best_pin_pt': best_pin_pt, 'worst_pin_pt': worst_pin_pt, 'pin_pts': pts_to_test, 'pin_scores': scores}
     pickle.dump(data, f)
     f.close()
 
@@ -229,25 +238,25 @@ if __name__ == '__main__':
         except EOFError:
             print 'Nothing written to file.'
     totalpts = data['totalpts']
-    init_score = data['init_score']
+    # init_score = data['init_score']
     old_trajectory = data['old_trajectory']
     new_trajectory = data['trajectory']
     best_pin_pt = data['best_pin_pt']
     score = []
 
-    # simulation = Simulation(cloth, render=True, trajectory=new_trajectory, multi_part=True)
-    # simulation.reset()
-    # simulation.pin_position(best_pin_pt[0], best_pin_pt[1])
-    # totalpts = len(simulation.cloth.shapepts)
-    # init_score = scorer.score(simulation.cloth) + totalpts
-    # print "Initial Score", init_score
-    # for i in range(len(simulation.trajectory)):
-    #     simulation.update()
-    #     simulation.move_mouse(simulation.trajectory[i][0], simulation.trajectory[i][1])
-    # print scorer.score(simulation.cloth) + totalpts
+    # # simulation = Simulation(cloth, render=True, trajectory=new_trajectory, multi_part=True)
+    # # simulation.reset()
+    # # simulation.pin_position(best_pin_pt[0], best_pin_pt[1])
+    # # totalpts = len(simulation.cloth.shapepts)
+    # # init_score = scorer.score(simulation.cloth) + totalpts
+    # # print "Initial Score", init_score
+    # # for i in range(len(simulation.trajectory)):
+    # #     simulation.update()
+    # #     simulation.move_mouse(simulation.trajectory[i][0], simulation.trajectory[i][1])
+    # # print scorer.score(simulation.cloth) + totalpts
 
     for t in range(1,11):
-        scorer = Scorer(0)
+        # scorer = Scorer(0)
 
         simulation = Simulation(cloth, render=simulate, trajectory=new_trajectory, multi_part=True)
         simulation.reset()
@@ -256,16 +265,22 @@ if __name__ == '__main__':
         for i in range(len(simulation.trajectory)):
             simulation.update()
             simulation.move_mouse(simulation.trajectory[i][0], simulation.trajectory[i][1])
-        score.append(scorer.score(simulation.cloth) + totalpts) 
-        print "Score %d" %(t), scorer.score(simulation.cloth) + totalpts
+        # score.append(simulation.cloth.evaluate())#scorer.score(simulation.cloth) + totalpts) 
+        # print "Score %d" %(t), simulation.cloth.evaluate()#scorer.score(simulation.cloth) + totalpts
+        s = simulation.cloth.evaluate()
+        if (s <= 0):
+            score.append(simulation.cloth.evaluate())#scorer.score(simulation.cloth) + totalpts) 
+            print "Score %d" %(t), simulation.cloth.evaluate()#scorer.score(simulation.cloth) + totalpts
 
     # save results
     f = open("sim_files/%s/holds" %(filename), "w+")
-    data = {'totalpts': totalpts, 'init_score': init_score, 'scores': score}
+    data = {'totalpts': totalpts, 'scores': score}
     pickle.dump(data, f)
     f.close()
 
 
+# simulation.cloth.evaluate()
+# rebuild ShapeCloth
 
 
 
