@@ -50,7 +50,7 @@ if __name__ == '__main__':
     pin_position, option = load_pin_from_config()
     print pin_position
     simulation.render = False
-
+    print simulation.cloth.centroid()
     ap = AnalyticPolicy(simulation, pin_position[0], pin_position[1])
     print ap.rollout()
     print simulation.cloth.evaluate()

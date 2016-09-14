@@ -201,7 +201,7 @@ def get_blobs(left, right, fname=False,):
     left = contour_detector(left_image)
     right = contour_detector(right_image)
     correspondences = find_correspondences(left, right, 300, 70)
-    print "found ", len(correspondences), " correspondences"
+    # print "found ", len(correspondences), " correspondences"
     left_pts = [a[0] for a in correspondences]
     right_pts = [a[1] for a in correspondences]
     pts3d = get_points_3d(info, left_pts, right_pts)

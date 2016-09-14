@@ -5,15 +5,17 @@ import tfx
 import os.path as osp
 from scipy.signal import savgol_filter
 import matplotlib.pyplot as plt
+sys.path.append("home/davinci0/cloth_simulation")
+import notch
 
 MAPPING = {
     0 : (0,0,0),
-    1 : (-1,0,0),
-    2 : (0,-1,0),
-    3 : (0,0,1),
-    4 : (1,0,0),
-    5 : (0,1,0),
-    6 : (0,0,-1)
+    1 : (-0.5,0,0),
+    2 : (0,0.5,0),
+    3 : (0,0,0.5),
+    4 : (0.5,0,0),
+    5 : (0,-0.5,0),
+    6 : (0,0,-0.5)
 }
 
 class ScissorArm(robot):
@@ -30,7 +32,7 @@ class ScissorArm(robot):
             pivots = [0]
             for traj in trajectory:
                 pivots.append(pivots[-1] + len(traj))
-            pivots = pivots[1:]
+            pivots = pivots[:]
             traj = []
             for i in range(len(trajectory)):
                 for j in range(len(trajectory[i])):
@@ -45,15 +47,22 @@ class ScissorArm(robot):
         """
         if self.done:
             return False
-        self.gripper.step(self.idx, blobs)
+        if self.idx%2 == 0:
+            self.gripper.step(self.idx, blobs)
         self.open_gripper(80)
         time.sleep(2.5)
         if self.multipart:
-            if self.idx + 1 in self.pivots:
-                self.reenter()
+            if self.idx + 1 in self.pivots or self.idx == 0:
+                reenterpos = self.trajectory[self.idx+1]
+                if self.idx != 0:
+                    # reenterpos = self.trajectory[0]
+                    pass
+                self.reenter(reenterpos)
         pos = self.trajectory[self.idx+1]
-        pos[2] += 0.02
-        frame = get_frame(pos, self.angles[self.idx+1])
+        if self.idx+1 in self.pivots or self.idx+1 > len(self.trajectory):
+            frame = get_frame(pos, self.angles[self.idx])
+        else:
+            frame = get_frame(pos, self.angles[self.idx+1])
         self.move_cartesian_frame_linear_interpolation(frame, 0.1)
         self.open_gripper(1)
         time.sleep(2.5)
@@ -62,11 +71,18 @@ class ScissorArm(robot):
             return False
         return True
 
-    def reenter(self):
+    def reenter(self, pt):
         """
         Reenters at the first index of the next trajectory. Needs to be implemented still.
         """
+        # self.open_gripper(-15)
+        time.sleep(2)
         self.home()
+        pt = np.array(pt)
+        pt[0] -= 0.005
+        # pt[2] -= 0.005
+        notch.cut_notch(pt, self)
+        time.sleep(2)
         return
 
     def preprocessing(self):
@@ -119,8 +135,10 @@ class ScissorArm(robot):
         return self.idx >= len(self.trajectory) - 2
 
     def home(self):
-        frame = get_frame([0.0591553404947, 0.0836998693038, -0.0970342513022], [0.454656883574, 0.518820631996, 0.583873517581, 0.428023346912])
+        print "HOMING"
+        frame = get_frame([0.0402655955015, 0.0348254948724, -0.0667273747345], 0)
         self.move_cartesian_frame_linear_interpolation(frame, 0.1)
+        time.sleep(2)
 
 class GripperArm(robot):
 
@@ -163,7 +181,8 @@ class GripperArm(robot):
         Given a time index, the arm queries the trained policy for an action to take.
         """
         print np.array([time]+list(self.displacement) + list(blobs)).shape
-        return self.mapping[self.policy.get_action([time]+list(self.displacement) + list(blobs))[0]]
+        action = self.mapping[self.policy.get_action([time]+list(self.displacement) + list(blobs))[0]]
+        return action
 
     def step(self, time, blobs):
         """
@@ -186,12 +205,12 @@ class GripperArm(robot):
         """
         self.open_gripper(80)
         time.sleep(2.5)
-        self.execute_action((0, 0, -10), self.GRAB_ORIENTATION)
+        self.execute_action((0, 0, -15), self.GRAB_ORIENTATION)
         self.open_gripper(-30)
         time.sleep(2.5)
-        self.execute_action((0, 0, 10), self.GRAB_ORIENTATION)
+        self.execute_action((0, 0, 20), self.GRAB_ORIENTATION)
 
-def get_frame(pos, angle, offset=0.003):
+def get_frame(pos, angle, offset=0.0035):
     """
     Given a position and an orientation, compute a tfx frame characterizing the pose.
     """

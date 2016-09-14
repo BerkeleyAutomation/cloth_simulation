@@ -237,7 +237,7 @@ if __name__ == '__main__':
     print "SCORE", rollout_no_policy(env, render=False)
     print "SCORE"
 
-    print len(pts_to_test)
+    print len(pts_to_test), " LENGTH"
     directory = "policy_training_pts"
     if not os.path.exists(directory):
         os.makedirs(directory)

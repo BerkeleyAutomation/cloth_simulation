@@ -7,6 +7,7 @@ from scipy import signal
 from scipy import stats
 import matplotlib.pyplot as plt
 import IPython
+from scipy import ndimage
 
 
 """
@@ -232,6 +233,11 @@ class ShapeCloth(Cloth):
         self.shapegrid = -grid + 1
         self.out_area = np.sum(self.outgrid)
         self.in_area = height * width - self.out_area - self.shape_area
+        
+        ##########################
+        # self.in_area = 0
+        ##########################
+
         return grid2
 
     def setup_helper(self, plot=False):
@@ -310,6 +316,11 @@ class ShapeCloth(Cloth):
         # grid2 = stats.threshold(grid2 + savedgrid, threshmax=1.1, newval=0)
 
         newinarea = np.sum(grid2)
+        
+        ########################
+        # newinarea = 0
+        ########################
+
         din = self.in_area - newinarea
         dout = self.out_area - newoutarea
         score = din + dout + extra
@@ -323,5 +334,35 @@ class ShapeCloth(Cloth):
 
 
 
-
-
+    def centroid(self, plot=False):
+        width, height = self.initial_params[0]
+        dx, dy = self.initial_params[1]
+        shape_fn = self.initial_params[2]
+        grid = np.zeros((height, width))
+        for key in self.allpts.keys():
+            pt = self.allpts[key]
+            if pt in self.pts:
+                continue
+            else:
+                pos = (np.floor(pt.identity / width), pt.identity % width)
+                grid[pos] = 1
+        grid = signal.convolve2d(grid, np.ones((2, 2)), mode='same')
+        grid = stats.threshold(grid, threshmax=1e-10, newval=1)
+        grid = grid + self.shapegrid
+        temp = stats.threshold(grid, threshmax=1.1, newval=0)
+        extra = np.sum(temp)
+        grid = stats.threshold(grid, threshmax=1e-10, newval=1)
+        if plot:
+            plt.imshow(np.flipud(grid), cmap='Greys_r')
+            plt.show()
+        grid = -grid + 1
+        grid2 = np.zeros_like(grid)
+        queue = deque([])
+        seen = []
+        queue.append((4,0))
+        grid = stats.threshold(grid, threshmax=1e-10, newval=1)
+        if plot:
+            plt.imshow(np.flipud(grid), cmap='Greys_r')
+            plt.show()
+        return np.array(ndimage.measurements.center_of_mass(grid)) * 25 + 50
+        

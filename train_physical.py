@@ -1,17 +1,4 @@
 from __future__ import absolute_import
-import numpy as np
-import sys, os, pickle, time
-from simulation import *
-from tensioner import *
-from shapecloth import *
-from simulation_policy import *
-from registration import *
-from notch_finder import *
-from tension_finder import *
-from pattern_designer import *
-import IPython, ipdb
-from environment_rep.pin_env_discrete import *
-from trpo_discrete_pin import *
 
 from rllab.algos.trpo import TRPO
 from rllab.algos.vpg import VPG
@@ -23,7 +10,7 @@ from rllab.misc.instrument import stub, run_experiment_lite
 from rllab.policies.gaussian_mlp_policy import GaussianMLPPolicy
 from rllab.policies.categorical_mlp_policy import CategoricalMLPPolicy
 
-from environment_rep import *
+from trpo_discrete_pin import *
 from environment_rep.pin_env_discrete import *
 import numpy as np
 import sys, pickle, os
@@ -31,10 +18,11 @@ from simulation import *
 from scorer import *
 from shapecloth import *
 from tensioner import *
+from tension_finder import *
+import IPython
 
-# stub(globals())
 
-class PolicyGenerator2:
+class PolicyGenerator2(object):
 
     """
     Class that trains a tensioning policy given a config file and a file to dump the policy to.
@@ -64,7 +52,7 @@ class PolicyGenerator2:
         baseline = ZeroBaseline(env_spec=env.spec)
 
         scores = []
-        for i in range(20):
+        for i in range(10):
             print "Iteration", i
             algo = TRPO(
                 env=env,
@@ -155,60 +143,17 @@ def rollout_no_policy(env, policy=None, flag=False, wait=False, render=False):
     return env.simulation.cloth.evaluate()
 
 
-
-
-
 if __name__ == '__main__':
 
-    #=========================================================
-    # Setup
-    #=========================================================
-
-    if len(sys.argv) > 3:
-        width = sys.argv[1]
-        height = sys.argv[2]
-        filename = sys.argv[3]
-        pd = PatternDesigner(width, height)
-    else:
-        filename = sys.argv[1]
-        fn = filename
-        pd = PatternDesigner()
-        start = int(sys.argv[2]) * 20
-        end = start + 20
-
-    pd.load_pts(filename)
-   
-    corners = pd.corners
-    points = pd.trajectory
-
-    mouse = Mouse(down=True, button=0)
-    armOrientation = "right"
-    shape_fn = get_shape_fn(corners, points, True)
-    ##################################################################################
-    cloth = ShapeCloth(shape_fn, mouse, 25, 25, 20, 20)  # ADD HERE THE PINNING POINT
-    ##################################################################################
-    trajectory = get_trajectory(corners, points, True)
-
-    #=========================================================
-    # Find the best segment trajectory to pass to pinning
-    #=========================================================
-
-    simulate = True
-
-    # Find the notch points and segments to complete the trajectory
-    ##################################################################################
-    npf = NotchPointFinder(cloth, trajectory, [300, 300]) # ADD HERE THE PINNING POINT
-    ##################################################################################
-    npf.find_pts(armOrientation)
-    npf.find_segments(armOrientation)
-
-    # find the best trajectory and simulate it
-    scorer = Scorer(0)
-
-    lst = npf.find_best_trajectory(scorer)
-    newOrdering, newIndices, worst_score = lst[0], lst[1], lst[2]
-
+    experiment_folder = "experiment_data/physical_experiments/1/"
+    config_file = "experiment.json"
+    # import ipdb; ipdb.set_trace()
+    pg = PolicyGenerator(experiment_folder, config_file, "")
+    simulation = pg.simulation
+    option = pg.option
+    cloth = simulation.cloth
     tpf = TensionPointFinder(cloth)
+
     # plt.imshow(np.flipud(tpf.find_valid_pts()), cmap='Greys_r')
     # plt.show()
 
@@ -218,62 +163,24 @@ if __name__ == '__main__':
         lst.append([pts[0][i]*10+50, pts[1][i]*10+50])
     pts = lst
 
-    pts_to_test = pts[start:end]
+    pts_to_test = pts
+    if len(pts_to_test) > 30:
+        indices = np.random.choice(len(pts_to_test), 30, replace=False)
+        pts_to_test = np.array(pts_to_test)[indices,:].tolist()
 
-    # while len(pts_to_test) > 30:
-        # pts_to_test = pts_to_test[::2]
-    # turn into a single list for simulation
-    newTrajectory = []
-    for seg in newOrdering:
-        newTrajectory = newTrajectory + seg
-    while len(newTrajectory) > 150:
-        newTrajectory = newTrajectory[::2]
-    simulation = Simulation(cloth, trajectory=newTrajectory)
-
-    print len(pts_to_test), "NUM POINTS"
-    directory = "pinpts"
+    # IPython.embed()
+    # simulation.render = True
+    # pts_to_test = [[300, 330]]
+    # simulation.render = True
+    directory = "physical_pts/"
     if not os.path.exists(directory):
         os.makedirs(directory)
-    # pts_to_test = [[300, 300]]
     for pt in pts_to_test:
         x, y = pt[0], pt[1]
-        writefile = "pinpts/"+ fn + "_" + str(x) + "_" + str(y) + ".p"
-        datafile = "pinpts/data" + fn + "_" + str(x) + "_" + str(y) + ".p"
+        writefile = directory + "policy_" + str(x) + "_" + str(y) + ".p"
+        datafile = directory + "data_" + str(x) + "_" + str(y) + ".p"
         pg2 = PolicyGenerator2(simulation, x, y, writefile, datafile)
         pg2.train()
 
 
-
-
-
-    # if (simulate):
-    #     simulation = Simulation(cloth, render=True, trajectory=newTrajectory)
-    #     simulation.reset()
-    #     print simulation.pin_position(300, 300)
-    #     totalpts = len(simulation.cloth.shapepts)
-    #     init_score = scorer.score(simulation.cloth) + totalpts
-    #     print "Initial Score", init_score
-    #     for i in range(len(simulation.trajectory)):
-    #         simulation.update()
-    #         simulation.move_mouse(simulation.trajectory[i][0], simulation.trajectory[i][1])
-    #     best_score = scorer.score(simulation.cloth) + totalpts
-    #     print "Best Score", best_score
-
-    #     simulation.reset()
-    #     totalpts = len(simulation.cloth.shapepts)
-    #     init_score = scorer.score(simulation.cloth) + totalpts
-    #     print "Initial Score", init_score
-    #     for i in range(len(simulation.trajectory)):
-    #         simulation.update()
-    #         simulation.move_mouse(simulation.trajectory[i][0], simulation.trajectory[i][1])
-    #     best_score = scorer.score(simulation.cloth) + totalpts
-    #     print "Best Score", best_score
-        # save results
-        # f = open("sim_files/%s/nohold" %(filename), "w+")
-        # data = {'totalpts': totalpts, 'init_score': init_score, 'best_score': best_score, 'worst_score': worst_score+totalpts,
-        #         'old_trajectory': oldTrajectory, 'trajectory': newOrdering, 'indices_of_pts': newIndices}
-        # pickle.dump(data, f)
-        # f.close()
-
-
-
+    # pg.train()
