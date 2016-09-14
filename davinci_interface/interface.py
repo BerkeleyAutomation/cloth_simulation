@@ -48,7 +48,7 @@ class ScissorArm(robot):
         if self.done:
             return False
         if self.idx%2 == 0:
-            self.gripper.step(self.idx, blobs)
+            self.gripper.step(self.idx/2, blobs)
         self.open_gripper(80)
         time.sleep(2.5)
         if self.multipart:
