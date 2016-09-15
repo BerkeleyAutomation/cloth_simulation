@@ -12,10 +12,10 @@ MAPPING = {
     0 : (0,0,0),
     1 : (-0.75,0,0),
     2 : (0,0.75,0),
-    3 : (0,0,0.5),
+    3 : (0,0,0),
     4 : (0.75,0,0),
     5 : (0,-0.75,0),
-    6 : (0,0,0.5) #-
+    6 : (0,0,0) #-
 }
 
 class ScissorArm(robot):
@@ -79,10 +79,11 @@ class ScissorArm(robot):
         """
         self.open_gripper(-15)
         time.sleep(2)
+        self.gripper.reset()
         self.home()
         pt = np.array(pt)
         pt[0] -= 0.00
-        # pt[2] -= 0.0015
+        pt[2] += 0.0035
         print pt
         notch.cut_notch(pt, self)
         time.sleep(2)
@@ -214,6 +215,10 @@ class GripperArm(robot):
         self.open_gripper(-30)
         time.sleep(2.5)
         self.execute_action((0, 0, 15), self.GRAB_ORIENTATION)
+
+    def reset(self):
+        disp = -self.displacement
+        self.execute_action(disp)
 
 def get_frame(pos, angle, offset=0.0035):
     """
