@@ -82,7 +82,7 @@ class ScissorArm(robot):
         self.home()
         pt = np.array(pt)
         pt[0] -= 0.00
-        pt[2] -= 0.005
+        pt[2] -= 0.0015
         print pt
         notch.cut_notch(pt, self)
         time.sleep(2)
