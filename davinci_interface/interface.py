@@ -84,6 +84,7 @@ class ScissorArm(robot):
         # pt[2] -= 0.005
         notch.cut_notch(pt, self)
         time.sleep(2)
+        self.gripper.execute_action((0, 0, 2))
         return
 
     def preprocessing(self):
