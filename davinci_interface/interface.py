@@ -103,7 +103,8 @@ class ScissorArm(robot):
                     angles.append(angle)
                 for i in range(len(angles)-2):
                     angles[i] = 0.5 * angles[i] + 0.35 * angles[i+1] + 0.15 * angles[i+2]
-                angles = savgol_filter(angles, factor * (pts.shape[0]/12) + 1, 2)
+                if len(angles) > 15:
+                    angles = savgol_filter(angles, factor * (pts.shape[0]/12) + 1, 2)
                 all_angles.extend(angles)
             self.angles = all_angles
         else:
