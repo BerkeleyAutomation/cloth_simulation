@@ -56,7 +56,7 @@ class PolicyGenerator:
                 batch_size=1000,
                 step_size = 0.001,
                 discount = 1,
-                n_itr = self.iterations
+                n_itr = 2
             )
 
             # run_experiment_lite(

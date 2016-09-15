@@ -176,7 +176,7 @@ if __name__ == '__main__':
     directory = "physical_pts/"
     if not os.path.exists(directory):
         os.makedirs(directory)
-    # simulation.render = True
+    simulation.render = True
     for pt in pts_to_test:
         x, y = pt[0], pt[1]
         writefile = directory + "policy_" + str(x) + "_" + str(y) + ".p"

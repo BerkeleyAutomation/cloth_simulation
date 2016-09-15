@@ -6,7 +6,7 @@ import IPython
 
 if __name__ == '__main__':
 	files = "test2_1.p", "test2_2.p", "test2_3.p", "test2_4.p", "test2_5.p"
-	files = "test3_1.p", "test3_2.p", "test3_3.p", "test3_4.p", "test3_5.p"
+	# files = "test3_1.p", "test3_2.p", "test3_3.p", "test3_4.p", "test3_5.p"
 	dic = {}
 	keys = [625, 100, 400, 25, 2500]
 	for i in range(len(files)):
@@ -16,4 +16,4 @@ if __name__ == '__main__':
 		print d, np.mean(d)
 		print i
 		dic[keys[i]] = d
-	# pickle.dump(dic, open("datares.p", "w+"))
+	pickle.dump(dic, open("resolution100.p", "w+"))

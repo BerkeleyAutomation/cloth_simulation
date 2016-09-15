@@ -96,7 +96,7 @@ class ScissorArm(robot):
             angle = 0
         else:
             angle = -80
-            self.lock = 3
+            self.lock = 5
         self.open_gripper(-15)
         time.sleep(2)
         frame = get_frame(np.ravel(self.get_current_cartesian_position().position) + np.array([0,0.018,0.01]), 0)
