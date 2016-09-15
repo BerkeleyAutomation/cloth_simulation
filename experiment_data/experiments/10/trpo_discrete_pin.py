@@ -305,9 +305,9 @@ if __name__ == '__main__':
 
 
     policy = "blob/one.p"
-    datafile = "blob/test6_1.p"
+    datafile = "blob/test3_1.p"
     policy = pickle.load(open(policy, "rb"))
-    env = PolicyGenerator(None, "", "blob/experiment6.json", "", "").env
+    env = PolicyGenerator(None, "", "blob/experiment3.json", "", "").env
 
     scores = []
     for i in range(5):
@@ -317,9 +317,9 @@ if __name__ == '__main__':
     pickle.dump(scores, open(datafile, "w+"))
 
     policy = "blob/two.p"
-    datafile = "blob/test6_2.p"
+    datafile = "blob/test3_2.p"
     policy = pickle.load(open(policy, "rb"))
-    env = PolicyGenerator(None, "", "blob/experiment6.json", "", "").env
+    env = PolicyGenerator(None, "", "blob/experiment3.json", "", "").env
 
     scores = []
     for i in range(5):
@@ -329,9 +329,9 @@ if __name__ == '__main__':
     pickle.dump(scores, open(datafile, "w+"))
 
     policy = "blob/three.p"
-    datafile = "blob/test6_3.p"
+    datafile = "blob/test3_3.p"
     policy = pickle.load(open(policy, "rb"))
-    env = PolicyGenerator(None, "", "blob/experiment6.json", "", "").env
+    env = PolicyGenerator(None, "", "blob/experiment3.json", "", "").env
 
     scores = []
     for i in range(5):
@@ -341,9 +341,9 @@ if __name__ == '__main__':
     pickle.dump(scores, open(datafile, "w+"))
 
     policy = "blob/four.p"
-    datafile = "blob/test6_4.p"
+    datafile = "blob/test3_4.p"
     policy = pickle.load(open(policy, "rb"))
-    env = PolicyGenerator(None, "", "blob/experiment6.json", "", "").env
+    env = PolicyGenerator(None, "", "blob/experiment3.json", "", "").env
 
     scores = []
     for i in range(5):
@@ -353,9 +353,9 @@ if __name__ == '__main__':
     pickle.dump(scores, open(datafile, "w+"))
 
     policy = "blob/five.p"
-    datafile = "blob/test6_5.p"
+    datafile = "blob/test3_5.p"
     policy = pickle.load(open(policy, "rb"))
-    env = PolicyGenerator(None, "", "blob/experiment6.json", "", "").env
+    env = PolicyGenerator(None, "", "blob/experiment3.json", "", "").env
 
     scores = []
     for i in range(5):
@@ -367,9 +367,9 @@ if __name__ == '__main__':
 
 
     policy = "blob/one.p"
-    datafile = "blob/test7_1.p"
+    datafile = "blob/test2_1.p"
     policy = pickle.load(open(policy, "rb"))
-    env = PolicyGenerator(None, "", "blob/experiment7.json", "", "").env
+    env = PolicyGenerator(None, "", "blob/experiment2.json", "", "").env
 
     scores = []
     for i in range(5):
@@ -379,9 +379,9 @@ if __name__ == '__main__':
     pickle.dump(scores, open(datafile, "w+"))
 
     policy = "blob/two.p"
-    datafile = "blob/test7_2.p"
+    datafile = "blob/test2_2.p"
     policy = pickle.load(open(policy, "rb"))
-    env = PolicyGenerator(None, "", "blob/experiment7.json", "", "").env
+    env = PolicyGenerator(None, "", "blob/experiment2.json", "", "").env
 
     scores = []
     for i in range(5):
@@ -391,9 +391,9 @@ if __name__ == '__main__':
     pickle.dump(scores, open(datafile, "w+"))
 
     policy = "blob/three.p"
-    datafile = "blob/test7_3.p"
+    datafile = "blob/test2_3.p"
     policy = pickle.load(open(policy, "rb"))
-    env = PolicyGenerator(None, "", "blob/experiment7.json", "", "").env
+    env = PolicyGenerator(None, "", "blob/experiment2.json", "", "").env
 
     scores = []
     for i in range(5):
@@ -403,9 +403,9 @@ if __name__ == '__main__':
     pickle.dump(scores, open(datafile, "w+"))
 
     policy = "blob/four.p"
-    datafile = "blob/test7_4.p"
+    datafile = "blob/test2_4.p"
     policy = pickle.load(open(policy, "rb"))
-    env = PolicyGenerator(None, "", "blob/experiment7.json", "", "").env
+    env = PolicyGenerator(None, "", "blob/experiment2.json", "", "").env
 
     scores = []
     for i in range(5):
@@ -415,9 +415,9 @@ if __name__ == '__main__':
     pickle.dump(scores, open(datafile, "w+"))
 
     policy = "blob/five.p"
-    datafile = "blob/test7_5.p"
+    datafile = "blob/test2_5.p"
     policy = pickle.load(open(policy, "rb"))
-    env = PolicyGenerator(None, "", "blob/experiment7.json", "", "").env
+    env = PolicyGenerator(None, "", "blob/experiment2.json", "", "").env
 
     scores = []
     for i in range(5):

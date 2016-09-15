@@ -92,7 +92,7 @@ class ScissorArm(robot):
         """
         Reenters at the first index of the next trajectory. Needs to be implemented still.
         """
-        if self.idx < 10:
+        if self.idx < 1000:
             angle = 0
         else:
             angle = -80

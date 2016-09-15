@@ -67,11 +67,11 @@ if __name__ == "__main__":
     else:
         fname = "policy.p"
     policy_file = fname
-    fname = "experiment_data/physical_experiments/1/" + fname
+    fname = "experiment_data/experiments/4/" + fname
 
     experiment = "config_files/experiment.json"
-    experiment_directory = "experiment_data/physical_experiments/1/"
-    experiment = "experiment_data/physical_experiments/1/experiment.json"
+    experiment_directory = "experiment_data/experiments/4/"
+    experiment = "experiment_data/experiments/4/experiment.json"
     simulation = load_simulation_from_config(experiment)
     policy = load_policy(fname)
     scorer = Scorer(0)
