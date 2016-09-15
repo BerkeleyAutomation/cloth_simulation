@@ -10,12 +10,12 @@ import notch
 
 MAPPING = {
     0 : (0,0,0),
-    1 : (-0.5,0,0),
-    2 : (0,0.5,0),
-    3 : (0,0,0.5),
-    4 : (0.5,0,0),
-    5 : (0,-0.5,0),
-    6 : (0,0,0.5) #-
+    1 : (-0.75,0,0),
+    2 : (0,0.75,0),
+    3 : (0,0,0.75),
+    4 : (0.75,0,0),
+    5 : (0,-0.75,0),
+    6 : (0,0,0.75) #-
 }
 
 class ScissorArm(robot):
@@ -64,6 +64,7 @@ class ScissorArm(robot):
         else:
             frame = get_frame(pos, self.angles[self.idx+1])
             print self.angles[self.idx+1]
+        print self.idx, frame
         self.move_cartesian_frame_linear_interpolation(frame, 0.1)
         self.open_gripper(1)
         time.sleep(2.5)
@@ -81,7 +82,8 @@ class ScissorArm(robot):
         self.home()
         pt = np.array(pt)
         pt[0] -= 0.00
-        # pt[2] -= 0.005
+        pt[2] -= 0.005
+        print pt
         notch.cut_notch(pt, self)
         time.sleep(2)
         self.gripper.execute_action((0, 0, 2))
