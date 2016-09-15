@@ -160,7 +160,7 @@ if __name__ == '__main__':
     pts = tpf.find_valid_pts(allpts=True).nonzero()
     lst = []
     for i in range(len(pts[0])):
-    	if min([pts[0][i]*20+50, pts[1][i]*20+50]) > 100:
+    	if min([pts[0][i]*20+50, pts[1][i]*20+50]) > 100 and max([pts[0][i]*20+50, pts[1][i]*20+50]) < 500:
         	lst.append([pts[0][i]*20+50, pts[1][i]*20+50])
     pts = lst
 
