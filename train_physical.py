@@ -154,8 +154,8 @@ if __name__ == '__main__':
     cloth = simulation.cloth
     tpf = TensionPointFinder(cloth)
 
-    plt.imshow(np.flipud(tpf.find_valid_pts(allpts=True)), cmap='Greys_r')
-    plt.show()
+    # plt.imshow(np.flipud(tpf.find_valid_pts(allpts=True)), cmap='Greys_r')
+    # plt.show()
 
     pts = tpf.find_valid_pts(allpts=True).nonzero()
     lst = []
