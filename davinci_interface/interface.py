@@ -80,7 +80,7 @@ class ScissorArm(robot):
         time.sleep(2)
         self.home()
         pt = np.array(pt)
-        pt[0] -= 0.005
+        pt[0] -= 0.00
         # pt[2] -= 0.005
         notch.cut_notch(pt, self)
         time.sleep(2)
@@ -207,10 +207,10 @@ class GripperArm(robot):
         """
         self.open_gripper(80)
         time.sleep(2.5)
-        self.execute_action((0, 0, -15), self.GRAB_ORIENTATION)
+        self.execute_action((0, 0, -10), self.GRAB_ORIENTATION)
         self.open_gripper(-30)
         time.sleep(2.5)
-        self.execute_action((0, 0, 20), self.GRAB_ORIENTATION)
+        self.execute_action((0, 0, 15), self.GRAB_ORIENTATION)
 
 def get_frame(pos, angle, offset=0.0035):
     """
