@@ -52,7 +52,7 @@ class PolicyGenerator2(object):
         baseline = ZeroBaseline(env_spec=env.spec)
 
         scores = []
-        for i in range(10):
+        for i in range(6):
             print "Iteration", i
             algo = TRPO(
                 env=env,
