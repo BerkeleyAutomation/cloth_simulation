@@ -53,7 +53,7 @@ class PolicyGenerator:
         baseline = ZeroBaseline(env_spec=env.spec)
 
         scores = []
-        for i in range(8):
+        for i in range(10):
             print "Iteration", i
             algo = TRPO(
                 env=env,
@@ -139,13 +139,14 @@ def rollout_no_policy(env, policy=None, flag=False, wait=False, render=False):
 
 if __name__ == '__main__':
     
-    writefile = "blob/one.p"
-    datafile = "blob/data1.p"
-    config_file = "blob/experiment.json"
+    writefile = "blob/four2.p"
+    datafile = "blob/data42.p"
+    config_file = "blob/experiment4.json"
 
-    # pg = PolicyGenerator(None, "", config_file, writefile, datafile)
-    # pg.train()
+    pg = PolicyGenerator(None, "", config_file, writefile, datafile)
+    pg.train()
 
+    sys.exit()
     # writefile = "blob/two.p"
     # datafile = "blob/data2.p"
     # config_file = "blob/experiment2.json"
@@ -428,62 +429,62 @@ if __name__ == '__main__':
 
 
 
-    policy = "blob/one.p"
-    datafile = "blob/test8_1.p"
-    policy = pickle.load(open(policy, "rb"))
-    env = PolicyGenerator(None, "", "blob/experiment8.json", "", "").env
+    # policy = "blob/one.p"
+    # datafile = "blob/test8_1.p"
+    # policy = pickle.load(open(policy, "rb"))
+    # env = PolicyGenerator(None, "", "blob/experiment8.json", "", "").env
 
-    scores = []
-    for i in range(5):
-        score1, score2 = rollout(env, policy, flag=False)
-        scores.append([score1, score2])
-        print score1, score2
-    pickle.dump(scores, open(datafile, "w+"))
+    # scores = []
+    # for i in range(5):
+    #     score1, score2 = rollout(env, policy, flag=False)
+    #     scores.append([score1, score2])
+    #     print score1, score2
+    # pickle.dump(scores, open(datafile, "w+"))
 
-    policy = "blob/two.p"
-    datafile = "blob/test8_2.p"
-    policy = pickle.load(open(policy, "rb"))
-    env = PolicyGenerator(None, "", "blob/experiment8.json", "", "").env
+    # policy = "blob/two.p"
+    # datafile = "blob/test8_2.p"
+    # policy = pickle.load(open(policy, "rb"))
+    # env = PolicyGenerator(None, "", "blob/experiment8.json", "", "").env
 
-    scores = []
-    for i in range(5):
-        score1, score2 = rollout(env, policy, flag=False)
-        scores.append([score1, score2])
-        print score1, score2
-    pickle.dump(scores, open(datafile, "w+"))
+    # scores = []
+    # for i in range(5):
+    #     score1, score2 = rollout(env, policy, flag=False)
+    #     scores.append([score1, score2])
+    #     print score1, score2
+    # pickle.dump(scores, open(datafile, "w+"))
 
-    policy = "blob/three.p"
-    datafile = "blob/test8_3.p"
-    policy = pickle.load(open(policy, "rb"))
-    env = PolicyGenerator(None, "", "blob/experiment8.json", "", "").env
+    # policy = "blob/three.p"
+    # datafile = "blob/test8_3.p"
+    # policy = pickle.load(open(policy, "rb"))
+    # env = PolicyGenerator(None, "", "blob/experiment8.json", "", "").env
 
-    scores = []
-    for i in range(5):
-        score1, score2 = rollout(env, policy, flag=False)
-        scores.append([score1, score2])
-        print score1, score2
-    pickle.dump(scores, open(datafile, "w+"))
+    # scores = []
+    # for i in range(5):
+    #     score1, score2 = rollout(env, policy, flag=False)
+    #     scores.append([score1, score2])
+    #     print score1, score2
+    # pickle.dump(scores, open(datafile, "w+"))
 
-    policy = "blob/four.p"
-    datafile = "blob/test8_4.p"
-    policy = pickle.load(open(policy, "rb"))
-    env = PolicyGenerator(None, "", "blob/experiment8.json", "", "").env
+    # policy = "blob/four.p"
+    # datafile = "blob/test8_4.p"
+    # policy = pickle.load(open(policy, "rb"))
+    # env = PolicyGenerator(None, "", "blob/experiment8.json", "", "").env
 
-    scores = []
-    for i in range(5):
-        score1, score2 = rollout(env, policy, flag=False)
-        scores.append([score1, score2])
-        print score1, score2
-    pickle.dump(scores, open(datafile, "w+"))
+    # scores = []
+    # for i in range(5):
+    #     score1, score2 = rollout(env, policy, flag=False)
+    #     scores.append([score1, score2])
+    #     print score1, score2
+    # pickle.dump(scores, open(datafile, "w+"))
 
-    policy = "blob/five.p"
-    datafile = "blob/test8_5.p"
-    policy = pickle.load(open(policy, "rb"))
-    env = PolicyGenerator(None, "", "blob/experiment8.json", "", "").env
+    # policy = "blob/five.p"
+    # datafile = "blob/test8_5.p"
+    # policy = pickle.load(open(policy, "rb"))
+    # env = PolicyGenerator(None, "", "blob/experiment8.json", "", "").env
 
-    scores = []
-    for i in range(5):
-        score1, score2 = rollout(env, policy, flag=False)
-        scores.append([score1, score2])
-        print score1, score2
-    pickle.dump(scores, open(datafile, "w+"))
+    # scores = []
+    # for i in range(5):
+    #     score1, score2 = rollout(env, policy, flag=False)
+    #     scores.append([score1, score2])
+    #     print score1, score2
+    # pickle.dump(scores, open(datafile, "w+"))

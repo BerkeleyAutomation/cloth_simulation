@@ -92,7 +92,7 @@ class ScissorArm(robot):
         """
         Reenters at the first index of the next trajectory. Needs to be implemented still.
         """
-        if self.idx < 1000:
+        if self.idx < 10:
             angle = 0
         else:
             angle = -80
@@ -187,7 +187,7 @@ class GripperArm(robot):
 
     def __init__(self, robot_name, policy, scale=0.001):
         robot.__init__(self, robot_name)
-    	self.initial_position = np.array(self.get_current_cartesian_position().position)
+        self.initial_position = np.array(self.get_current_cartesian_position().position)
         self.mapping = MAPPING
         self.policy = policy
         self.scale = scale
