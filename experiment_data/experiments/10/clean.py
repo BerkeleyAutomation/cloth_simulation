@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import IPython
 
 if __name__ == '__main__':
-	files = "test2_1.p", "test2_2.p", "test2_3.p", "test2_4.p", "test2_5.p"
+	files = "test9_1.p", "test9_2.p", "test9_3.p", "test9_4.p", "test9_5.p"
 	# files = "test3_1.p", "test3_2.p", "test3_3.p", "test3_4.p", "test3_5.p"
 	dic = {}
 	keys = [625, 100, 400, 25, 2500]
@@ -16,4 +16,4 @@ if __name__ == '__main__':
 		print d, np.mean(d)
 		print i
 		dic[keys[i]] = d
-	pickle.dump(dic, open("resolution100.p", "w+"))
+	pickle.dump(dic, open("resolution900.p", "w+"))

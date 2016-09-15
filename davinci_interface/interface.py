@@ -39,6 +39,8 @@ class ScissorArm(robot):
                     traj.append(trajectory[i][j])
             self.trajectory = traj
             self.pivots = pivots
+            # print pivots; sys.exit()
+
         self.lock = 0
         
 

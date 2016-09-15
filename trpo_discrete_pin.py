@@ -47,16 +47,16 @@ class PolicyGenerator:
             hidden_sizes=(32, 32)
         )
         scores = []
-        for i in range(10):
+        for i in range(36):
             baseline = ZeroBaseline(env_spec=env.spec)
             algo = TRPO(
                 env=env,
                 policy=policy,
                 baseline=baseline,
                 batch_size=1000,
-                step_size = 0.001,
+                step_size = 0.01,
                 discount = 1,
-                n_itr = 2
+                n_itr = 1
             )
 
             # run_experiment_lite(
@@ -68,8 +68,10 @@ class PolicyGenerator:
             #     # plot=True,
             # )
             algo.train()
-            score = rollout(env, policy, True)
-            scores.append(score)
+            for x in range(3):
+                score = rollout(env, policy, True)
+                print score, "SCORE"
+                scores.append(score)
 
         ## richard
         self._env = env

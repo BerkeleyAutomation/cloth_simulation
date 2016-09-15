@@ -58,7 +58,7 @@ class PolicyGenerator2(object):
                 env=env,
                 policy=policy,
                 baseline=baseline,
-                batch_size=500,
+                batch_size=300,
                 step_size = 0.01,
                 discount = 1,
                 n_itr = 2
