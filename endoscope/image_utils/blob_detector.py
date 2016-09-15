@@ -191,7 +191,7 @@ def leftpixels_to_cframe(surf, left_pts, right_pts, pts3d, x, y, knn=False):
 def get_blobs(left, right, fname=False,):
     # with open("../calibration/camera_data/camera_info.p", "rb") as f:
     #     info = pickle.load(f)
-    with open("endoscope/calibration/camera_data/camera_info.p", "rb") as f:
+    with open("/home/davinci0/cloth_simulation/endoscope/calibration/camera_data/camera_info.p", "rb") as f:
         info = pickle.load(f)
     if fname:
         left_image = cv2.imread(left)
@@ -209,7 +209,7 @@ def get_blobs(left, right, fname=False,):
     newpts = []
     # with open("../calibration/camera_data/camera_psm1_rigid_transform.p", "rb") as f:
     #     cmat = pickle.load(f)
-    with open("endoscope/calibration/camera_data/camera_psm1_rigid_transform.p", "rb") as f:
+    with open("/home/davinci0/cloth_simulation/endoscope/calibration/camera_data/camera_psm1_rigid_transform.p", "rb") as f:
         cmat = pickle.load(f)
     for cpoint in pts3d:
         pt = np.ones(4)

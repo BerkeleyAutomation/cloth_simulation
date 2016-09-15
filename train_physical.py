@@ -154,27 +154,28 @@ if __name__ == '__main__':
     cloth = simulation.cloth
     tpf = TensionPointFinder(cloth)
 
-    # plt.imshow(np.flipud(tpf.find_valid_pts()), cmap='Greys_r')
-    # plt.show()
+    plt.imshow(np.flipud(tpf.find_valid_pts(allpts=True)), cmap='Greys_r')
+    plt.show()
 
     pts = tpf.find_valid_pts(allpts=True).nonzero()
     lst = []
     for i in range(len(pts[0])):
-        lst.append([pts[0][i]*10+50, pts[1][i]*10+50])
+        lst.append([pts[0][i]*20+50, pts[1][i]*20+50])
     pts = lst
 
     pts_to_test = pts
     if len(pts_to_test) > 30:
         indices = np.random.choice(len(pts_to_test), 30, replace=False)
-        pts_to_test = np.array(pts_to_test)[indices,:].tolist()
+        pts_to_test = np.random.permutation(np.array(pts_to_test)[indices,:].tolist())
 
+    print pts_to_test
     # IPython.embed()
     # simulation.render = True
-    # pts_to_test = [[300, 330]]
-    # simulation.render = True
+    # pts_to_test = [[170, 340]]
     directory = "physical_pts/"
     if not os.path.exists(directory):
         os.makedirs(directory)
+    # simulation.render = True
     for pt in pts_to_test:
         x, y = pt[0], pt[1]
         writefile = directory + "policy_" + str(x) + "_" + str(y) + ".p"

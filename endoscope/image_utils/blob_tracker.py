@@ -28,6 +28,7 @@ class BlobTracker(object):
         return self.image_subscriber.right_image    
     
     def update_blobs(self):
+
         if self.left_image != None and self.right_image != None:
             newblobs = [np.array(blob) for blob in get_blobs(self.left_image, self.right_image)]
             if self.blobs:

@@ -24,7 +24,7 @@ class ImageSubscriber:
 
         #========SUBSCRIBERS========#
         # image subscribers
-        # rospy.init_node('image_saver', anonymous=True)
+        rospy.init_node('image_saver', anonymous=True)
         rospy.Subscriber("/endoscope/left/image_rect_color", Image,
                          self.left_image_callback, queue_size=1)
         rospy.Subscriber("/endoscope/right/image_rect_color", Image,
