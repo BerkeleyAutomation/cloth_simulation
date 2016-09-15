@@ -79,6 +79,9 @@ class ScissorArm(robot):
         """
         self.open_gripper(-15)
         time.sleep(2)
+        frame = tfx.pose(np.ravel(self.get_current_cartesian_position().position) + np.array([0,0.01,0]), np.array(self.get_current_cartesian_position().orientation))
+        self.move_cartesian_frame_linear_interpolation(frame, 0.1)
+        time.sleep(2)
         self.gripper.reset()
         self.home()
         pt = np.array(pt)
@@ -87,7 +90,17 @@ class ScissorArm(robot):
         print pt
         notch.cut_notch(pt, self)
         time.sleep(2)
-        self.gripper.execute_action((0, 0, 2))
+        # self.gripper.execute_action((0, 0, 2))
+        frame = tfx.pose(np.ravel(self.get_current_cartesian_position().position) + np.array([0,0,0.005]), np.array(self.get_current_cartesian_position().orientation))
+        self.move_cartesian_frame_linear_interpolation(frame, 0.1)
+        time.sleep(2)
+        frame = get_frame(np.ravel(self.get_current_cartesian_position().position), -50)
+        self.move_cartesian_frame_linear_interpolation(frame, 0.04)
+        time.sleep(2)
+        self.open_gripper(-15)
+        time.sleep(2)
+        self.open_gripper(75)
+        time.sleep(2)
         return
 
     def preprocessing(self):
@@ -177,6 +190,7 @@ class GripperArm(robot):
         """
         Given a 3-tuple, execute the action associated with it on the robot.
         """
+        print action
         if not orientation:
             self.move_cartesian_frame_linear_interpolation(tfx.pose(self.cur_position_translation(np.array(action) * self.scale), np.array(self.get_current_cartesian_position().orientation)), 0.1)
         else:
@@ -211,14 +225,19 @@ class GripperArm(robot):
         """
         self.open_gripper(80)
         time.sleep(2.5)
-        self.execute_action((0, 0, -10), self.GRAB_ORIENTATION)
+        self.execute_action((0, 0, -15), self.GRAB_ORIENTATION)
         self.open_gripper(-30)
         time.sleep(2.5)
-        self.execute_action((0, 0, 15), self.GRAB_ORIENTATION)
+        self.execute_action((0, 0, 20), self.GRAB_ORIENTATION)
+        time.sleep(2.5)
+        self.initial_position = np.array(self.get_current_cartesian_position().position)
+        print self.initial_position
 
     def reset(self):
-        disp = -self.displacement
-        self.execute_action(disp)
+        disp = -np.ravel(self.displacement)
+        disp = self.cur_position_translation(disp)
+        print "DISP", np.ravel(disp)
+        self.move_cartesian_frame_linear_interpolation(tfx.pose(np.array(disp), np.array(self.get_current_cartesian_position().orientation)), 0.1)
 
 def get_frame(pos, angle, offset=0.0035):
     """
