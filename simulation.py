@@ -33,6 +33,7 @@ class Simulation(object):
         self.stored = False
         self.update_iterations = update_iterations
         self.trajectory = trajectory
+        self.lastx, self.lasty, self.lastvec = None, None, None
         if not trajectory:
             self.trajectory = [(np.cos(deg) * 150 + 300, np.sin(deg) * 150 + 300) for deg in [3.6 * np.pi * i / 180.0 for i in range(100)]]
         self.multi_part = multi_part
@@ -65,13 +66,25 @@ class Simulation(object):
             for pt in blob:
                 bpts.append([pt.x, pt.y])
         bpts = np.array(bpts)
+        ax = plt.gca()
         if len(pts) > 0:
             plt.scatter(pts[:,0], pts[:,1], c='w')
         if len(cpts) > 0:
             plt.scatter(cpts[:,0], cpts[:,1], c='b')
         if len(bpts) > 0:
             plt.scatter(bpts[:,0], bpts[:,1], c='r')
-        ax = plt.gca()
+        if len(self.tensioners) > 0:
+            tensionerx, tensionery = self.tensioners[0].x, self.tensioners[0].y
+            plt.scatter([tensionerx], [tensionery], c='black', s=200)
+            if self.lastx != None and (self.lastx != tensionerx or self.lasty != tensionery):
+                print self.lastx, self.lasty, tensionerx, tensionery
+                vec = np.array([tensionerx-self.lastx, tensionery-self.lasty])
+                vec = vec / np.linalg.norm(vec) * 50
+                print vec
+                ax.arrow(self.lastx, self.lasty, vec[0] , vec[1], head_width=10, head_length=20, width=3, fc='k', ec='k')
+                self.lastvec = vec
+            self.lastx, self.lasty = tensionerx, tensionery
+
         plt.axis([0, 600, 0, 600])
         ax.set_axis_bgcolor('white')
         plt.pause(0.01)

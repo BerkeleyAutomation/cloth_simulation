@@ -39,6 +39,7 @@ class ScissorArm(robot):
                     traj.append(trajectory[i][j])
             self.trajectory = traj
             self.pivots = pivots
+        self.lock = 0
         
 
     def step(self, blobs=None):
@@ -60,14 +61,28 @@ class ScissorArm(robot):
                 self.reenter(reenterpos)
         pos = self.trajectory[self.idx+1]
         if self.idx+2 in self.pivots or self.idx+1 >= len(self.trajectory) or self.idx+1 >= len(self.angles):
+            angle = self.angles[self.idx]
             frame = get_frame(pos, self.angles[self.idx])
         else:
             frame = get_frame(pos, self.angles[self.idx+1])
+            angle = self.angles[self.idx+1]
             print self.angles[self.idx+1]
         print self.idx, frame
-        self.move_cartesian_frame_linear_interpolation(frame, 0.1)
+        self.move_cartesian_frame_linear_interpolation(frame, 0.04)
         self.open_gripper(1)
         time.sleep(2.5)
+        if self.lock > 0:
+            self.lock -= 1
+            frame = get_frame(np.ravel(self.get_current_cartesian_position().position) + np.array([0,0,-0.004]), angle)
+            self.move_cartesian_frame_linear_interpolation(frame, 0.1)
+            time.sleep(2)
+            self.open_gripper(80)
+            time.sleep(2)
+            frame = get_frame(np.ravel(self.get_current_cartesian_position().position) + np.array([0,0,0.004]), angle)
+            self.move_cartesian_frame_linear_interpolation(frame, 0.1)
+            time.sleep(2)
+            self.open_gripper(1)
+            time.sleep(2.5)
         self.idx += 1
         if self.done:
             return False
@@ -77,24 +92,30 @@ class ScissorArm(robot):
         """
         Reenters at the first index of the next trajectory. Needs to be implemented still.
         """
+        if self.idx < 10:
+            angle = 0
+        else:
+            angle = -80
+            self.lock = 3
         self.open_gripper(-15)
         time.sleep(2)
-        frame = tfx.pose(np.ravel(self.get_current_cartesian_position().position) + np.array([0,0.01,0]), np.array(self.get_current_cartesian_position().orientation))
+        frame = get_frame(np.ravel(self.get_current_cartesian_position().position) + np.array([0,0.018,0.01]), 0)
         self.move_cartesian_frame_linear_interpolation(frame, 0.1)
         time.sleep(2)
-        self.gripper.reset()
         self.home()
+        time.sleep(1)
+        self.gripper.reset()
         pt = np.array(pt)
         pt[0] -= 0.00
         pt[2] += 0.0035
         print pt
-        notch.cut_notch(pt, self)
+        notch.cut_notch_angle(pt, self, angle)
         time.sleep(2)
         # self.gripper.execute_action((0, 0, 2))
         frame = tfx.pose(np.ravel(self.get_current_cartesian_position().position) + np.array([0,0,0.005]), np.array(self.get_current_cartesian_position().orientation))
         self.move_cartesian_frame_linear_interpolation(frame, 0.1)
         time.sleep(2)
-        frame = get_frame(np.ravel(self.get_current_cartesian_position().position), -50)
+        frame = get_frame(np.ravel(self.get_current_cartesian_position().position), -80)
         self.move_cartesian_frame_linear_interpolation(frame, 0.04)
         time.sleep(2)
         self.open_gripper(-15)
