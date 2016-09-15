@@ -59,10 +59,11 @@ class ScissorArm(robot):
                     pass
                 self.reenter(reenterpos)
         pos = self.trajectory[self.idx+1]
-        if self.idx+1 in self.pivots or self.idx+1 > len(self.trajectory):
+        if self.idx+2 in self.pivots or self.idx+1 >= len(self.trajectory) or self.idx+1 >= len(self.angles):
             frame = get_frame(pos, self.angles[self.idx])
         else:
             frame = get_frame(pos, self.angles[self.idx+1])
+            print self.angles[self.idx+1]
         self.move_cartesian_frame_linear_interpolation(frame, 0.1)
         self.open_gripper(1)
         time.sleep(2.5)
@@ -75,7 +76,7 @@ class ScissorArm(robot):
         """
         Reenters at the first index of the next trajectory. Needs to be implemented still.
         """
-        # self.open_gripper(-15)
+        self.open_gripper(-15)
         time.sleep(2)
         self.home()
         pt = np.array(pt)

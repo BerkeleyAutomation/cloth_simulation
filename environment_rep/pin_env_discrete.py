@@ -24,7 +24,7 @@ class PinEnvDiscrete(Env):
         3 : (0,0,1),
         4 : (-1,0,0),
         5 : (0,-1,0),
-        6 : (0,0,-1)
+        6 : (0,0,1) #-1
     }
 
     def __init__(self, simulation, x, y, trajectory, scorer=0, max_displacement=False, predict=False, original=False):
