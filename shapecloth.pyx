@@ -78,6 +78,13 @@ class ShapeCloth(Cloth):
                 bestdisp = disp
         return bestdist
 
+    def close_to_blob(self, x, y):
+        blobs = ((100, 100), (300, 200), (100, 250), (350, 350), (490, 340), (320, 110), (340, 400), (500, 100), (100, 500), (100, 400), (250, 350), (450, 520))
+        for blob in blobs:
+            if ((x - blob[0]) ** 2 + (y - blob[1]) ** 2) ** 0.5 < 15:
+                return True
+        return False
+
 
 
     def update(self):

@@ -12,7 +12,7 @@ class AnalyticPolicy(object):
         self.tensionerx = x
         self.tensionery = y
 
-    def rollout(self, log=False, render=False):
+    def rollout(self, log=False, render=True):
         self.simulation.reset()
         self.simulation.render = render
         tensioner = self.simulation.pin_position(self.tensionerx, self.tensionery, float('inf'))
@@ -49,7 +49,7 @@ if __name__ == '__main__':
     simulation = load_simulation_from_config(shape_fn=shape_fn)
     pin_position, option = load_pin_from_config()
     print pin_position
-    simulation.render = False
+    simulation.render = True
     print simulation.cloth.centroid()
     ap = AnalyticPolicy(simulation, pin_position[0], pin_position[1])
     print ap.rollout()

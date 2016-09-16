@@ -65,6 +65,9 @@ class Simulation(object):
         for blob in self.cloth.blobs:
             for pt in blob:
                 bpts.append([pt.x, pt.y])
+        for pt in self.cloth.pts:
+            if self.cloth.close_to_blob(pt.x, pt.y):
+                bpts.append([pt.x, pt.y])
         bpts = np.array(bpts)
         ax = plt.gca()
         if len(pts) > 0:
@@ -81,7 +84,7 @@ class Simulation(object):
                 vec = np.array([tensionerx-self.lastx, tensionery-self.lasty])
                 vec = vec / np.linalg.norm(vec) * 50
                 print vec
-                ax.arrow(self.lastx, self.lasty, vec[0] , vec[1], head_width=10, head_length=20, width=3, fc='k', ec='k')
+                ax.arrow(self.lastx, self.lasty, vec[0] , vec[1], head_width=10, head_length=20, width=3, color='Teal')
                 self.lastvec = vec
             self.lastx, self.lasty = tensionerx, tensionery
 

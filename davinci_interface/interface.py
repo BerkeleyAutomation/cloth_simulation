@@ -75,12 +75,12 @@ class ScissorArm(robot):
         time.sleep(2.5)
         if self.lock > 0:
             self.lock -= 1
-            frame = get_frame(np.ravel(self.get_current_cartesian_position().position) + np.array([0,0,-0.004]), angle)
+            frame = get_frame(np.ravel(self.get_current_cartesian_position().position) + np.array([0,0,-0.003]), angle)
             self.move_cartesian_frame_linear_interpolation(frame, 0.1)
             time.sleep(2)
             self.open_gripper(80)
             time.sleep(2)
-            frame = get_frame(np.ravel(self.get_current_cartesian_position().position) + np.array([0,0,0.004]), angle)
+            frame = get_frame(np.ravel(self.get_current_cartesian_position().position) + np.array([0,0,0.003]), angle)
             self.move_cartesian_frame_linear_interpolation(frame, 0.1)
             time.sleep(2)
             self.open_gripper(1)
@@ -97,8 +97,8 @@ class ScissorArm(robot):
         if self.idx < 10:
             angle = 0
         else:
-            angle = -80
-            self.lock = 5
+            angle = 0
+            self.lock = 3
         self.open_gripper(-15)
         time.sleep(2)
         frame = get_frame(np.ravel(self.get_current_cartesian_position().position) + np.array([0,0.018,0.01]), 0)
@@ -117,11 +117,11 @@ class ScissorArm(robot):
         frame = tfx.pose(np.ravel(self.get_current_cartesian_position().position) + np.array([0,0,0.005]), np.array(self.get_current_cartesian_position().orientation))
         self.move_cartesian_frame_linear_interpolation(frame, 0.1)
         time.sleep(2)
-        frame = get_frame(np.ravel(self.get_current_cartesian_position().position), -80)
+        frame = get_frame(np.ravel(self.get_current_cartesian_position().position), 0)
         self.move_cartesian_frame_linear_interpolation(frame, 0.04)
         time.sleep(2)
-        self.open_gripper(-15)
-        time.sleep(2)
+        # self.open_gripper(-15)
+        # time.sleep(2)
         self.open_gripper(75)
         time.sleep(2)
         return
