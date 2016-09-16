@@ -27,7 +27,7 @@ class PolicyGenerator:
     Class that trains a tensioning policy given a config file and a file to dump the policy to.
     """
 
-    def __init__(self, experiment_folder="experiment_data/experiments/4/", config_file="experiment.json", writefile="policydiscrete.p", iterations=20):
+    def __init__(self, experiment_folder="experiment_data/experiments/4/", config_file="experiment.json", writefile="policydiscrete.p", iterations=20, convergencefile=None):
         self.experiment_folder = experiment_folder
         self.config_file = os.path.join(self.experiment_folder, config_file)
         self.writefile = writefile
@@ -35,6 +35,7 @@ class PolicyGenerator:
         self.pin_position, self.option = load_pin_from_config(self.config_file)
         self.simulation.reset()
         self.iterations = iterations
+        self.convergencefile = convergencefile
 
 
     def train(self):
@@ -47,13 +48,13 @@ class PolicyGenerator:
             hidden_sizes=(32, 32)
         )
         scores = []
-        for i in range(36):
+        for i in range(50):
             baseline = ZeroBaseline(env_spec=env.spec)
             algo = TRPO(
                 env=env,
                 policy=policy,
                 baseline=baseline,
-                batch_size=1000,
+                batch_size=500,
                 step_size = 0.01,
                 discount = 1,
                 n_itr = 1
@@ -84,7 +85,7 @@ class PolicyGenerator:
         with open(self.experiment_folder + self.writefile, "w+") as f:
             pickle.dump(policy, f)
 
-        with open("convergence.p", "w+") as f:
+        with open(self.convergencefile, "w+") as f:
             pickle.dump(scores, f)
 
     @property
@@ -133,12 +134,9 @@ def rollout_no_policy(env, policy=None, flag=False):
 
 if __name__ == '__main__':
     
-    if len(sys.argv) > 1:
-        writefile = sys.argv[1]
-    else:
-        writefile = "policydiscrete2.p"
+    writefile = "policydiscrete2.p"
     experiment_folder = "experiment_data/experiments/4/"
     config_file = "experiment.json"
     # import ipdb; ipdb.set_trace()
-    pg = PolicyGenerator(experiment_folder, config_file, writefile)
+    pg = PolicyGenerator(experiment_folder, config_file, writefile, convergencefile=sys.argv[1])
     pg.train()

@@ -97,7 +97,7 @@ class ScissorArm(robot):
         if self.idx < 10:
             angle = 0
         else:
-            angle = -80
+            angle = -50
             self.lock = 3
         self.open_gripper(-15)
         time.sleep(2)
@@ -109,7 +109,7 @@ class ScissorArm(robot):
         self.gripper.reset()
         pt = np.array(pt)
         pt[0] -= 0.00
-        pt[2] += 0.0035
+        pt[2] += 0.0005
         print pt
         notch.cut_notch_angle(pt, self, angle)
         time.sleep(2)
@@ -117,10 +117,10 @@ class ScissorArm(robot):
         frame = tfx.pose(np.ravel(self.get_current_cartesian_position().position) + np.array([0,0,0.005]), np.array(self.get_current_cartesian_position().orientation))
         self.move_cartesian_frame_linear_interpolation(frame, 0.1)
         time.sleep(2)
-        frame = get_frame(np.ravel(self.get_current_cartesian_position().position), -80)
+        frame = get_frame(np.ravel(self.get_current_cartesian_position().position), -50)
         self.move_cartesian_frame_linear_interpolation(frame, 0.04)
         time.sleep(2)
-        self.open_gripper(-15)
+        self.open_gripper(1)
         time.sleep(2)
         self.open_gripper(75)
         time.sleep(2)
@@ -248,10 +248,10 @@ class GripperArm(robot):
         """
         self.open_gripper(80)
         time.sleep(2.5)
-        self.execute_action((0, 0, -15), self.GRAB_ORIENTATION)
+        self.execute_action((0, 0, -10), self.GRAB_ORIENTATION)
         self.open_gripper(-30)
         time.sleep(2.5)
-        self.execute_action((0, 0, 15), self.GRAB_ORIENTATION)
+        self.execute_action((0, 0, 10), self.GRAB_ORIENTATION)
         time.sleep(2.5)
         self.initial_position = np.array(self.get_current_cartesian_position().position)
         print self.initial_position
