@@ -1,28 +1,29 @@
 import cv2
 import rospy, pickle, time
-from robot import *
+
 from geometry_msgs.msg import Pose
 import numpy as np
-import PyKDL
+
 import multiprocessing
 import tfx
-import fitplane
+# import fitplane
 from scipy.interpolate import interp1d
 from shape_tracer import plot_points
 from scipy.signal import savgol_filter
 import matplotlib.pyplot as plt
-import notch
+# import notch
+from ImageSubscriber import ImageSubscriber
 from geometry_msgs.msg import Point
 from image_saver import ImageSaver
-import least_square_circle as sqcirc
+
 from mpl_toolkits.mplot3d import Axes3D
-from ImageSubscriber import ImageSubscriber
 from math import *
 from scipy.spatial import ConvexHull
 	
 def process_img(fname):
 	""" converts image to a binary img and thins a little"""
-	img = cv2.imread(fname,1)
+	# img = cv2.imread(fname,1)
+	img=fname[:,200:2000]
 	resized=cv2.resize(img,None,fx=.5, fy=.5, interpolation = cv2.INTER_CUBIC)
 
 	print resized.shape
@@ -146,8 +147,9 @@ def angle_calc(pt1,pt2):
 
 if __name__ == '__main__':
 		# a=ImageSubscriber()
-	
-	processed=process_img('image_utils/left5.jpg')
+	cam=ImageSubscriber()
+	time.sleep(5)
+	processed=process_img(cam.left())
 	# processed=process_img('image_utils/right1.jpg')
 	
 	# edges = cv2.Canny(processed,0,255)
@@ -156,7 +158,7 @@ if __name__ == '__main__':
 
 
 	print processed.shape
-	cv2.waitKey(5)
+	cv2.waitKey(0)
 	cv2.destroyAllWindows()
 	pts,x,y =get_raw_points(thinned)
 	pts=np.array(pts)
