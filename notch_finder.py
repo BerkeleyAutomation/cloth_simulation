@@ -7,6 +7,7 @@ from cloth import *
 from circlecloth import *
 from registration import *
 from simulation import *
+from pattern_designer import *
 from itertools import permutations
 
 """
@@ -17,7 +18,7 @@ for the entire shape function. The start points of the segments are the notches.
 
 class NotchPointFinder(object):
 
-    def __init__(self, cloth, trajectory, pin_position):
+    def __init__(self, cloth, trajectory, pin_position=[]):
         self.cloth = cloth
         self.trajectory = trajectory
         self.isLoop = False
@@ -27,12 +28,12 @@ class NotchPointFinder(object):
         self.segment_indices = []
         self.pin_position = pin_position
 
-    def find_pts(self, armOrientation):
+    def find_pts(self, armOrientation="right"):
         """
         Returns a list of points on the shape cloth for notching.
         """
         trajectory = self.trajectory
-        self.isLoop = (trajectory[0] == trajectory[-1])
+        self.isLoop = (((trajectory[0][0] - trajectory[-1][0])**2 + (trajectory[0][1] - trajectory[-1][1])**2 )**0.5 < 10)
         isLoop = self.isLoop
 
         # traverse the trajectory to find minimums and maximums
@@ -160,7 +161,7 @@ class NotchPointFinder(object):
 
         return self.min_pts,self.max_pts
 
-    def find_segments(self, armOrientation):
+    def find_segments(self, armOrientation="right"):
         """
         Returns a list of segments on the shape cloth for notching.
         """
@@ -261,12 +262,12 @@ class NotchPointFinder(object):
                             self.segment_indices.append(range(i_max, i_min+1)[::-1])
         return self.segments, self.segment_indices
 
-    def find_best_trajectory(self, scorer, mode="brute"):
+    def find_best_trajectory(self, mode="brute"):
         """
         Returns a list of semgents in the order of the trajectory that
-        corresponds to the best score.
+        corresponds to the best score. Also returns worst score
         """
-        # from simulation import *
+        from simulation import Simulation
         numSegments = len(self.segments)
         newTrajectory = []
         newIndices = []
@@ -274,6 +275,7 @@ class NotchPointFinder(object):
         if (mode == "brute"):
             permutation = list(permutations(range(0, numSegments)))
             bestScore = -10000 # arbitrary upper limit
+            worstScore = 10000
             bestPerm = []
             simulation = Simulation(self.cloth, trajectory=None)
             for perm in permutation:
@@ -286,12 +288,17 @@ class NotchPointFinder(object):
                     newIndices = newIndices + ind
                 simulation.trajectory = newTrajectory
                 simulation.reset()
+                if (self.pin_position):
+                    simulation.pin_position(self.pin_position[0], self.pin_position[1])
                 for i in range(len(simulation.trajectory)):
                     simulation.update()
                     simulation.move_mouse(simulation.trajectory[i][0], simulation.trajectory[i][1])
-                if (scorer.score(simulation.cloth) > bestScore):
-                    bestScore = scorer.score(simulation.cloth)
+                score = simulation.cloth.evaluate() #scorer.score(simulation.cloth)
+                if (score > bestScore):
+                    bestScore = score
                     bestPerm = perm
+                if (score < worstScore):
+                    worstScore = score
 
         # length approach: order by shortest segment to longest segment
         elif (mode == "length"):
@@ -299,6 +306,30 @@ class NotchPointFinder(object):
             for seg in self.segments:
                 lengths.append(len(seg))
             bestPerm = sorted(range(numSegments), key=lambda i: lengths[i])
+            # calculate worst score
+            worstPerm = sorted(range(numSegments), key=lambda i: -lengths[i])
+            simulation = Simulation(self.cloth, trajectory=None)
+            newTrajectory = []
+            for i in bestPerm:
+                seg = self.segments[i]
+                newTrajectory = newTrajectory + seg
+            simulation.trajectory = newTrajectory
+            simulation.reset()
+            for i in range(len(simulation.trajectory)):
+                simulation.update()
+                simulation.move_mouse(simulation.trajectory[i][0], simulation.trajectory[i][1])
+            bestScore = simulation.cloth.evaluate() #scorer.score(simulation.cloth)
+            newTrajectory = []
+            for i in worstPerm:
+                seg = self.segments[i]
+                newTrajectory = newTrajectory + seg
+            simulation.trajectory = newTrajectory
+            simulation.reset()
+            for i in range(len(simulation.trajectory)):
+                simulation.update()
+                simulation.move_mouse(simulation.trajectory[i][0], simulation.trajectory[i][1])
+            worstScore = simulation.cloth.evaluate() #scorer.score(simulation.cloth)
+
 
         # distance approach: order by closest segment to farthest segment (average distances of all points from pin point)
         else:
@@ -313,6 +344,29 @@ class NotchPointFinder(object):
                 distances.append((total_sq_dist+0.0)/num_pts)
             bestPerm = sorted(range(numSegments), key=lambda i: distances[i])
             bestPerm = bestPerm[:][::-1]
+            # calculate worst score
+            worstPerm = sorted(range(numSegments), key=lambda i: distances[i])
+            simulation = Simulation(self.cloth, trajectory=None)
+            newTrajectory = []
+            for i in bestPerm:
+                seg = self.segments[i]
+                newTrajectory = newTrajectory + seg
+            simulation.trajectory = newTrajectory
+            simulation.reset()
+            for i in range(len(simulation.trajectory)):
+                simulation.update()
+                simulation.move_mouse(simulation.trajectory[i][0], simulation.trajectory[i][1])
+            bestScore = simulation.cloth.evaluate() #scorer.score(simulation.cloth)
+            newTrajectory = []
+            for i in worstPerm:
+                seg = self.segments[i]
+                newTrajectory = newTrajectory + seg
+            simulation.trajectory = newTrajectory
+            simulation.reset()
+            for i in range(len(simulation.trajectory)):
+                simulation.update()
+                simulation.move_mouse(simulation.trajectory[i][0], simulation.trajectory[i][1])
+            worstScore = simulation.cloth.evaluate() #scorer.score(simulation.cloth)
 
         newTrajectory = [self.segments[bestPerm[0]]]
         newIndices = [self.segment_indices[bestPerm[0]]]
@@ -321,7 +375,7 @@ class NotchPointFinder(object):
             ind = self.segment_indices[i]
             newTrajectory.append(seg)
             newIndices.append(ind)  
-        return newTrajectory, newIndices # a list of lists
+        return newTrajectory, newIndices, bestScore, worstScore # a list of lists
 
 
 if __name__ == '__main__':
@@ -370,13 +424,19 @@ if __name__ == '__main__':
     # # The following two lines go together
     # corners = load_robot_points()
     # points = load_robot_points("gauze_pts2.p")
+
+    filename = "pts_4"
+    pd = PatternDesigner()
+    pd.load_pts(filename)
+    corners = pd.corners
+    points = pd.trajectory
     
     shape_fn = get_shape_fn(corners, points, True)
-    cloth = ShapeCloth(shape_fn, mouse)
+    cloth = ShapeCloth(shape_fn, mouse, width=25, height=25, dx=20, dy=20)
     trajectory = get_trajectory(corners, points, True)
     
     # Find the notch points and segments to complete the trajectory
-    npf = NotchPointFinder(cloth, trajectory, [600, 600])
+    npf = NotchPointFinder(cloth, trajectory, [])
     npf.find_pts(armOrientation)
     npf.find_segments(armOrientation)
 
@@ -410,42 +470,49 @@ if __name__ == '__main__':
 
     # Visualize the segments in different colors
     numSegs = len(npf.segments)
+    print numSegs
     color = iter(plt.cm.jet(np.linspace(0, 1, numSegs)))
     for i in range(numSegs):
         segpts = np.array(npf.segments[i])
+        print segpts
         c = next(color)
         plt.scatter(segpts[:,0], segpts[:,1], c=c, marker='o', edgecolors='none', s=20)
     plt.draw()
     plt.waitforbuttonpress()
 
-    # simulate the new trajectory
-    newTrajectory = []
-    for seg in npf.segments:
-        newTrajectory = newTrajectory + seg
-    simulation = Simulation(cloth, render=True, trajectory=newTrajectory)
-    scorer = Scorer(0)
-    simulation.reset()
-    print "Initial Score", scorer.score(simulation.cloth)
-    for i in range(len(simulation.trajectory)):
-        simulation.update()
-        simulation.move_mouse(simulation.trajectory[i][0], simulation.trajectory[i][1])
-    print "Score", scorer.score(simulation.cloth)
-    plt.waitforbuttonpress()
+    # # simulate the new trajectory
+    # newTrajectory = []
+    # for seg in npf.segments:
+    #     newTrajectory = newTrajectory + seg
+    # simulation = Simulation(cloth, render=True, trajectory=newTrajectory)
+    # scorer = Scorer(0)
+    # simulation.reset()
+    # if (npf.pin_position):
+    #     simulation.pin_position(npf.pin_position[0], npf.pin_position[1])
+
+    # print "Initial Score", scorer.score(simulation.cloth)
+    # for i in range(len(simulation.trajectory)):
+    #     simulation.update()
+    #     simulation.move_mouse(simulation.trajectory[i][0], simulation.trajectory[i][1])
+    # print "Score", scorer.score(simulation.cloth)
+    # plt.waitforbuttonpress()
 
     # find the best trajectory and simulate it
-    newOrdering, newIndices = npf.find_best_trajectory(scorer, mode="length")
+    newOrdering, newIndices, bestScore, worstScore = npf.find_best_trajectory(mode="length")
     # turn into a single list for simulation
     newTrajectory = []
     for seg in newOrdering:
         newTrajectory = newTrajectory + seg
-    simulation = Simulation(cloth, render=True, trajectory=newTrajectory)
+    simulation = Simulation(cloth, trajectory=newTrajectory)
+    # simulation = Simulation(cloth, render=True, trajectory=newTrajectory)
     simulation.reset()
-    print "Initial Score", scorer.score(simulation.cloth)
+    # print "Initial Score", simulation.cloth.evaluate() #scorer.score(simulation.cloth)
     for i in range(len(simulation.trajectory)):
         simulation.update()
         simulation.move_mouse(simulation.trajectory[i][0], simulation.trajectory[i][1])
-    print "Best Score", scorer.score(simulation.cloth)
-    plt.waitforbuttonpress()
+    print "Best Score", simulation.cloth.evaluate() #scorer.score(simulation.cloth)
+    # print newIndices
+    # plt.waitforbuttonpress()
 
 
 

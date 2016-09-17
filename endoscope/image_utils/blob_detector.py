@@ -188,10 +188,11 @@ def leftpixels_to_cframe(surf, left_pts, right_pts, pts3d, x, y, knn=False):
         return (pred[0], pred[1], surf.query_knn(pred[0], pred[1])[2])
     return (pred[0], pred[1], surf.query(pred[0], pred[1])[2])
 
-def get_blobs(left, right, fname=False):
-    with open("../calibration/camera_data/camera_info.p", "rb") as f:
+def get_blobs(left, right, fname=False,):
+    # with open("../calibration/camera_data/camera_info.p", "rb") as f:
+    #     info = pickle.load(f)
+    with open("/home/davinci0/cloth_simulation/endoscope/calibration/camera_data/camera_info.p", "rb") as f:
         info = pickle.load(f)
-
     if fname:
         left_image = cv2.imread(left)
         right_image = cv2.imread(right)
@@ -200,13 +201,15 @@ def get_blobs(left, right, fname=False):
     left = contour_detector(left_image)
     right = contour_detector(right_image)
     correspondences = find_correspondences(left, right, 300, 70)
-    print "found ", len(correspondences), " correspondences"
+    # print "found ", len(correspondences), " correspondences"
     left_pts = [a[0] for a in correspondences]
     right_pts = [a[1] for a in correspondences]
     pts3d = get_points_3d(info, left_pts, right_pts)
     oldpts3d = pts3d
     newpts = []
-    with open("../calibration/camera_data/camera_psm1_rigid_transform.p", "rb") as f:
+    # with open("../calibration/camera_data/camera_psm1_rigid_transform.p", "rb") as f:
+    #     cmat = pickle.load(f)
+    with open("/home/davinci0/cloth_simulation/endoscope/calibration/camera_data/camera_psm1_rigid_transform.p", "rb") as f:
         cmat = pickle.load(f)
     for cpoint in pts3d:
         pt = np.ones(4)

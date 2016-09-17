@@ -1,0 +1,45 @@
+{
+    "bounds": {
+        "x": 600,
+        "y": 600,
+        "z": 800
+    },
+    "mouse": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+        "height_limit": 1000,
+        "down": true,
+        "button": 0,
+        "cut": 20,
+        "influence": 5
+    },
+    "simulation": {
+        "init": 200,
+        "render": false,
+        "update_iterations": 1,
+        "multipart": true
+    },
+    "shapecloth": {
+        "shape_fn": [
+            "experiment_data/physical_experiments/1/gauze_pts.p", "experiment_data/physical_experiments/1/gauze_pts2.p"
+            ],
+        "width": 25,
+        "height": 25,
+        "dx": 20,
+        "dy": 20,
+        "gravity": -2000,
+        "elasticity": 1.0,
+        "pin_cond": "default"
+    },
+    "options": {
+        "use_shape_pts": true,
+        "pin_position": {
+            "x": 370,
+            "y": 380
+        },
+        "max_displacement" : 50,
+        "blobs":["experiment_data/physical_experiments/1/gauze_pts.p", "experiment_data/physical_experiments/1/blobs.p"],
+        "trajectory_indices_file" : "experiment_data/physical_experiments/1/trajindices.p"
+    }
+}

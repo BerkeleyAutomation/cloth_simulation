@@ -17,7 +17,7 @@ class TensionPointFinder(object):
     def __init__(self, cloth):
         self.cloth = cloth
 
-    def find_valid_pts(self, plot=False):
+    def find_valid_pts(self, plot=False, allpts=False):
         """
         Returns a map of valid points on the cloth object that could be used to tensioned without collisions with the second arm.
         """
@@ -29,6 +29,14 @@ class TensionPointFinder(object):
             for j in range(width):
                 if shape_fn(j * dy + 50, i * dx + 50):
                     grid[i, j] = 1
+        if allpts:
+            grid = signal.convolve2d(grid, np.ones((5, 5)), mode='same')
+            grid = stats.threshold(grid, threshmax=1e-10, newval=1)
+            if plot:
+                plt.imshow(-np.flipud(grid) + 1, cmap='Greys_r')
+                plt.show()
+            print grid.shape
+            return -grid + 1
         if plot:
             plt.imshow(-np.flipud(grid) + 1, cmap='Greys_r')
             plt.show()
@@ -81,5 +89,5 @@ if __name__ == '__main__':
     mouse = Mouse(down=True)
     cloth = ShapeCloth(shape_fn, mouse)
     tpf = TensionPointFinder(cloth)
-    plt.imshow(np.flipud(tpf.find_valid_pts()), cmap='Greys_r')
+    plt.imshow(np.flipud(tpf.find_valid_pts(True, True)), cmap='Greys_r')
     plt.show()

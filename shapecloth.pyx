@@ -2,13 +2,20 @@ from point import *
 from cloth import *
 from mouse import *
 from registration import *
+from collections import deque
+from scipy import signal
+from scipy import stats
+import matplotlib.pyplot as plt
+import IPython
+from scipy import ndimage
+
 
 """
 A subclass of cloth, on which a shape pattern is drawn. It also can be grabbed and tensioned.
 """
 class ShapeCloth(Cloth):
 
-    def __init__(self, shape_fn, mouse=None, width=50, height=50, dx=10, dy=10,gravity=-2500.0, elasticity=1.0, pin_cond="default", bounds=(600, 600, 800), blobs=None, corners=None):
+    def __init__(self, shape_fn, mouse=None, width=50, height=50, dx=10, dy=10,gravity=-2500.0, elasticity=1.0, pin_cond="default", bounds=(600, 600, 800), blobs=None, corners=None, noise=0):
         """
         A cloth on which a shape can be drawn. It can also be grabbed and tensioned at specific coordinates. It takes in a function shape_fn that takes in 2 arguments, x and y, that specify whether or not a point is located on the outline of a shape.
         """
@@ -23,6 +30,7 @@ class ShapeCloth(Cloth):
         self.allpts = {}
         self.blobs = []
         self.blobpts = []
+        self.noise = noise
         if self.blobs != None and corners != None:
             self.blob_fn = get_blob_fn(corners, blobs)
             for blob in blobs:
@@ -33,7 +41,7 @@ class ShapeCloth(Cloth):
             pin_cond = lambda x, y, height, width: y == height - 1 or y == 0
         for i in range(height):
             for j in range(width):
-                pt = Point(mouse, 50 + dx * j, 50 + dy * i, gravity=gravity, elasticity=elasticity, bounds=bounds, identity=j + i * height)
+                pt = Point(mouse, 50 + dx * j, 50 + dy * i, gravity=gravity, elasticity=elasticity, bounds=bounds, identity=j + i * width, noise=noise)
                 self.allpts[i * height + j] = pt
                 if i > 0:
                     pt.add_constraint(self.pts[width * (i - 1) + j])
@@ -57,6 +65,26 @@ class ShapeCloth(Cloth):
                     self.blobpts.append(pt)
         self.pts, self.normalpts, self.shapepts = set(self.pts), set(self.normalpts), set(self.shapepts)
         self.initial_params = [(width, height), (dx, dy), shape_fn, gravity, elasticity, pin_cond]
+        self.setup()
+
+    def displacement_to_line(self, x, y):
+        bestdist = float('inf')
+        bestdisp = None
+        for pt in self.shapepts:
+            disp = np.array((x - pt.x, y - pt.y))
+            dist = np.linalg.norm(disp)
+            if dist <= bestdist:
+                bestdist = dist
+                bestdisp = disp
+        return bestdist
+
+    def close_to_blob(self, x, y):
+        blobs = ((100, 100), (300, 200), (100, 250), (350, 350), (490, 340), (320, 110), (340, 400), (500, 100), (100, 500), (100, 400), (250, 350), (450, 520))
+        for blob in blobs:
+            if ((x - blob[0]) ** 2 + (y - blob[1]) ** 2) ** 0.5 < 15:
+                return True
+        return False
+
 
 
     def update(self):
@@ -78,6 +106,8 @@ class ShapeCloth(Cloth):
                     toremovenorm.append(pt)
                 else:
                     toremoveblob.append(pt)
+            # else:
+                # pt.x, pt.y, pt.z = pt.x + np.random.randn() * self.noise, pt.y + np.random.randn() * self.noise, pt.z + np.random.randn() * self.noise
 
         for pt in toremovenorm:
             self.pts.remove(pt)
@@ -116,7 +146,7 @@ class ShapeCloth(Cloth):
             self.blobs.append([])
         for i in range(height):
             for j in range(width):
-                pt = Point(self.mouse, 50 + dx * j, 50 + dy * i, gravity=gravity, elasticity=elasticity, identity=j + i * height)
+                pt = Point(self.mouse, 50 + dx * j, 50 + dy * i, gravity=gravity, elasticity=elasticity, identity=j + i * width, noise=self.noise)
                 self.allpts[i * height + j] = pt
                 if i > 0:
                     pt.add_constraint(self.pts[width * (i - 1) + j])
@@ -156,3 +186,190 @@ class ShapeCloth(Cloth):
         sum_y = np.sum(arr[:, 1])
         sum_z = np.sum(arr[:, 2])
         return sum_x/length, sum_y/length, sum_z/length
+
+    def find_closest_shapept(self, x, y):
+        pt = self.shapepts[np.argmin(np.linalg.norm(np.array([(pt.x, pt.y) for pt in self.shapepts]) - np.tile(np.array((x, y)), (len(self.shapepts), 1)),  axis=1))]
+        return pt.x, pt.y
+
+    def find_dtheta(self, x0, y0, x1, y1, x2, y2):
+        v1 = np.array((x1, y1)) - np.array((x0, y0)) + 1e-5
+        v2 = np.array((x2, y2)) - np.array((x0, y0)) + 1e-5
+        v1, v2 = v1 / np.linalg.norm(v1), v2 / np.linalg.norm(v2)
+        costheta = np.dot(v1, v2)
+        theta = np.arccos(costheta)
+        return theta
+
+
+    def setup(self, plot=False):
+        width, height = self.initial_params[0]
+        dx, dy = self.initial_params[1]
+        shape_fn = self.initial_params[2]
+        grid = np.zeros((height, width))
+        for i in range(height):
+            for j in range(width):
+                if shape_fn(j * dy + 50, i * dx + 50):
+                    grid[i, j] = 1
+        grid = signal.convolve2d(grid, np.ones((2, 2)), mode='same')
+        grid = stats.threshold(grid, threshmax=1e-10, newval=1)
+        if plot:
+            plt.imshow(np.flipud(grid), cmap='Greys_r')
+            plt.show()
+        self.shape_area = np.sum(grid)
+        grid = -grid + 1
+        grid2 = np.zeros_like(grid)
+        queue = deque([])
+        seen = []
+        queue.append((0,0))
+        while len(queue) > 0:
+            pos = queue.popleft()
+            if pos in seen:
+                continue
+            seen.append(pos)
+            if grid[pos]:
+                grid2[pos] = 1
+                neighbors = [(pos[0] + 1, pos[1]), (pos[0] - 1, pos[1]), (pos[0], pos[1] - 1), (pos[0], pos[1] + 1)]
+                for pos in neighbors:
+                    if pos in seen or min(pos) < 0 or pos[0] >= height or pos[1] >= width:
+                        pass
+                    else:
+                        queue.append(pos)
+        if plot:
+            plt.imshow(np.flipud(grid2), cmap='Greys_r')
+            plt.show()
+        self.outgrid = grid2
+        self.shapegrid = -grid + 1
+        self.out_area = np.sum(self.outgrid)
+        self.in_area = height * width - self.out_area - self.shape_area
+        
+        ##########################
+        # self.in_area = 0
+        ##########################
+
+        return grid2
+
+    def setup_helper(self, plot=False):
+        width, height = self.initial_params[0]
+        dx, dy = self.initial_params[1]
+        shape_fn = self.initial_params[2]
+        grid = np.zeros((height, width))
+        for key in self.allpts.keys():
+            pt = self.allpts[key]
+            if pt in self.pts:
+                continue
+            else:
+                pos = (np.floor(pt.identity / width), pt.identity % width)
+                grid[pos] = 1
+        grid = signal.convolve2d(grid, np.ones((2, 2)), mode='same')
+        grid = stats.threshold(grid, threshmax=1e-10, newval=1)
+        grid = grid + self.shapegrid
+        temp = stats.threshold(grid, threshmax=1.1, newval=0)
+        extra = np.sum(temp)
+        grid = stats.threshold(grid, threshmax=1e-10, newval=1)
+        if plot:
+            plt.imshow(np.flipud(grid), cmap='Greys_r')
+            plt.show()
+        grid = -grid + 1
+        grid2 = np.zeros_like(grid)
+        queue = deque([])
+        seen = []
+        queue.append((4,0))
+        grid = stats.threshold(grid, threshmax=1e-10, newval=1)
+        if plot:
+            plt.imshow(np.flipud(grid), cmap='Greys_r')
+            plt.show()
+        while len(queue) > 0:
+            pos = queue.popleft()
+            if pos in seen:
+                continue
+            seen.append(pos)
+            if grid[pos]:
+                grid2[pos] = 1
+                neighbors = [(pos[0] + 1, pos[1]), (pos[0] - 1, pos[1]), (pos[0], pos[1] - 1), (pos[0], pos[1] + 1)]
+                for pos in neighbors:
+                    if pos in seen or min(pos) < 0 or pos[0] >= height or pos[1] >= width:
+                        pass
+                    else:
+                        queue.append(pos)
+        if plot:
+            plt.imshow(np.flipud(grid2), cmap='Greys_r')
+            plt.show()
+        newoutarea = np.sum(grid2)
+        savedgrid = grid2
+        grid2 = np.zeros_like(grid)
+        queue = deque([])
+        seen = []
+        p = height / 2, width / 2
+        queue.append(p)
+        grid = stats.threshold(grid, threshmax=1e-10, newval=1)
+        if plot:
+            plt.imshow(np.flipud(grid), cmap='Greys_r')
+            plt.show()
+        while len(queue) > 0:
+            pos = queue.popleft()
+            if pos in seen:
+                continue
+            seen.append(pos)
+            if grid[pos]:
+                grid2[pos] = 1
+                neighbors = [(pos[0] + 1, pos[1]), (pos[0] - 1, pos[1]), (pos[0], pos[1] - 1), (pos[0], pos[1] + 1)]
+                for pos in neighbors:
+                    if pos in seen or min(pos) < 0 or pos[0] >= height or pos[1] >= width:
+                        pass
+                    else:
+                        queue.append(pos)
+        if plot:
+            plt.imshow(np.flipud(grid2), cmap='Greys_r')
+            plt.show()
+        # grid2 = stats.threshold(grid2 + savedgrid, threshmax=1.1, newval=0)
+
+        newinarea = np.sum(grid2)
+        
+        ########################
+        # newinarea = 0
+        ########################
+
+        din = self.in_area - newinarea
+        dout = self.out_area - newoutarea
+        score = din + dout + extra
+        return score
+
+    def evaluate(self, log=False):
+        temp = -self.setup_helper()
+        if temp > 0:
+            return -600
+        return temp
+
+
+
+    def centroid(self, plot=False):
+        width, height = self.initial_params[0]
+        dx, dy = self.initial_params[1]
+        shape_fn = self.initial_params[2]
+        grid = np.zeros((height, width))
+        for key in self.allpts.keys():
+            pt = self.allpts[key]
+            if pt in self.pts:
+                continue
+            else:
+                pos = (np.floor(pt.identity / width), pt.identity % width)
+                grid[pos] = 1
+        grid = signal.convolve2d(grid, np.ones((2, 2)), mode='same')
+        grid = stats.threshold(grid, threshmax=1e-10, newval=1)
+        grid = grid + self.shapegrid
+        temp = stats.threshold(grid, threshmax=1.1, newval=0)
+        extra = np.sum(temp)
+        grid = stats.threshold(grid, threshmax=1e-10, newval=1)
+        if plot:
+            plt.imshow(np.flipud(grid), cmap='Greys_r')
+            plt.show()
+        grid = -grid + 1
+        grid2 = np.zeros_like(grid)
+        queue = deque([])
+        seen = []
+        queue.append((4,0))
+        grid = stats.threshold(grid, threshmax=1e-10, newval=1)
+        if plot:
+            plt.imshow(np.flipud(grid), cmap='Greys_r')
+            plt.show()
+        return np.array(ndimage.measurements.center_of_mass(grid)) * 25 + 50
+        

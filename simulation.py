@@ -33,6 +33,7 @@ class Simulation(object):
         self.stored = False
         self.update_iterations = update_iterations
         self.trajectory = trajectory
+        self.lastx, self.lasty, self.lastvec = None, None, None
         if not trajectory:
             self.trajectory = [(np.cos(deg) * 150 + 300, np.sin(deg) * 150 + 300) for deg in [3.6 * np.pi * i / 180.0 for i in range(100)]]
         self.multi_part = multi_part
@@ -64,14 +65,29 @@ class Simulation(object):
         for blob in self.cloth.blobs:
             for pt in blob:
                 bpts.append([pt.x, pt.y])
+        for pt in self.cloth.pts:
+            if self.cloth.close_to_blob(pt.x, pt.y):
+                bpts.append([pt.x, pt.y])
         bpts = np.array(bpts)
+        ax = plt.gca()
         if len(pts) > 0:
             plt.scatter(pts[:,0], pts[:,1], c='w')
         if len(cpts) > 0:
             plt.scatter(cpts[:,0], cpts[:,1], c='b')
         if len(bpts) > 0:
             plt.scatter(bpts[:,0], bpts[:,1], c='r')
-        ax = plt.gca()
+        if len(self.tensioners) > 0:
+            tensionerx, tensionery = self.tensioners[0].x, self.tensioners[0].y
+            plt.scatter([tensionerx], [tensionery], c='black', s=200)
+            if self.lastx != None and (self.lastx != tensionerx or self.lasty != tensionery):
+                print self.lastx, self.lasty, tensionerx, tensionery
+                vec = np.array([tensionerx-self.lastx, tensionery-self.lasty])
+                vec = vec / np.linalg.norm(vec) * 50
+                print vec
+                ax.arrow(self.lastx, self.lasty, vec[0] , vec[1], head_width=10, head_length=20, width=3, color='Teal')
+                self.lastvec = vec
+            self.lastx, self.lasty = tensionerx, tensionery
+
         plt.axis([0, 600, 0, 600])
         ax.set_axis_bgcolor('white')
         plt.pause(0.01)
@@ -135,6 +151,11 @@ class Simulation(object):
         except EOFError:
             print 'Nothing written to file.'
 
+    @property
+    def score(self):
+        return self.cloth.evaluate()
+    
+
 
     # def __deepcopy__(self):
     #     """
@@ -142,7 +163,7 @@ class Simulation(object):
     #     """
     #     return copy.deepcopy(self)
 
-def load_simulation_from_config(fname="config_files/default.json", shape_fn=None, trajectory=None, multipart=False):
+def load_simulation_from_config(fname="config_files/default.json", shape_fn=None, trajectory=None, multipart=False, gravity=None, elasticity=False, noise=0):
     """
     Creates a Simulation object from a configuration file FNAME, and can optionally take in a SHAPE_FN or create one from discrete points saved to file. MULTIPART indicates whether or not the input trajectory consists of multiple subtrajectories.
     """
@@ -163,22 +184,97 @@ def load_simulation_from_config(fname="config_files/default.json", shape_fn=None
         shape_fn = get_shape_fn(corners, pts, True)
         if not trajectory:
             trajectory = load_trajectory_from_config(fname)
+    if gravity == None:
+        gravity = cloth["gravity"]
+    if not elasticity:
+        elasticity = cloth["elasticity"]
     cloth = ShapeCloth(shape_fn, mouse, cloth["width"], cloth["height"], cloth["dx"], cloth["dy"], 
-        cloth["gravity"], cloth["elasticity"], cloth["pin_cond"], bounds, blobs, corners)
+        gravity, elasticity, cloth["pin_cond"], bounds, blobs, corners, noise=noise)
     simulation = data["simulation"]
     if "multipart" in simulation.keys() and not multipart:
         multipart = simulation["multipart"]
         if multipart:
-            IPython.embed()
             # Find the notch points and segments to complete the trajectory
-            npf = NotchPointFinder(cloth, trajectory)
-            npf.find_pts("r") # cutting from right "r"
-            npf.find_segments("r")
+            pin, option = load_pin_from_config(fname)
+            npf = NotchPointFinder(cloth, trajectory, pin)
+            npf.find_pts("right") # cutting from right "r"
+            npf.find_segments("right")
             from scorer import *
             scorer = Scorer(0)
-            trajectory = npf.find_best_trajectory(scorer) # trajectory is now a list of lists
-            IPython.embed()
+            oldtraj = trajectory
+            # Visualize the mins and maxes
+            # minpts = np.array(npf.min_pts)
+            # maxpts = np.array(npf.max_pts)
+            # if len(minpts) > 0:
+            #     plt.scatter(minpts[:,0], minpts[:,1], c='g', marker='s', edgecolors='none', s=80)
+            # if len(maxpts) > 0:
+            #     plt.scatter(maxpts[:,0], maxpts[:,1], c='r', marker='s', edgecolors='none', s=80)
+            # plt.draw()
+            # plt.waitforbuttonpress()
+
+            # # Visualize the segments in different colors
+            # numSegs = len(npf.segments)
+            # color = iter(plt.cm.jet(np.linspace(0, 1, numSegs)))
+            # for i in range(numSegs):
+            #     segpts = np.array(npf.segments[i])
+            #     c = next(color)
+            #     plt.scatter(segpts[:,0], segpts[:,1], c=c, marker='o', edgecolors='none', s=20)
+            # plt.draw()
+            # plt.waitforbuttonpress()
+            trajectory = npf.find_best_trajectory(scorer)[0] # trajectory is now a list of lists
+            # IPython.embed()
+            if  "trajectory_indices_file" in data["options"].keys():
+                with open(data["options"]["trajectory_indices_file"], "w+") as f:
+                    indices = find_indices_naive(oldtraj, trajectory)
+                    pickle.dump(indices, f)
     return Simulation(cloth, simulation["init"], simulation["render"], simulation["update_iterations"], trajectory, multipart)
+
+def load_rect_simulation_from_config(fname="config_files/default.json", width=20, height=20):
+    """
+    Rectangular pattern cloth simulation.
+    """
+    multipart = True
+    with open(fname) as data_file:    
+        data = json.load(data_file)
+    mouse = data["mouse"]
+    bounds = data["bounds"]
+    bounds = (bounds["x"], bounds["y"], bounds["z"])
+    mouse = Mouse(mouse["x"], mouse["y"], mouse["z"], mouse["height_limit"], mouse["down"], mouse["button"], bounds, mouse["influence"], mouse["cut"])
+    cloth = data["shapecloth"]
+    corners, blobs = None, None
+    if "blobs" in data["options"].keys():
+        corners = load_robot_points(data["options"]["blobs"][0])
+        blobs = load_points(data["options"]["blobs"][1])
+    corners = load_robot_points(cloth["shape_fn"][0])
+    pxpts =  rect_pt_generator(width, height, dx=20, dy=20)
+    shape_fn = rect_fn(width, height, dx=20, dy=20)
+    trajectory = pxpts
+    cloth = ShapeCloth(shape_fn, mouse, cloth["width"], cloth["height"], cloth["dx"], cloth["dy"], 
+        cloth["gravity"], cloth["elasticity"], cloth["pin_cond"], bounds, blobs, corners)
+    simulation = data["simulation"]
+    if multipart:
+        # Find the notch points and segments to complete the trajectory
+        trajectory = trajectory[::4]
+        npf = NotchPointFinder(cloth, trajectory)
+        npf.find_pts("right") # cutting from right "r"
+        npf.find_segments("right")
+        from scorer import *
+        scorer = Scorer(0)
+        oldtraj = trajectory
+        trajectory = npf.find_best_trajectory(scorer) # trajectory is now a list of lists
+    return Simulation(cloth, simulation["init"], simulation["render"], simulation["update_iterations"], trajectory, multipart)
+
+
+def find_indices_naive(trajectory_old, trajectory_new):
+    lst = []
+    for i in range(len(trajectory_new)):
+        lst.append([])
+        for j in range(len(trajectory_new[i])):
+            for k in range(len(trajectory_old)):
+                if trajectory_old[k] == trajectory_new[i][j]:
+                    lst[i].append(k)
+    return lst
+
 
 def load_trajectory_from_config(fname="config_files/default.json"):
     """

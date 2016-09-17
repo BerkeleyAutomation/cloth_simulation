@@ -3,16 +3,20 @@ import sys, os, time, pickle
 import matplotlib.pyplot as plt
 from blob_detector import *
 sys.path.append(os.path.dirname(os.getcwd()))
-from calibration.robot import *
+from robot import *
 from image_subscriber import *
 import scipy
 from sklearn.neighbors import KNeighborsRegressor
+import IPython
 
 class BlobTracker(object):
 
     def __init__(self, blobs=None):
         self.image_subscriber = ImageSubscriber()
-        self.blobs = blobs
+        if blobs:
+            self.blobs = [np.array(blob) for blob in blobs]
+        else:
+            self.blobs = blobs
         self.threshold= 0.01
 
     @property
@@ -24,6 +28,7 @@ class BlobTracker(object):
         return self.image_subscriber.right_image    
     
     def update_blobs(self):
+
         if self.left_image != None and self.right_image != None:
             newblobs = [np.array(blob) for blob in get_blobs(self.left_image, self.right_image)]
             if self.blobs:
@@ -32,6 +37,8 @@ class BlobTracker(object):
                     dists = []
                     for b in newblobs:
                         dists.append(np.linalg.norm(blob - b))
+                    if len(dists) == 0:
+                        return
                     closest, bestdist = np.argmin(dists), np.min(dists)
                     if bestdist < self.threshold:
                         lst.append([closest, bestdist])
@@ -49,7 +56,6 @@ class BlobTracker(object):
                 self.blobs = tmp
             else:
                 self.blobs = newblobs
-        print self.blobs
         return self.blobs
 
     def interpolate_blobs(self, good_blobs, missing_blob):
@@ -79,9 +85,11 @@ class BlobTracker(object):
             if len(nblob) == 3:
                 lst1.append(list(oblob))
                 lst2.append(list(nblob))
+        if len([a for a in lst1 if len(a) == 3]) == 0:
+            return
         for i in range(len(new_blobs)):
             if len(new_blobs[i]) == 1:
-                dists = np.vstack(lst1) - np.tile(np.array(old_blobs[i]), (len(lst1, 1)))
+                dists = np.vstack(lst1) - np.tile(np.array(old_blobs[i]), (len(lst1), 1))
                 dists = np.linalg.norm(dists, axis=1)
                 closest = np.argmin(dists)
                 delta = np.array(lst2[closest]) - np.array(lst1[closest])
