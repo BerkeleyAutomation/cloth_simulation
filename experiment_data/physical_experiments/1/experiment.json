@@ -17,7 +17,7 @@
     "simulation": {
         "init": 200,
         "render": false,
-        "update_iterations": 1,
+        "update_iterations": 3,
         "multipart": true
     },
     "shapecloth": {

@@ -170,9 +170,12 @@ if __name__ == '__main__':
         pts_to_test = np.random.permutation(np.array(pts_to_test)[indices,:].tolist())
 
     print pts_to_test
+    pts_to_test = np.array([(300, 300), (250, 300), (200, 200), (100, 400), (400, 100)] + pts_to_test.tolist())
     # IPython.embed()
     # simulation.render = True
     # pts_to_test = [[170, 340]]
+    # IPython.embed()
+    print pts_to_test
     directory = "physical_pts/"
     if not os.path.exists(directory):
         os.makedirs(directory)

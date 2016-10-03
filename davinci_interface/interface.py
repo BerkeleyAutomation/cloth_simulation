@@ -10,11 +10,11 @@ import notch
 
 MAPPING = {
     0 : (0,0,0),
-    1 : (-0.75,0,0),
-    2 : (0,0.75,0),
+    1 : (-2.75,0,0),
+    2 : (0,2.75,0),
     3 : (0,0,0),
-    4 : (0.75,0,0),
-    5 : (0,-0.75,0),
+    4 : (2.75,0,0),
+    5 : (0,-2.75,0),
     6 : (0,0,0) #-
 }
 
@@ -75,12 +75,12 @@ class ScissorArm(robot):
         time.sleep(2.5)
         if self.lock > 0:
             self.lock -= 1
-            frame = get_frame(np.ravel(self.get_current_cartesian_position().position) + np.array([0,0,0.003]), angle)
+            frame = get_frame(np.ravel(self.get_current_cartesian_position().position) + np.array([0,0,0.001]), angle)
             self.move_cartesian_frame_linear_interpolation(frame, 0.1)
             time.sleep(2)
             self.open_gripper(80)
             time.sleep(2)
-            frame = get_frame(np.ravel(self.get_current_cartesian_position().position) + np.array([0,0,-0.003]), angle)
+            frame = get_frame(np.ravel(self.get_current_cartesian_position().position) + np.array([0,0,-0.001]), angle)
             self.move_cartesian_frame_linear_interpolation(frame, 0.1)
             time.sleep(2)
             self.open_gripper(1)
@@ -224,7 +224,9 @@ class GripperArm(robot):
         Given a time index, the arm queries the trained policy for an action to take.
         """
         print np.array([time]+list(self.displacement) + list(blobs)).shape
-        action = self.mapping[self.policy.get_action([time]+list(self.displacement) + list(blobs))[0]]
+        print "TIME", time
+        action = self.mapping[self.policy.get_action([time*2]+list(self.displacement) + list(blobs))[0]]
+        # return (0,0,0)
         return action
 
     def step(self, time, blobs):
