@@ -1,26 +1,29 @@
 import cv2
 import rospy, pickle, time
-from robot import *
+
 from geometry_msgs.msg import Pose
 import numpy as np
-import PyKDL
+
 import multiprocessing
 import tfx
-import fitplane
+# import fitplane
 from scipy.interpolate import interp1d
 from shape_tracer import plot_points
 from scipy.signal import savgol_filter
 import matplotlib.pyplot as plt
-import notch
+# import notch
+from ImageSubscriber import ImageSubscriber
 from geometry_msgs.msg import Point
 from image_saver import ImageSaver
-import least_square_circle as sqcirc
+
 from mpl_toolkits.mplot3d import Axes3D
-from ImageSubscriber import ImageSubscriber
+from math import *
+from scipy.spatial import ConvexHull
 	
 def process_img(fname):
 	""" converts image to a binary img and thins a little"""
-	img = cv2.imread(fname,1)
+	# img = cv2.imread(fname,1)
+	img=fname[:,200:2000]
 	resized=cv2.resize(img,None,fx=.5, fy=.5, interpolation = cv2.INTER_CUBIC)
 
 	print resized.shape
@@ -54,14 +57,14 @@ def get_raw_points(img):
 
 
 def neighbours(x,y,image):
-    "Return 8-neighbours of image point P1(x,y), in a clockwise order"
+    """Return 8-neighbours of image point P1(x,y), in a clockwise order"""
     img = image
     x_1, y_1, x1, y1 = x-1, y-1, x+1, y+1
     return [ img[x_1][y], img[x_1][y1], img[x][y1], img[x1][y1],     # P2,P3,P4,P5
                 img[x1][y], img[x1][y_1], img[x][y_1], img[x_1][y_1] ]    # P6,P7,P8,P9
 
 def transitions(neighbours):
-    "No. of 0,1 patterns (transitions from 0 to 1) in the ordered sequence"
+    """No. of 0,1 patterns (transitions from 0 to 1) in the ordered sequence"""
     n = neighbours + neighbours[0:1]      # P2, P3, ... , P8, P9, P2
     return sum( (n1, n2) == (0, 1) for n1, n2 in zip(n, n[1:]) )  # (P2,P3), (P3,P4), ... , (P8,P9), (P9,P2)
 
@@ -107,46 +110,65 @@ def fit_plane(x,y,scale=.5,z=69):#scale and z needs to be experimentally gotten
 		traj.append([x[i],y[i],z])
 	return traj,x,y,z
 
-def plot_points(x,y,z):
+def plot_points(x,y,z,centroid):
 	
 	# fig = plt.figure()
 	# ax = fig.add_subplot(111, projection='3d') 
 	# ax.scatter(x,y,z)
-	plt.scatter(x,y)
+	plt.plot(x,y)
+	plt.scatter(centroid[0],centroid[1],color='r')
 	plt.show()
 
-def paths(pts):
-	
+def centroid(pts):
+	# pts=np.array(pts)
+	return np.array([(sum(pts[:,0])/len(pts[:,0])),(sum(pts[:,1])/len(pts[:,1]))])
+def angle_calc(pt1,pt2):
+	x1,y1=pt1[0],pt1[1]
+	x2,y2=pt2[0],pt2[1]
+	return atan2(x2-x1,y2-y1)
+
+# def reorganize(pts,centroid):
+# 	angle=0
+# 	count=0
+# 	new_pts=[]
+# 	print pts
+# 	while angle<6.3:
+# 		for i in range(len(pts)):
+# 			measured=round(angle_calc(centroid,pts[i]),3)
+			
+# 			if measured==angle:
+# 				#print measured
+# 				new_pts.append([pts[i,0],pts[i,1]])
+# 		angle+=.005
+		
+
+# 	return np.array(new_pts)
 
 
-
-
-def main():
-	# a=ImageSubscriber()
-	
-	processed=process_img('image_utils/left1.jpg')
+if __name__ == '__main__':
+		# a=ImageSubscriber()
+	cam=ImageSubscriber()
+	time.sleep(5)
+	processed=process_img(cam.left())
 	# processed=process_img('image_utils/right1.jpg')
 	
-	edges = cv2.Canny(processed,0,255)
-	thinned=zhangSuen(edges)
+	# edges = cv2.Canny(processed,0,255)
+	thinned=zhangSuen(processed)
 	cv2.imshow('processed',thinned)
 
 
 	print processed.shape
-	cv2.waitKey(5)
+	cv2.waitKey(0)
 	cv2.destroyAllWindows()
 	pts,x,y =get_raw_points(thinned)
-	
+	pts=np.array(pts)
+	centroid=centroid(pts)
+	print centroid
+
+	pts=pts[ConvexHull(pts).vertices]
 	traj,x,y,z =fit_plane(x,y)
-	
-	# print x,y,z
-	plot_points(x,y,z)
-	# plot_points(x1,y1,z1)
-
-	
-	
+	# print pts
 	
 
-
-if __name__ == '__main__':
-	main()
+	plot_points(pts[:,0],pts[:,1],z,centroid)
+	
