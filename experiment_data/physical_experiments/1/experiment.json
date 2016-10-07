@@ -17,7 +17,7 @@
     "simulation": {
         "init": 200,
         "render": true,
-        "update_iterations": 3,
+        "update_iterations": 1,
         "multipart": true
     },
     "shapecloth": {
@@ -28,7 +28,7 @@
         "height": 25,
         "dx": 20,
         "dy": 20,
-        "gravity": -2500,
+        "gravity": -2000,
         "elasticity": 1.0,
         "pin_cond": "default"
     },

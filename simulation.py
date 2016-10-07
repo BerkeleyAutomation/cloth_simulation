@@ -90,10 +90,12 @@ class Simulation(object):
                 else:
                     vec = [0,0]
                 print vec, sum(vec), self.lastvec == None, self.lastvec
-                if self.timer < 1 or sum(vec) > 0 or self.lastvec == None:
+                # if sum(vec) == -50:
+                    # IPython.embed()
+                if self.timer < 1 or np.max(np.abs(vec)) > 0 or self.lastvec == None:
                     self.timer = 7
                     self.lastvec = vec
-                if sum(self.lastvec) > 0:
+                if sum(self.lastvec) != 0:
                     print "arr"
                     ax.arrow(self.lastx, self.lasty, self.lastvec[0] , self.lastvec[1], head_width=20, head_length=20, width=10, color='red')
             self.lastx, self.lasty = tensionerx, tensionery
