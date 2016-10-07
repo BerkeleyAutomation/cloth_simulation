@@ -10,12 +10,12 @@ import notch
 
 MAPPING = {
     0 : (0,0,0),
-    1 : (-2.75,0,0),
-    2 : (0,2.75,0),
+    1 : (-2.5,0,0),
+    2 : (0,2.5,0),
     3 : (0,0,0),
-    4 : (2.75,0,0),
-    5 : (0,-2.75,0),
-    6 : (0,0,0) #-
+    4 : (2.5,0,0),
+    5 : (0,-2.5,0),
+    6 : (0,0,0)
 }
 
 class ScissorArm(robot):
@@ -70,6 +70,9 @@ class ScissorArm(robot):
             angle = self.angles[self.idx+1]
             print self.angles[self.idx+1]
         print self.idx, frame
+        if self.idx < 4:
+            self.idx += 1
+            return
         self.move_cartesian_frame_linear_interpolation(frame, 0.04)
         self.open_gripper(1)
         time.sleep(2.5)
@@ -102,7 +105,7 @@ class ScissorArm(robot):
         self.open_gripper(-15)
         time.sleep(2)
         frame = get_frame(np.ravel(self.get_current_cartesian_position().position) + np.array([0,0.018,0.01]), 0)
-        self.move_cartesian_frame_linear_interpolation(frame, 0.1)
+        # self.move_cartesian_frame_linear_interpolation(frame, 0.1)
         time.sleep(2)
         self.home()
         time.sleep(1)
@@ -112,13 +115,14 @@ class ScissorArm(robot):
         pt[2] += 0.0005
         print pt
         notch.cut_notch_angle(pt, self, angle)
+        print "WAT"
         time.sleep(2)
         # self.gripper.execute_action((0, 0, 2))
         frame = tfx.pose(np.ravel(self.get_current_cartesian_position().position) + np.array([0,0,0.005]), np.array(self.get_current_cartesian_position().orientation))
-        self.move_cartesian_frame_linear_interpolation(frame, 0.1)
-        time.sleep(2)
-        frame = get_frame(np.ravel(self.get_current_cartesian_position().position), -50)
-        self.move_cartesian_frame_linear_interpolation(frame, 0.04)
+        # self.move_cartesian_frame_linear_interpolation(frame, 0.1)
+        # time.sleep(2)
+        # frame = get_frame(np.ravel(self.get_current_cartesian_position().position), -50)
+        # self.move_cartesian_frame_linear_interpolation(frame, 0.04)
         time.sleep(2)
         self.open_gripper(1)
         time.sleep(2)

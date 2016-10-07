@@ -16,7 +16,7 @@
     },
     "simulation": {
         "init": 200,
-        "render": false,
+        "render": true,
         "update_iterations": 3,
         "multipart": true
     },
@@ -28,7 +28,7 @@
         "height": 25,
         "dx": 20,
         "dy": 20,
-        "gravity": -2000,
+        "gravity": -2500,
         "elasticity": 1.0,
         "pin_cond": "default"
     },

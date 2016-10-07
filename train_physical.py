@@ -170,7 +170,7 @@ if __name__ == '__main__':
         pts_to_test = np.random.permutation(np.array(pts_to_test)[indices,:].tolist())
 
     print pts_to_test
-    pts_to_test = np.array([(300, 300), (250, 300), (200, 200), (100, 400), (400, 100)] + pts_to_test.tolist())
+    pts_to_test = np.array([(170, 370), (200, 400), (100, 300), (100, 400)] + pts_to_test.tolist())
     # IPython.embed()
     # simulation.render = True
     # pts_to_test = [[170, 340]]

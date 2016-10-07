@@ -43,6 +43,8 @@ class Simulation(object):
                 for j in range(len(trajectory[i])):
                     traj.append(trajectory[i][j])
             self.trajectory = traj
+        self.lastvec = None
+        self.timer = 5
 
 
 
@@ -79,13 +81,21 @@ class Simulation(object):
         if len(self.tensioners) > 0:
             tensionerx, tensionery = self.tensioners[0].x, self.tensioners[0].y
             plt.scatter([tensionerx], [tensionery], c='black', s=200)
-            if self.lastx != None and (self.lastx != tensionerx or self.lasty != tensionery):
+            if self.lastx != None and ((self.lastx != tensionerx or self.lasty != tensionery) or self.timer > 0):
+                self.timer -= 1
                 print self.lastx, self.lasty, tensionerx, tensionery
                 vec = np.array([tensionerx-self.lastx, tensionery-self.lasty])
-                vec = vec / np.linalg.norm(vec) * 50
-                print vec
-                ax.arrow(self.lastx, self.lasty, vec[0] , vec[1], head_width=10, head_length=20, width=3, color='Teal')
-                self.lastvec = vec
+                if np.linalg.norm(vec) > 0:
+                    vec = vec / np.linalg.norm(vec) * 50
+                else:
+                    vec = [0,0]
+                print vec, sum(vec), self.lastvec == None, self.lastvec
+                if self.timer < 1 or sum(vec) > 0 or self.lastvec == None:
+                    self.timer = 7
+                    self.lastvec = vec
+                if sum(self.lastvec) > 0:
+                    print "arr"
+                    ax.arrow(self.lastx, self.lasty, self.lastvec[0] , self.lastvec[1], head_width=20, head_length=20, width=10, color='red')
             self.lastx, self.lasty = tensionerx, tensionery
 
         plt.axis([0, 600, 0, 600])

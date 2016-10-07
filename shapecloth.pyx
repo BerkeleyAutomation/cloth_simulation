@@ -325,7 +325,7 @@ class ShapeCloth(Cloth):
         newinarea = np.sum(grid2)
         
         ########################
-        # newinarea = 0
+        newinarea = 0
         ########################
 
         din = self.in_area - newinarea
