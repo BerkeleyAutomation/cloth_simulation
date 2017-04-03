@@ -262,7 +262,7 @@ def load_rect_simulation_from_config(fname="config_files/default.json", width=20
     shape_fn = rect_fn(width, height, dx=20, dy=20)
     trajectory = pxpts
     cloth = ShapeCloth(shape_fn, mouse, cloth["width"], cloth["height"], cloth["dx"], cloth["dy"], 
-        cloth["gravity"], cloth["elasticity"], cloth["pin_cond"], bounds, blobs, corners)
+        cloth["gravity"], cloth["elasticity"], cloth["pin_cond"], bounds, None, None)
     simulation = data["simulation"]
     if multipart:
         # Find the notch points and segments to complete the trajectory
@@ -335,6 +335,8 @@ def write_trajectory_to_file(trajectory, fname):
 if __name__ == "__main__":
     if len(sys.argv) <= 1:
         shape_fn = lambda x, y: abs((x - 300) **2 + (y - 300) ** 2 - 150 **2) < 2000
+    elif sys.argv[1] == 'rect':
+        shape_fn = lambda x, y: (abs(x - 200) < 10 and (200 < y < 400) or abs(x - 400) < 10 and (200 < y < 400)) or (abs(y - 200) < 10 and (200 < x < 400) or abs(y - 400) < 10 and (200 < x < 400))
     else:
         shape_fn=None
 
