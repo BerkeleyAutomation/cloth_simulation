@@ -73,7 +73,7 @@ class Simulation(object):
         bpts = np.array(bpts)
         ax = plt.gca()
         if len(pts) > 0:
-            plt.scatter(pts[:,0], pts[:,1], c='w')
+            plt.scatter(pts[:,0], pts[:,1],color = '0.75')
         if len(cpts) > 0:
             plt.scatter(cpts[:,0], cpts[:,1], c='b')
         if len(bpts) > 0:
@@ -83,20 +83,20 @@ class Simulation(object):
             plt.scatter([tensionerx], [tensionery], c='black', s=200)
             if self.lastx != None and ((self.lastx != tensionerx or self.lasty != tensionery) or self.timer > 0):
                 self.timer -= 1
-                print self.lastx, self.lasty, tensionerx, tensionery
+                # print self.lastx, self.lasty, tensionerx, tensionery
                 vec = np.array([tensionerx-self.lastx, tensionery-self.lasty])
                 if np.linalg.norm(vec) > 0:
                     vec = vec / np.linalg.norm(vec) * 50
                 else:
                     vec = [0,0]
-                print vec, sum(vec), self.lastvec == None, self.lastvec
+                # print vec, sum(vec), self.lastvec == None, self.lastvec
                 # if sum(vec) == -50:
                     # IPython.embed()
                 if self.timer < 1 or np.max(np.abs(vec)) > 0 or self.lastvec == None:
                     self.timer = 7
                     self.lastvec = vec
                 if sum(self.lastvec) != 0:
-                    print "arr"
+                    # print "arr"
                     ax.arrow(self.lastx, self.lasty, self.lastvec[0] , self.lastvec[1], head_width=20, head_length=20, width=10, color='red')
             self.lastx, self.lasty = tensionerx, tensionery
 
