@@ -1,7 +1,0 @@
-TO RUN AN EXPERIMENT
-
-1. Create a folder in /experiment_data/experiments with gauzepts.p for corners and gauzepts2.p for points on the perimeter of the shape and a config file.
-2. Load points and create a trajectory or list of subtrajectories in 2d pixel space. Save a 3d trajectory somewhere for later
-3. Call load_simulation_from_config in simulation.py with filename, trajectory, and a boolean that indicates whether or not the trajectory has subtrajectories. This returns a configured simulation object.
-4. Run trpo_discrete_pin.py in environment_rep with the correct input arguments to the PolicyGenerator. This should dump a policy to file.
-5. Run physical_experiment.py with the correct filenames to play the plan back on the robot.

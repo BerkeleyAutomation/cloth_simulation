@@ -1,6 +1,3 @@
-# import pyximport
-# pyximport.install()
-
 import matplotlib.pyplot as plt
 import numpy as np
 import sys
@@ -58,12 +55,12 @@ if __name__ == "__main__":
         pts = np.array([[p.x, p.y] for p in c.normalpts])
         cpts = np.array([[p.x, p.y] for p in c.shapepts])
         if len(pts) > 0:
-            plt.scatter(pts[:,0], pts[:,1], c='w')
+            plt.scatter(pts[:,0], pts[:,1], c='g')
         if len(cpts) > 0:
             plt.scatter(cpts[:,0], cpts[:,1], c='b')
         ax = plt.gca()
         plt.axis([0, 600, 0, 600])
-        ax.set_axis_bgcolor('white')
+        # ax.set_axis_bgcolor('white')
         plt.pause(0.01)
         c.update()
         
